@@ -1,0 +1,3768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I3S Expectations</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Avenir', 'Century Gothic', 'Arial Rounded MT Bold', sans-serif;
+            background: #FAF9F6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .widget-container { 
+            background: #333333;
+            border: none;
+            border-radius: 24px; 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 40px; 
+            width: 100%; 
+            max-width: 1600px;
+        }
+
+        .header {
+            text-align: left;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #FFFFFF;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Locked In Toggle */
+        .lock-toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .lock-status {
+            font-size: 1.2em;
+            font-weight: 800;
+            text-transform: lowercase;
+            transition: all 0.3s;
+        }
+
+        .lock-status.locked {
+            color: #70B35C;
+        }
+
+        .lock-status.released {
+            color: #E75480;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 80px;
+            height: 40px;
+            background: #E75480;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.locked {
+            background: #70B35C;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 32px;
+            height: 32px;
+            background: #FFFFFF;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.locked .toggle-slider {
+            transform: translateX(40px);
+        }
+
+        /* CFU Dropdown */
+        .cfu-dropdown-container {
+            position: relative;
+        }
+
+        .cfu-dropdown-btn {
+            background: #F5E6A8;
+            color: #333;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9em;
+            text-transform: lowercase;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .cfu-dropdown-btn:hover {
+            background: #E8D68F;
+            transform: translateY(-2px);
+        }
+
+        .cfu-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            min-width: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            padding: 8px;
+        }
+
+        .cfu-dropdown-menu.show {
+            display: block;
+            animation: dropdownFade 0.2s ease-out;
+        }
+
+        @keyframes dropdownFade {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cfu-dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .cfu-dropdown-item:hover {
+            background: #F8EDEB;
+            transform: translateX(4px);
+        }
+
+        /* CFU Popup */
+        .cfu-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .cfu-popup-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .cfu-popup {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: popupSlide 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes popupSlide {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .cfu-popup-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #E75480;
+            color: #FFFFFF;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            font-weight: 700;
+            line-height: 1;
+            transition: all 0.3s;
+        }
+
+        .cfu-popup-close:hover {
+            background: #D64070;
+            transform: rotate(90deg);
+        }
+
+        .cfu-popup-icon {
+            font-size: 4em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .cfu-popup-title {
+            font-size: 2em;
+            font-weight: 800;
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            text-transform: lowercase;
+        }
+
+        .cfu-popup-instruction {
+            background: #F8EDEB;
+            padding: 30px;
+            border-radius: 16px;
+            font-size: 1.3em;
+            line-height: 1.8;
+            color: #333;
+            text-align: center;
+            font-weight: 600;
+        }
+
+
+        .page-nav {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 0;
+        }
+
+        .page-nav::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .page-nav::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .page-nav::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .page-tab {
+            padding: 14px 28px;
+            background: #F8EDEB;
+            border: none;
+            border-radius: 16px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95em;
+            font-weight: 700;
+            text-transform: lowercase;
+            white-space: nowrap;
+        }
+
+        .page-tab:hover {
+            background: #E8E0DE;
+            transform: translateY(-2px);
+        }
+
+        .page-tab.active {
+            background: #F5E6A8;
+            color: #333;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Progress Page */
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+
+        .progress-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .progress-card:nth-child(1) { background: #E8B4B8; }
+        .progress-card:nth-child(2) { background: #E8C4E8; }
+        .progress-card:nth-child(3) { background: #C4D8E8; }
+        .progress-card:nth-child(4) { background: #C8E8C0; }
+        .progress-card:nth-child(5) { background: #F5D5B8; }
+
+        .progress-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .progress-title {
+            font-size: 0.95em;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 10px;
+            text-transform: lowercase;
+        }
+
+        .progress-percentage {
+            font-size: 2.5em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            transition: all 0.5s;
+            border-radius: 5px;
+            background: #333;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75em;
+            color: #333;
+        }
+
+        .progress-stat-label {
+            text-transform: lowercase;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-stat-value {
+            font-size: 1.2em;
+            font-weight: 800;
+            color: #333;
+            margin-top: 4px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .date-selector label {
+            font-size: 0.85em;
+            color: #999;
+            font-weight: 600;
+            text-transform: lowercase;
+        }
+
+        .date-selector input {
+            padding: 10px 14px;
+            background: #F8EDEB;
+            border: none;
+            border-radius: 10px;
+            color: #333;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .btn-export {
+            background: #F8EDEB;
+            border: none;
+            color: #333;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            text-transform: lowercase;
+            font-size: 0.75em;
+        }
+
+        .btn-export:hover {
+            background: #E8E0DE;
+            color: #333;
+        }
+
+        /* Expectations Page */
+        .expectations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .expectation-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .expectation-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .expectation-header {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .expectation-number {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: 800;
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .expectation-card:nth-child(1) .expectation-number { background: #E75480; }
+        .expectation-card:nth-child(2) .expectation-number { background: #D675D6; }
+        .expectation-card:nth-child(3) .expectation-number { background: #5B9BD5; }
+        .expectation-card:nth-child(4) .expectation-number { background: #70B35C; }
+        .expectation-card:nth-child(5) .expectation-number { background: #E8A54D; }
+
+        .expectation-title {
+            font-size: 1.1em;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 8px;
+            text-transform: lowercase;
+            padding-left: 52px;
+        }
+
+        .expectation-description {
+            font-size: 0.85em;
+            color: #333;
+            line-height: 1.5;
+            font-weight: 500;
+            padding-left: 52px;
+        }
+
+        .expectation-students {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .expectation-student {
+            position: relative;
+            background: #E8B4B8;
+            color: #333;
+            padding: 10px 6px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.8em;
+        }
+
+        .expectation-card:nth-child(1) .expectation-student { background: #E8B4B8; }
+        .expectation-card:nth-child(2) .expectation-student { background: #E8C4E8; }
+        .expectation-card:nth-child(3) .expectation-student { background: #C4D8E8; }
+        .expectation-card:nth-child(4) .expectation-student { background: #C8E8C0; }
+        .expectation-card:nth-child(5) .expectation-student { background: #F5D5B8; }
+
+        .expectation-student:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        .expectation-student.has-infractions {
+            background: rgba(231, 84, 128, 0.3);
+            color: #E75480;
+        }
+
+        .expectation-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #E75480;
+            color: #FFFFFF;
+            border-radius: 50%;
+            min-width: 22px;
+            height: 22px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: 700;
+            border: 2px solid #FFFFFF;
+        }
+
+        .expectation-student.has-infractions .expectation-badge {
+            display: flex;
+        }
+
+        .btn-clear {
+            background: #F8EDEB;
+            border: none;
+            color: #333;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: lowercase;
+            font-size: 0.75em;
+            transition: all 0.3s;
+        }
+
+        .btn-clear:hover {
+            background: #E8E0DE;
+            color: #333;
+        }
+
+        @media (max-width: 1200px) {
+            .progress-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Transitions Page */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .metric-box {
+            background: #FFFFFF;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .metric-label {
+            font-size: 0.75em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: lowercase;
+        }
+
+        #targetTimeInput, #actualTimeDisplay {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #333;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: center;
+        }
+
+        #weeklyTrackerDisplay {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        #transitionRatingDisplay {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .controls-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 12px;
+            background: #F8EDEB;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: lowercase;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        #startButton {
+            background: #F5E6A8;
+            color: #333;
+        }
+
+        #startButton:hover:not(:disabled) {
+            background: #E8D68F;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        #notesInput {
+            width: 100%;
+            min-height: 100px;
+            padding: 14px;
+            background: #FFFFFF;
+            border: none;
+            border-radius: 12px;
+            resize: vertical;
+            font-size: 0.9em;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .student-section {
+            background: #FFFFFF;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .student-section h3 {
+            font-size: 0.9em;
+            color: #333;
+            text-transform: lowercase;
+            font-weight: 600;
+        }
+
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+        }
+
+        .student-initial {
+            position: relative;
+            background: #F5E6A8;
+            color: #333;
+            padding: 12px 8px;
+            text-align: center;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.85em;
+            box-shadow: 0 2px 8px rgba(245, 230, 168, 0.3);
+        }
+
+        .student-initial:hover {
+            background: #E8D68F;
+        }
+
+        .tally-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #E75480;
+            color: #FFFFFF;
+            border-radius: 50%;
+            min-width: 24px;
+            height: 24px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+            font-weight: 700;
+            border: 2px solid #F5E6A8;
+        }
+
+        .student-initial.tally-active .tally-count {
+            display: flex;
+        }
+
+        .btn-reset {
+            background: #666;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: lowercase;
+            font-size: 0.75em;
+            border: none;
+        }
+
+        .btn-reset:hover {
+            background: #555;
+        }
+
+        .btn-weekly-reset {
+            background: #F5E6A8;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: lowercase;
+            font-size: 0.75em;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-weekly-reset:hover {
+            background: #E8D68F;
+        }
+
+        /* Calendar Page */
+        .calendar-container {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .calendar-nav button {
+            background: #F8EDEB;
+            border: none;
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: lowercase;
+            font-size: 0.8em;
+            transition: all 0.3s;
+        }
+
+        .calendar-nav button:hover {
+            background: #E8E0DE;
+        }
+
+        .calendar-month-year {
+            font-size: 1.2em;
+            font-weight: 800;
+            color: #333;
+            text-transform: lowercase;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 700;
+            color: #666;
+            padding: 8px;
+            font-size: 0.75em;
+            text-transform: lowercase;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #F8EDEB;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 6px;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: #E8E0DE;
+            transform: translateY(-2px);
+        }
+
+        .calendar-day.today {
+            background: #F5E6A8;
+            font-weight: 800;
+        }
+
+        .calendar-day.has-data {
+            background: #C4D8E8;
+        }
+
+        .calendar-day.has-data:hover {
+            background: #B4C8D8;
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .calendar-day.other-month:hover {
+            background: #F8EDEB;
+            transform: none;
+        }
+
+        .calendar-day-number {
+            font-size: 0.95em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .calendar-day-indicator {
+            width: 5px;
+            height: 5px;
+            background: #5B9BD5;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 4px;
+        }
+
+        .calendar-data-preview {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px solid #F8EDEB;
+        }
+
+        .calendar-data-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .calendar-data-date {
+            font-size: 1.2em;
+            font-weight: 800;
+            color: #333;
+            text-transform: lowercase;
+        }
+
+        .calendar-data-summary {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .calendar-summary-card {
+            background: #F8EDEB;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .calendar-summary-card.has-infractions {
+            background: rgba(231, 84, 128, 0.2);
+        }
+
+        .calendar-summary-title {
+            font-size: 0.75em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+            text-transform: lowercase;
+        }
+
+        .calendar-summary-value {
+            font-size: 1.8em;
+            font-weight: 800;
+            color: #333;
+        }
+
+        .calendar-empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        /* Recent Tallies Notification Bar */
+        .recent-tallies-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .recent-tallies-label {
+            color: #FFFFFF;
+            font-size: 0.85em;
+            font-weight: 700;
+            text-transform: lowercase;
+            white-space: nowrap;
+        }
+
+        .recent-tallies-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .recent-tally-item {
+            background: #F5E6A8;
+            color: #333;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            font-weight: 700;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .recent-tallies-empty {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8em;
+            font-style: italic;
+        }
+
+        /* Undo Button */
+        .undo-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .btn-undo {
+            background: #E75480;
+            color: #FFFFFF;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85em;
+            box-shadow: 0 4px 12px rgba(231, 84, 128, 0.4);
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .btn-undo.visible {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-undo:hover {
+            background: #D64070;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(231, 84, 128, 0.5);
+        }
+
+        /* Statistics Page */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-card h3 {
+            font-size: 1.1em;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 16px;
+            text-transform: lowercase;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: #F8EDEB;
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1em;
+            font-weight: 800;
+            color: #333;
+        }
+
+        .chart-container {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.1em;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 32px;
+            text-transform: lowercase;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            height: 200px;
+            padding: 20px 0;
+            padding-bottom: 50px;
+            margin-top: 20px;
+        }
+
+        .bar {
+            flex: 1;
+            background: #C4D8E8;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            transition: all 0.3s;
+            min-height: 20px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 8px;
+        }
+
+        .bar:nth-child(1) { background: #E8B4B8; }
+        .bar:nth-child(2) { background: #E8C4E8; }
+        .bar:nth-child(3) { background: #C4D8E8; }
+        .bar:nth-child(4) { background: #C8E8C0; }
+        .bar:nth-child(5) { background: #F5D5B8; }
+
+        .bar:hover {
+            opacity: 0.8;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+            font-weight: 800;
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .bar:nth-child(1) .bar-label { background: #E75480; }
+        .bar:nth-child(2) .bar-label { background: #D675D6; }
+        .bar:nth-child(3) .bar-label { background: #5B9BD5; }
+        .bar:nth-child(4) .bar-label { background: #70B35C; }
+        .bar:nth-child(5) .bar-label { background: #E8A54D; }
+
+        .bar-value {
+            font-size: 0.85em;
+            font-weight: 800;
+            color: #333;
+        }
+
+        /* Week View */
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+
+        .week-day-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .week-day-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .week-day-card.today {
+            border: 3px solid #F5E6A8;
+        }
+
+        .week-day-header {
+            font-size: 1em;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 12px;
+            text-transform: lowercase;
+        }
+
+        .week-day-date {
+            font-size: 0.75em;
+            color: #999;
+            margin-bottom: 16px;
+        }
+
+        .week-day-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .week-stat {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+        }
+
+        .week-stat-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .week-stat-value {
+            font-weight: 800;
+            color: #333;
+        }
+
+        /* Student Profiles */
+        .student-profile-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .student-profile-card {
+            background: #F5E6A8;
+            padding: 16px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(245, 230, 168, 0.3);
+        }
+
+        .student-profile-card:hover {
+            background: #E8D68F;
+            transform: translateY(-2px);
+        }
+
+        .student-detail-view {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+
+        .student-detail-view.active {
+            display: block;
+        }
+
+        .student-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #F8EDEB;
+        }
+
+        .student-name {
+            font-size: 1.5em;
+            font-weight: 800;
+            color: #333;
+        }
+
+        .btn-back {
+            background: #F8EDEB;
+            border: none;
+            color: #333;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+
+        .student-history {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            background: #F8EDEB;
+            padding: 16px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-expectation {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .history-count {
+            font-weight: 800;
+            color: #E75480;
+        }
+
+        /* Tools Page */
+        .tool-view {
+            display: none;
+        }
+
+        .tool-view.active {
+            display: block;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .tool-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .tool-card h3 {
+            font-size: 1.2em;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 16px;
+            text-transform: lowercase;
+        }
+
+        .random-picker-display {
+            background: #F5E6A8;
+            padding: 40px;
+            text-align: center;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .picked-student {
+            font-size: 3em;
+            font-weight: 800;
+            color: #333;
+            animation: bounceIn 0.5s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .btn-picker {
+            background: #5B9BD5;
+            color: #FFFFFF;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1em;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn-picker:hover {
+            background: #4A8AC5;
+            transform: translateY(-2px);
+        }
+
+        .transition-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transition-history-item {
+            background: #F8EDEB;
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .history-time {
+            font-size: 0.85em;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .history-rating {
+            font-weight: 800;
+            font-size: 0.9em;
+        }
+
+        .history-rating.fab { color: #70B35C; }
+        .history-rating.good { color: #5B9BD5; }
+        .history-rating.ok { color: #E8A54D; }
+        .history-rating.np { color: #E75480; }
+
+        .history-details {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .history-notes {
+            font-size: 0.85em;
+            color: #333;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #E8E0DE;
+            font-style: italic;
+        }
+
+        .btn-generate-report {
+            background: #70B35C;
+            color: #FFFFFF;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1em;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 12px;
+        }
+
+        .btn-generate-report:hover {
+            background: #5FA04C;
+            transform: translateY(-2px);
+        }
+
+        .report-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .report-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #F8EDEB;
+            border-radius: 8px;
+        }
+
+        .report-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .report-option label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+        }
+
+        /* Check for Understanding Page */
+        .cfu-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            transition: all 0.5s ease;
+        }
+
+        .cfu-grid.expanded {
+            grid-template-columns: 1fr;
+        }
+
+        .cfu-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cfu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .cfu-card.hidden {
+            display: none;
+        }
+
+        .cfu-card.expanded {
+            cursor: default;
+            transform: none;
+        }
+
+        .cfu-icon {
+            font-size: 3em;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .cfu-title {
+            font-size: 1.3em;
+            font-weight: 800;
+            color: #333;
+            text-align: center;
+            margin-bottom: 12px;
+            text-transform: lowercase;
+        }
+
+        .cfu-subtitle {
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .cfu-instructions {
+            display: none;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px solid #F8EDEB;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        .cfu-card.expanded .cfu-instructions {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cfu-instructions h3 {
+            font-size: 1.2em;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 16px;
+            text-transform: lowercase;
+        }
+
+        .cfu-step {
+            background: #F8EDEB;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .cfu-step-number {
+            background: #5B9BD5;
+            color: #FFFFFF;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .cfu-step-content {
+            flex: 1;
+        }
+
+        .cfu-step-title {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .cfu-step-description {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .cfu-close-btn {
+            background: #E75480;
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9em;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .cfu-close-btn:hover {
+            background: #D64070;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="widget-container">
+    <div class="header">
+        <h1>I3S</h1>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <!-- Page Navigation -->
+            <div class="page-nav">
+                <div class="page-tab active" data-page="progress">our progress</div>
+                <div class="page-tab" data-page="transitions">transitions</div>
+                <div class="page-tab" data-page="tools">tools</div>
+                <div class="page-tab" data-page="expectations">teacher input</div>
+            </div>
+            
+            <!-- CFU Dropdown -->
+            <div class="cfu-dropdown-container">
+                <button class="cfu-dropdown-btn" id="cfuDropdownBtn">cfu ▼</button>
+                <div class="cfu-dropdown-menu" id="cfuDropdownMenu">
+                    <div class="cfu-dropdown-item" onclick="showCFUPopup('write')">drop everything and write</div>
+                    <div class="cfu-dropdown-item" onclick="showCFUPopup('donow')">do now / brain dump</div>
+                    <div class="cfu-dropdown-item" onclick="showCFUPopup('powerminute')">power minute</div>
+                    <div class="cfu-dropdown-item" onclick="showCFUPopup('thinkpairshare')">think‑pair‑share</div>
+                    <div class="cfu-dropdown-item" onclick="showCFUPopup('turntalk')">turn and talk (A and B)</div>
+                    <div class="cfu-dropdown-item" onclick="showCFUPopup('wholeclass')">whole class discussion</div>
+                    <div class="cfu-dropdown-item" onclick="showCFUPopup('coldcall')">cold calling</div>
+                    <div class="cfu-dropdown-item" onclick="showCFUPopup('thinkdiscuss')">think‑discuss‑reflect</div>
+                    <div class="cfu-dropdown-item" onclick="showCFUPopup('turnteach')">turn and teach</div>
+                    <div class="cfu-dropdown-item" onclick="showCFUPopup('spotmistake')">spot and explain the mistake</div>
+                    <div class="cfu-dropdown-item" onclick="showCFUPopup('chinit')">chin it</div>
+                </div>
+            </div>
+            
+            <div class="lock-toggle-container">
+                <div class="lock-status released" id="lockStatus">released</div>
+                <div class="toggle-switch" id="lockToggle" onclick="toggleLockStatus()">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Progress Page -->
+    <div class="page active" id="progress-page">
+        <!-- Quick Transition Timer -->
+        <div style="padding: 20px 0; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px;">
+                <div class="metric-box">
+                    <div class="metric-label">target (mm:ss)</div>
+                    <input type="text" id="quickTargetTimeInput" value="01:30" maxlength="5" placeholder="MM:SS" style="font-size: 1.8em; font-weight: 700; color: #333; border: none; background: none; width: 100%; text-align: center;">
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">actual time</div>
+                    <div id="quickActualTimeDisplay" style="font-size: 1.8em; font-weight: 700; color: #333;">0:00</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">weekly tracker %</div>
+                    <div id="quickWeeklyTrackerDisplay" style="font-size: 1.8em; font-weight: 700; color: #333;">100</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">transition rating</div>
+                    <div id="quickTransitionRatingDisplay" style="font-size: 1.8em; font-weight: 700; color: #333;">---</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                <button id="quickStartButton" class="btn" style="background: #F5E6A8; color: #333;">start</button>
+                <button id="quickPauseButton" class="btn" disabled>pause</button>
+                <button id="quickResumeButton" class="btn" disabled>resume</button>
+                <button id="quickCompleteButton" class="btn" disabled>complete</button>
+            </div>
+        </div>
+
+        <div class="progress-grid" id="progressGrid"></div>
+    </div>
+
+    <!-- Class Expectations Page -->
+    <div class="page" id="expectations-page">
+        <div class="controls">
+            <div class="date-selector">
+                <label>date:</label>
+                <input type="date" id="expectationDate">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-export" onclick="exportExpectations()">export to csv</button>
+                <button class="btn-clear" onclick="clearDay()">clear today's data</button>
+                <button class="btn" onclick="undoLastAction()" id="undoButton">↶ undo</button>
+            </div>
+        </div>
+        <div class="expectations-grid" id="expectationsGrid"></div>
+    </div>
+
+    <!-- Transitions Page -->
+    <div class="page" id="transitions-page">
+        <div class="recent-tallies-bar">
+            <div class="recent-tallies-label">recent +1s:</div>
+            <div class="recent-tallies-list" id="recentTalliesList">
+                <div class="recent-tallies-empty">no recent tallies</div>
+            </div>
+        </div>
+        
+        <div class="metrics-row">
+            <div class="metric-box">
+                <div class="metric-label">target (mm:ss)</div>
+                <input type="text" id="targetTimeInput" value="01:30" maxlength="5" placeholder="MM:SS">
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">actual time</div>
+                <div id="actualTimeDisplay">0:00</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">weekly tracker %</div>
+                <div id="weeklyTrackerDisplay">100</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">transition rating</div>
+                <div id="transitionRatingDisplay">---</div>
+            </div>
+            <div class="metric-box" style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px;">
+                <button id="weeklyResetButton" class="btn-weekly-reset">reset weekly %</button>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div>
+                <div class="metric-label" style="margin-bottom: 8px;">notes</div>
+                <textarea id="notesInput" placeholder="Add notes about this transition..."></textarea>
+            </div>
+
+            <div>
+                <div class="controls-section">
+                    <button id="startButton" class="btn">start</button>
+                    <button id="pauseButton" class="btn" disabled>pause</button>
+                    <button id="resumeButton" class="btn" disabled>resume</button>
+                    <button id="completeButton" class="btn" disabled>complete</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="student-section">
+            <div class="student-header">
+                <h3>student participation tally</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button id="resetTallyButton" class="btn-reset">reset tallies</button>
+                    <button class="btn" onclick="undoLastAction()">↶ undo</button>
+                </div>
+            </div>
+            <div class="student-grid" id="studentGrid"></div>
+        </div>
+    </div>
+
+    <!-- CFU Popup Overlay -->
+    <div class="cfu-popup-overlay" id="cfuPopupOverlay" onclick="closeCFUPopup(event)">
+        <div class="cfu-popup" onclick="event.stopPropagation()">
+            <button class="cfu-popup-close" onclick="closeCFUPopup()">×</button>
+            <div class="cfu-popup-icon" id="cfuPopupIcon"></div>
+            <div class="cfu-popup-title" id="cfuPopupTitle"></div>
+            <div class="cfu-popup-instruction" id="cfuPopupInstruction"></div>
+        </div>
+    </div>
+
+    <!-- Tools Page -->
+    <div class="page" id="tools-page">
+        <!-- Tools Sub-Navigation -->
+        <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+            <button class="page-tab tools-sub-nav active" data-subtool="calendar" onclick="switchToolView('calendar')">calendar view</button>
+            <button class="page-tab tools-sub-nav" data-subtool="statistics" onclick="switchToolView('statistics')">statistics</button>
+            <button class="page-tab tools-sub-nav" data-subtool="students" onclick="switchToolView('students')">student profiles</button>
+            <button class="page-tab tools-sub-nav" data-subtool="picker" onclick="switchToolView('picker')">random picker</button>
+            <button class="page-tab tools-sub-nav" data-subtool="history" onclick="switchToolView('history')">transition history</button>
+            <button class="page-tab tools-sub-nav" data-subtool="report" onclick="switchToolView('report')">generate report</button>
+        </div>
+
+        <!-- Calendar View Tool -->
+        <div class="tool-view active" id="tool-calendar">
+            <!-- Week View Section -->
+            <div style="margin-bottom: 30px;">
+                <div class="controls">
+                    <div class="date-selector">
+                        <label>week starting:</label>
+                        <input type="date" id="weekStartDate">
+                    </div>
+                </div>
+                <div class="week-grid" id="weekGrid"></div>
+            </div>
+
+            <!-- Calendar Section -->
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button id="prevMonthBtn">← prev</button>
+                        <button id="todayBtn">today</button>
+                        <button id="nextMonthBtn">next →</button>
+                    </div>
+                    <div class="calendar-month-year" id="calendarMonthYear"></div>
+                </div>
+                
+                <div class="calendar-grid" id="calendarGrid"></div>
+                
+                <div class="calendar-data-preview" id="calendarDataPreview" style="display: none;">
+                    <div class="calendar-data-header">
+                        <div class="calendar-data-date" id="selectedDateDisplay"></div>
+                        <button class="btn-export" onclick="viewFullDay()">view full day →</button>
+                    </div>
+                    <div class="calendar-data-summary" id="calendarDataSummary"></div>
+                </div>
+                
+                <div class="calendar-empty-state" id="calendarEmptyState" style="display: none;">
+                    select a date to view data
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Tool -->
+        <div class="tool-view" id="tool-statistics">
+            <div class="chart-container">
+                <div class="chart-title">weekly expectations performance</div>
+                <div class="bar-chart" id="weeklyChart">
+                    <div style="text-align: center; padding: 40px; color: #999;">Start tracking expectations to see statistics</div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>best performing expectation</h3>
+                    <div id="bestExpectation">
+                        <div style="text-align: center; color: #999;">No data yet</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3>most improved expectation</h3>
+                    <div id="mostImproved">
+                        <div style="text-align: center; color: #999;">No data yet</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3>best day this week</h3>
+                    <div id="bestDay">
+                        <div style="text-align: center; color: #999;">No data yet</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3>class average</h3>
+                    <div id="classAverage">
+                        <div style="text-align: center; color: #999;">No data yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Profiles Tool -->
+        <div class="tool-view" id="tool-students">
+            <div class="student-profile-grid" id="studentProfileGrid">
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">Loading student profiles...</div>
+            </div>
+            <div class="student-detail-view" id="studentDetailView">
+                <div class="student-detail-header">
+                    <div class="student-name" id="studentDetailName"></div>
+                    <button class="btn-back" onclick="closeStudentDetail()">← back</button>
+                </div>
+                <div class="student-history" id="studentHistoryList"></div>
+            </div>
+        </div>
+
+        <!-- Random Picker Tool -->
+        <div class="tool-view" id="tool-picker">
+            <div class="tool-card">
+                <h3>🎲 random student picker</h3>
+                <div class="random-picker-display">
+                    <div class="picked-student" id="pickedStudent">?</div>
+                </div>
+                <button class="btn-picker" onclick="pickRandomStudent()">pick a student</button>
+            </div>
+        </div>
+
+        <!-- Transition History Tool -->
+        <div class="tool-view" id="tool-history">
+            <div class="tool-card">
+                <h3>⏱️ transition history</h3>
+                <div class="transition-history-list" id="transitionHistoryList">
+                    <div style="text-align: center; padding: 40px; color: #999;">no transitions logged yet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Generator Tool -->
+        <div class="tool-view" id="tool-report">
+            <div class="tool-card">
+                <h3>📤 generate report</h3>
+                <div class="report-options">
+                    <div class="report-option">
+                        <input type="checkbox" id="reportExpectations" checked>
+                        <label for="reportExpectations">Include Expectations Data</label>
+                    </div>
+                    <div class="report-option">
+                        <input type="checkbox" id="reportTransitions" checked>
+                        <label for="reportTransitions">Include Transitions</label>
+                    </div>
+                    <div class="report-option">
+                        <input type="checkbox" id="reportStats" checked>
+                        <label for="reportStats">Include Statistics</label>
+                    </div>
+                </div>
+                <button class="btn-generate-report" onclick="generateReport()">generate & download report</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Undo Button -->
+<div class="undo-container">
+    <button class="btn-undo" id="undoButton" onclick="undoLastAction()">↶ undo</button>
+</div>
+
+<script>
+    // ============================================
+    // GOOGLE SHEETS SYNC CONFIGURATION
+    // ============================================
+    // To enable Google Sheets sync:
+    // 1. Follow instructions in SIMPLE_Google_Sheets_Setup.md
+    // 2. Paste your Apps Script Web App URL below
+    // 3. Data will automatically sync across all devices!
+    
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2-mzmVKNmuUvEKkoB_dN6ryMYeYVdWeredXl2ZuO8eTjfJSw7TO-dr1jT4Bgy5Mek/exec';
+    
+    // Sync interval (milliseconds) - checks for updates every 10 seconds
+    const SYNC_INTERVAL = 10000;
+    
+    // ============================================
+    // GOOGLE SHEETS HELPER FUNCTIONS
+    // ============================================
+    
+    async function saveToGoogleSheets(key, data) {
+        if (!APPS_SCRIPT_URL) return false;
+        
+        const value = JSON.stringify(data);
+        const url = `${APPS_SCRIPT_URL}?action=set&key=${encodeURIComponent(key)}&value=${encodeURIComponent(value)}`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                redirect: 'follow'
+            });
+            const result = await response.json();
+            return result.success;
+        } catch (error) {
+            console.error('Error saving to Google Sheets:', error);
+            return false;
+        }
+    }
+    
+    async function loadFromGoogleSheets(key) {
+        if (!APPS_SCRIPT_URL) return null;
+        
+        const url = `${APPS_SCRIPT_URL}?action=get&key=${encodeURIComponent(key)}`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                redirect: 'follow'
+            });
+            const result = await response.json();
+            if (result.success && result.data) {
+                return JSON.parse(result.data);
+            }
+            return null;
+        } catch (error) {
+            console.error('Error loading from Google Sheets:', error);
+            return null;
+        }
+    }
+    
+    // Auto-sync function - runs every 10 seconds
+    let syncIntervalId = null;
+    
+    function startAutoSync() {
+        if (!APPS_SCRIPT_URL) return;
+        
+        console.log('🔄 Auto-sync enabled - syncing every', SYNC_INTERVAL / 1000, 'seconds');
+        
+        // Initial sync
+        syncAllData();
+        
+        // Set up interval
+        syncIntervalId = setInterval(syncAllData, SYNC_INTERVAL);
+    }
+    
+    function stopAutoSync() {
+        if (syncIntervalId) {
+            clearInterval(syncIntervalId);
+            syncIntervalId = null;
+            console.log('🛑 Auto-sync stopped');
+        }
+    }
+    
+    async function syncAllData() {
+        if (!APPS_SCRIPT_URL) return;
+        
+        try {
+            const today = getTodayDate();
+            const keys = [
+                getStorageKey(today),
+                'weeklyScore',
+                'transitionHistory',
+                'i3s-locked',
+                'students'
+            ];
+            
+            for (const key of keys) {
+                try {
+                    const sheetData = await loadFromGoogleSheets(key);
+                    if (sheetData !== null) {
+                        localStorage.setItem(key, JSON.stringify(sheetData));
+                        console.log('✓ Synced:', key);
+                    }
+                } catch (error) {
+                    console.log('Sync skipped for:', key, '(no data yet)');
+                }
+            }
+            
+            // Refresh displays if data changed (only if DOM is ready)
+            try {
+                const currentPage = document.querySelector('.page.active');
+                if (currentPage && currentPage.id) {
+                    const pageId = currentPage.id;
+                    if (pageId === 'progress-page' && typeof renderProgress === 'function') {
+                        renderProgress();
+                    }
+                    if (pageId === 'expectations-page' && typeof renderExpectations === 'function') {
+                        renderExpectations();
+                    }
+                }
+            } catch (domError) {
+                // DOM not ready or element not found - this is OK, skip refresh
+            }
+        } catch (error) {
+            console.log('Sync cycle complete with some errors (this is normal on first load)');
+        }
+    }
+    
+    // ============================================
+    // ORIGINAL CODE STARTS HERE
+    // ============================================
+    
+    const STUDENT_INITIALS = [
+        'KA', 'ND', 'LD', 'WE', 'ME', 'CF', 'OG', 'MH', 'NH', 'ASJ',
+        'AJ', 'HL', 'LT', 'ML', 'BM', 'EM', 'IM', 'RN', 'IP', 'VS',
+        'MS', 'OV', 'BY', 'AZ', 'NZ'
+    ];
+
+    const CLASS_EXPECTATIONS = [
+        {
+            id: 'transitions',
+            title: 'Quick, Safe & Quiet Transitions',
+            description: 'Move efficiently between activities while maintaining safety and minimising disruption'
+        },
+        {
+            id: 'listening',
+            title: 'Eye Contact Active Listening',
+            description: 'Demonstrate engagement through eye contact and attentive listening behaviours during mini lessons'
+        },
+        {
+            id: 'focus',
+            title: 'Working With Focus & Effort',
+            description: 'Stay on task and give your best effort throughout all learning activities'
+        },
+        {
+            id: 'respect',
+            title: 'Showing Respect, Both Ways',
+            description: 'Show respect for peers, teachers, and receive respect in return'
+        },
+        {
+            id: 'space',
+            title: 'Looking After Our Class\' Space',
+            description: 'Take care of our learning environment and classroom materials'
+        }
+    ];
+
+    // localStorage for persistent storage
+    let undoStack = [];
+
+    function getTodayDate() {
+        return new Date().toISOString().split('T')[0];
+    }
+
+    function toggleLockStatus() {
+        const toggle = document.getElementById('lockToggle');
+        const status = document.getElementById('lockStatus');
+        
+        const isLocked = toggle.classList.contains('locked');
+        
+        if (isLocked) {
+            // Switch to Released - START LOOPING MUSIC!
+            toggle.classList.remove('locked');
+            status.classList.remove('locked');
+            status.classList.add('released');
+            status.textContent = 'released';
+            localStorage.setItem('lockStatus', 'released');
+            playCallCenterLoop(); // Start continuous background music
+        } else {
+            // Switch to Locked In - STOP MUSIC!
+            toggle.classList.add('locked');
+            status.classList.add('locked');
+            status.classList.remove('released');
+            status.textContent = 'locked in';
+            localStorage.setItem('lockStatus', 'locked');
+            stopCallCenterLoop(); // Stop background music
+        }
+    }
+
+    function loadLockStatus() {
+        const savedStatus = localStorage.getItem('lockStatus');
+        if (savedStatus === 'locked') {
+            document.getElementById('lockToggle').classList.add('locked');
+            document.getElementById('lockStatus').classList.add('locked');
+            document.getElementById('lockStatus').classList.remove('released');
+            document.getElementById('lockStatus').textContent = 'locked in';
+        } else {
+            // If released, start the music
+            playCallCenterLoop();
+        }
+    }
+
+    // Load lock status on page load
+    window.addEventListener('DOMContentLoaded', loadLockStatus);
+
+    function pushUndo(action) {
+        undoStack.push(action);
+        const undoButton = document.getElementById('undoButton');
+        if (undoButton) {
+            undoButton.classList.add('visible');
+        }
+        
+        // Auto-hide undo button after 10 seconds
+        setTimeout(() => {
+            if (undoStack.length > 0 && undoStack[undoStack.length - 1] === action) {
+                undoStack = [];
+                const undoButton = document.getElementById('undoButton');
+                if (undoButton) {
+                    undoButton.classList.remove('visible');
+                }
+            }
+        }, 10000);
+    }
+
+    function undoLastAction() {
+        if (undoStack.length === 0) return;
+        
+        const action = undoStack.pop();
+        
+        if (action.type === 'infraction') {
+            const date = action.date;
+            const data = getData(getStorageKey(date));
+            
+            if (data[action.expectationId] && data[action.expectationId][action.student] > 0) {
+                data[action.expectationId][action.student]--;
+                if (data[action.expectationId][action.student] === 0) {
+                    delete data[action.expectationId][action.student];
+                }
+                setData(getStorageKey(date), data);
+                
+                // Refresh current view (with null checks)
+                const expectationsPage = document.getElementById('expectations-page');
+                if (expectationsPage && expectationsPage.classList.contains('active')) {
+                    renderExpectations();
+                }
+                const progressPage = document.getElementById('progress-page');
+                if (progressPage && progressPage.classList.contains('active')) {
+                    renderProgress();
+                }
+            }
+        } else if (action.type === 'tally') {
+            const tallies = getStudentTallies();
+            if (tallies[action.student] > 0) {
+                tallies[action.student]--;
+                if (tallies[action.student] === 0) {
+                    delete tallies[action.student];
+                }
+                setStudentTallies(tallies);
+                
+                // Remove from recent tallies
+                let recent = getRecentTallies();
+                const index = recent.indexOf(action.student);
+                if (index > -1) {
+                    recent.splice(index, 1);
+                    localStorage.setItem('recentTallies', JSON.stringify(recent));
+                }
+                
+                renderStudentGrid();
+                updateRecentTalliesDisplay();
+            }
+        }
+        
+        if (undoStack.length === 0) {
+            const undoButton = document.getElementById('undoButton');
+            if (undoButton) {
+                undoButton.classList.remove('visible');
+            }
+        }
+    }
+
+    function getData(key) {
+        try {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : {};
+        } catch (error) {
+            console.error('Error reading data:', error);
+            return {};
+        }
+    }
+
+    function setData(key, data) {
+        try {
+            // Save to localStorage first (immediate, works offline)
+            localStorage.setItem(key, JSON.stringify(data));
+            
+            // Also save to Google Sheets (if enabled)
+            if (APPS_SCRIPT_URL) {
+                saveToGoogleSheets(key, data).catch(error => {
+                    console.error('Failed to sync to Google Sheets:', error);
+                });
+            }
+        } catch (error) {
+            console.error('Error saving data:', error);
+        }
+    }
+
+    function getStorageKey(date) {
+        return `expectations_${date}`;
+    }
+
+    function calculatePercentage(infractions) {
+        const deduction = Math.floor(infractions / 2);
+        return Math.max(0, 100 - deduction);
+    }
+
+    function renderProgress() {
+        const date = getTodayDate(); // Always use today's date
+        const data = getData(getStorageKey(date));
+        const grid = document.getElementById('progressGrid');
+        grid.innerHTML = '';
+
+        CLASS_EXPECTATIONS.forEach(exp => {
+            const studentData = data[exp.id] || {};
+            let totalInfractions = 0;
+            Object.values(studentData).forEach(count => totalInfractions += count);
+
+            const percentage = calculatePercentage(totalInfractions);
+            const studentsWithInfractions = Object.keys(studentData).filter(s => studentData[s] > 0).length;
+            const studentsMeeting = STUDENT_INITIALS.length - studentsWithInfractions;
+
+            const card = document.createElement('div');
+            card.className = 'progress-card';
+            card.innerHTML = `
+                <div class="progress-title">${exp.title}</div>
+                <div class="progress-percentage">${percentage}%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${percentage}%"></div>
+                </div>
+                <div class="progress-stats">
+                    <div>
+                        <div class="progress-stat-label">total infractions</div>
+                        <div class="progress-stat-value">${totalInfractions > 0 ? '-' : ''}${totalInfractions}</div>
+                    </div>
+                    <div>
+                        <div class="progress-stat-label">students meeting</div>
+                        <div class="progress-stat-value">${studentsMeeting}/${STUDENT_INITIALS.length}</div>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function renderExpectations() {
+        const date = document.getElementById('expectationDate').value;
+        const data = getData(getStorageKey(date));
+        const grid = document.getElementById('expectationsGrid');
+        grid.innerHTML = '';
+
+        CLASS_EXPECTATIONS.forEach((exp, index) => {
+            const studentData = data[exp.id] || {};
+            
+            const card = document.createElement('div');
+            card.className = 'expectation-card';
+            
+            const header = `
+                <div class="expectation-header">
+                    <div class="expectation-number">${index + 1}</div>
+                    <div class="expectation-title">${exp.title}</div>
+                    <div class="expectation-description">${exp.description}</div>
+                </div>
+            `;
+            
+            const studentsHTML = STUDENT_INITIALS.map(initial => {
+                const count = studentData[initial] || 0;
+                const hasClass = count > 0 ? 'has-infractions' : '';
+                const badge = count > 0 ? `<span class="expectation-badge">-${count}</span>` : '';
+                return `<div class="expectation-student ${hasClass}" onclick="addInfraction('${exp.id}', '${initial}')">${initial}${badge}</div>`;
+            }).join('');
+            
+            card.innerHTML = header + `<div class="expectation-students">${studentsHTML}</div>`;
+            grid.appendChild(card);
+        });
+    }
+
+    function addInfraction(expectationId, studentInitial) {
+        const date = document.getElementById('expectationDate').value;
+        const data = getData(getStorageKey(date));
+        
+        if (!data[expectationId]) data[expectationId] = {};
+        if (!data[expectationId][studentInitial]) data[expectationId][studentInitial] = 0;
+        
+        data[expectationId][studentInitial]++;
+        
+        // Push to undo stack
+        pushUndo({
+            type: 'infraction',
+            date: date,
+            expectationId: expectationId,
+            student: studentInitial
+        });
+        
+        setData(getStorageKey(date), data);
+        renderExpectations();
+        
+        // Also refresh progress if it's for today
+        if (getTodayDate() === date) {
+            renderProgress();
+        }
+    }
+
+    function clearDay() {
+        const date = document.getElementById('expectationDate').value;
+        if (confirm(`Clear all data for ${date}?`)) {
+            setData(getStorageKey(date), {});
+            renderExpectations();
+        }
+    }
+
+    function exportProgress() {
+        alert('Export Progress CSV - Feature active');
+    }
+
+    function exportExpectations() {
+        alert('Export Expectations CSV - Feature active');
+    }
+
+    // Transitions Page Logic
+    const WEEKLY_DEDUCTION_OK = 2;
+    const WEEKLY_DEDUCTION_NP = 5;
+    let timerInterval = null;
+    let actualSeconds = 0;
+    let isTransitionRunning = false;
+    let targetSeconds = 0;
+    let countdownSoundPlayed = false;
+
+    // Quick Timer (for progress page)
+    let quickTimerInterval = null;
+    let quickActualSeconds = 0;
+    let quickIsRunning = false;
+    let quickTargetSeconds = 0;
+    let quickCountdownPlayed = false;
+
+    function quickStartTimer() {
+        const targetInput = document.getElementById('quickTargetTimeInput');
+        if (!targetInput.value.match(/^\d{1,2}:\d{2}$/)) {
+            alert('Please enter Target Time in MM:SS format (e.g., 01:30).');
+            return;
+        }
+
+        quickActualSeconds = 0;
+        quickTargetSeconds = timeToSeconds(targetInput.value);
+        quickCountdownPlayed = false;
+        document.getElementById('quickActualTimeDisplay').textContent = '0:00';
+        document.getElementById('quickTransitionRatingDisplay').textContent = '---';
+        document.getElementById('quickTransitionRatingDisplay').style.color = '#333';
+
+        playStartSound();
+
+        quickIsRunning = true;
+        document.getElementById('quickStartButton').disabled = true;
+        targetInput.disabled = true;
+        document.getElementById('quickPauseButton').disabled = false;
+        document.getElementById('quickCompleteButton').disabled = false;
+        document.getElementById('quickResumeButton').disabled = true;
+
+        quickTimerInterval = setInterval(() => {
+            quickActualSeconds++;
+            document.getElementById('quickActualTimeDisplay').textContent = secondsToTime(quickActualSeconds);
+            
+            if (quickActualSeconds === quickTargetSeconds) {
+                playTargetMetSound();
+            }
+            
+            if (quickActualSeconds >= quickTargetSeconds - 10 && quickActualSeconds < quickTargetSeconds && !quickCountdownPlayed) {
+                playCountdownSound();
+                quickCountdownPlayed = true;
+                setTimeout(() => quickCountdownPlayed = false, 100);
+            }
+        }, 1000);
+    }
+
+    function quickPauseTimer() {
+        if (!quickIsRunning) return;
+        quickIsRunning = false;
+        clearInterval(quickTimerInterval);
+        document.getElementById('quickPauseButton').disabled = true;
+        document.getElementById('quickResumeButton').disabled = false;
+    }
+
+    function quickResumeTimer() {
+        if (quickIsRunning) return;
+        quickIsRunning = true;
+        document.getElementById('quickPauseButton').disabled = false;
+        document.getElementById('quickResumeButton').disabled = true;
+        quickTimerInterval = setInterval(() => {
+            quickActualSeconds++;
+            document.getElementById('quickActualTimeDisplay').textContent = secondsToTime(quickActualSeconds);
+            
+            if (quickActualSeconds === quickTargetSeconds) {
+                playTargetMetSound();
+            }
+            
+            if (quickActualSeconds >= quickTargetSeconds - 10 && quickActualSeconds < quickTargetSeconds && !quickCountdownPlayed) {
+                playCountdownSound();
+                quickCountdownPlayed = true;
+                setTimeout(() => quickCountdownPlayed = false, 100);
+            }
+        }, 1000);
+    }
+
+    function quickCompleteTimer() {
+        if (quickTimerInterval) clearInterval(quickTimerInterval);
+        quickIsRunning = false;
+
+        document.getElementById('quickPauseButton').disabled = true;
+        document.getElementById('quickResumeButton').disabled = true;
+        document.getElementById('quickCompleteButton').disabled = true;
+        document.getElementById('quickStartButton').disabled = false;
+        document.getElementById('quickTargetTimeInput').disabled = false;
+
+        const targetSec = timeToSeconds(document.getElementById('quickTargetTimeInput').value);
+        const diffSeconds = quickActualSeconds - targetSec;
+        let rating = 'NP', deduction = WEEKLY_DEDUCTION_NP, color = '#E75480';
+
+        if (diffSeconds <= 0) {
+            rating = 'FAB';
+            deduction = 0;
+            color = '#70B35C';
+        } else if (diffSeconds <= 10) {
+            rating = 'GOOD';
+            deduction = 0;
+            color = '#5B9BD5';
+        } else if (diffSeconds <= 20) {
+            rating = 'OK';
+            deduction = WEEKLY_DEDUCTION_OK;
+            color = '#E8A54D';
+        }
+
+        document.getElementById('quickTransitionRatingDisplay').textContent = rating;
+        document.getElementById('quickTransitionRatingDisplay').style.color = color;
+
+        playFinishSound();
+
+        if (deduction > 0) {
+            const currentScore = getWeeklyScore();
+            const newScore = Math.max(0, currentScore - deduction);
+            setWeeklyScore(newScore);
+            document.getElementById('quickWeeklyTrackerDisplay').textContent = newScore;
+            // Also update main transitions page if visible
+            if (document.getElementById('weeklyTrackerDisplay')) {
+                document.getElementById('weeklyTrackerDisplay').textContent = newScore;
+            }
+        }
+        
+        // Log transition to history (without notes for quick timer)
+        logTransition(targetSec, quickActualSeconds, rating, 'Quick timer');
+    }
+
+    function initQuickTimer() {
+        const weeklyScore = getWeeklyScore();
+        document.getElementById('quickWeeklyTrackerDisplay').textContent = weeklyScore;
+
+        // Format input
+        const quickTargetInput = document.getElementById('quickTargetTimeInput');
+        quickTargetInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            if (value.length > 4) value = value.substring(0, 4);
+            if (value.length > 2) {
+                e.target.value = value.substring(0, value.length - 2) + ':' + value.substring(value.length - 2);
+            } else {
+                e.target.value = value;
+            }
+        });
+
+        document.getElementById('quickStartButton').onclick = quickStartTimer;
+        document.getElementById('quickPauseButton').onclick = quickPauseTimer;
+        document.getElementById('quickResumeButton').onclick = quickResumeTimer;
+        document.getElementById('quickCompleteButton').onclick = quickCompleteTimer;
+    }
+
+    // Sound generation functions
+    function playStartSound() {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+        oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+    }
+
+    function playTargetMetSound() {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime); // G5
+        oscillator.frequency.setValueAtTime(1046.50, audioContext.currentTime + 0.15); // C6
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.4);
+    }
+
+    function playCountdownSound() {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+    }
+
+    function playFinishSound() {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Play three ascending notes
+        [523.25, 659.25, 783.99].forEach((freq, index) => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            const startTime = audioContext.currentTime + (index * 0.15);
+            oscillator.frequency.setValueAtTime(freq, startTime);
+            gainNode.gain.setValueAtTime(0.3, startTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+            
+            oscillator.start(startTime);
+            oscillator.stop(startTime + 0.3);
+        });
+    }
+
+    // Background music system
+    let backgroundMusicContext = null;
+    let backgroundMusicInterval = null;
+    let isMusicPlaying = false;
+
+    function playCallCenterLoop() {
+        if (isMusicPlaying) return;
+        
+        isMusicPlaying = true;
+        backgroundMusicContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playMusicPhrase() {
+            if (!isMusicPlaying) return;
+            
+            const ctx = backgroundMusicContext;
+            const now = ctx.currentTime;
+            
+            // Soothing call center melody pattern
+            const melody = [
+                { freq: 523.25, time: 0, duration: 0.3 },      // C5
+                { freq: 587.33, time: 0.35, duration: 0.3 },   // D5
+                { freq: 659.25, time: 0.7, duration: 0.3 },    // E5
+                { freq: 523.25, time: 1.05, duration: 0.4 },   // C5
+                { freq: 659.25, time: 1.5, duration: 0.3 },    // E5
+                { freq: 783.99, time: 1.85, duration: 0.3 },   // G5
+                { freq: 659.25, time: 2.2, duration: 0.3 },    // E5
+                { freq: 523.25, time: 2.55, duration: 0.5 }    // C5
+            ];
+            
+            melody.forEach(note => {
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.type = 'sine';
+                const startTime = now + note.time;
+                oscillator.frequency.setValueAtTime(note.freq, startTime);
+                gainNode.gain.setValueAtTime(0.15, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + note.duration);
+                
+                oscillator.start(startTime);
+                oscillator.stop(startTime + note.duration);
+            });
+            
+            // Soft harmony layer
+            const harmony = [
+                { freq: 261.63, time: 0, duration: 1.0 },     // C4
+                { freq: 329.63, time: 1.0, duration: 1.0 },   // E4
+                { freq: 392.00, time: 2.0, duration: 1.0 }    // G4
+            ];
+            
+            harmony.forEach(note => {
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.type = 'triangle';
+                const startTime = now + note.time;
+                oscillator.frequency.setValueAtTime(note.freq, startTime);
+                gainNode.gain.setValueAtTime(0.08, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + note.duration);
+                
+                oscillator.start(startTime);
+                oscillator.stop(startTime + note.duration);
+            });
+        }
+        
+        // Play initial phrase
+        playMusicPhrase();
+        
+        // Loop every 3.2 seconds
+        backgroundMusicInterval = setInterval(() => {
+            if (isMusicPlaying) {
+                playMusicPhrase();
+            }
+        }, 3200);
+    }
+
+    function stopCallCenterLoop() {
+        isMusicPlaying = false;
+        
+        if (backgroundMusicInterval) {
+            clearInterval(backgroundMusicInterval);
+            backgroundMusicInterval = null;
+        }
+        
+        if (backgroundMusicContext) {
+            backgroundMusicContext.close();
+            backgroundMusicContext = null;
+        }
+    }
+
+    function getWeeklyScore() {
+        try {
+            const score = localStorage.getItem('weeklyScore');
+            return score ? parseInt(score) : 100;
+        } catch (error) {
+            return 100;
+        }
+    }
+
+    function setWeeklyScore(score) {
+        try {
+            localStorage.setItem('weeklyScore', score.toString());
+            
+            // Also save to Google Sheets (if enabled)
+            if (APPS_SCRIPT_URL) {
+                saveToGoogleSheets('weeklyScore', score).catch(error => {
+                    console.error('Failed to sync weekly score to Google Sheets:', error);
+                });
+            }
+        } catch (error) {
+            console.error('Error saving weekly score:', error);
+        }
+    }
+
+    function getStudentTallies() {
+        try {
+            const tallies = localStorage.getItem('studentTallies');
+            return tallies ? JSON.parse(tallies) : {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function setStudentTallies(tallies) {
+        try {
+            localStorage.setItem('studentTallies', JSON.stringify(tallies));
+        } catch (error) {
+            console.error('Error saving student tallies:', error);
+        }
+    }
+
+    function getRecentTallies() {
+        try {
+            const recent = localStorage.getItem('recentTallies');
+            return recent ? JSON.parse(recent) : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function addRecentTally(studentInitial) {
+        try {
+            let recent = getRecentTallies();
+            recent.unshift(studentInitial); // Add to beginning
+            recent = recent.slice(0, 5); // Keep only last 5
+            localStorage.setItem('recentTallies', JSON.stringify(recent));
+            updateRecentTalliesDisplay();
+        } catch (error) {
+            console.error('Error saving recent tally:', error);
+        }
+    }
+
+    function updateRecentTalliesDisplay() {
+        const recent = getRecentTallies();
+        const container = document.getElementById('recentTalliesList');
+        
+        if (recent.length === 0) {
+            container.innerHTML = '<div class="recent-tallies-empty">no recent tallies</div>';
+        } else {
+            container.innerHTML = recent.map(initial => 
+                `<div class="recent-tally-item">${initial}</div>`
+            ).join('');
+        }
+    }
+
+    function timeToSeconds(timeStr) {
+        const match = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+        return match ? parseInt(match[1]) * 60 + parseInt(match[2]) : 0;
+    }
+
+    function secondsToTime(totalSeconds) {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+
+    function startTimer() {
+        const targetInput = document.getElementById('targetTimeInput');
+        if (!targetInput.value.match(/^\d{1,2}:\d{2}$/)) {
+            alert('Please enter Target Time in MM:SS format (e.g., 01:30).');
+            return;
+        }
+
+        actualSeconds = 0;
+        targetSeconds = timeToSeconds(targetInput.value);
+        countdownSoundPlayed = false;
+        document.getElementById('actualTimeDisplay').textContent = '0:00';
+        document.getElementById('transitionRatingDisplay').textContent = '---';
+        document.getElementById('transitionRatingDisplay').style.color = '#333';
+        document.getElementById('notesInput').value = '';
+
+        playStartSound(); // Play start sound
+
+        isTransitionRunning = true;
+        document.getElementById('startButton').disabled = true;
+        targetInput.disabled = true;
+        document.getElementById('pauseButton').disabled = false;
+        document.getElementById('completeButton').disabled = false;
+        document.getElementById('resumeButton').disabled = true;
+
+        timerInterval = setInterval(() => {
+            actualSeconds++;
+            document.getElementById('actualTimeDisplay').textContent = secondsToTime(actualSeconds);
+            
+            // Play sound when target time is met
+            if (actualSeconds === targetSeconds) {
+                playTargetMetSound();
+            }
+            
+            // Play countdown sound during last 10 seconds
+            if (actualSeconds >= targetSeconds - 10 && actualSeconds < targetSeconds && !countdownSoundPlayed) {
+                playCountdownSound();
+                countdownSoundPlayed = true;
+                // Reset for next second
+                setTimeout(() => countdownSoundPlayed = false, 100);
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (!isTransitionRunning) return;
+        isTransitionRunning = false;
+        clearInterval(timerInterval);
+        document.getElementById('pauseButton').disabled = true;
+        document.getElementById('resumeButton').disabled = false;
+    }
+
+    function resumeTimer() {
+        if (isTransitionRunning) return;
+        isTransitionRunning = true;
+        document.getElementById('pauseButton').disabled = false;
+        document.getElementById('resumeButton').disabled = true;
+        timerInterval = setInterval(() => {
+            actualSeconds++;
+            document.getElementById('actualTimeDisplay').textContent = secondsToTime(actualSeconds);
+            
+            // Play sound when target time is met
+            if (actualSeconds === targetSeconds) {
+                playTargetMetSound();
+            }
+            
+            // Play countdown sound during last 10 seconds
+            if (actualSeconds >= targetSeconds - 10 && actualSeconds < targetSeconds && !countdownSoundPlayed) {
+                playCountdownSound();
+                countdownSoundPlayed = true;
+                setTimeout(() => countdownSoundPlayed = false, 100);
+            }
+        }, 1000);
+    }
+
+    function completeTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        isTransitionRunning = false;
+
+        document.getElementById('pauseButton').disabled = true;
+        document.getElementById('resumeButton').disabled = true;
+        document.getElementById('completeButton').disabled = true;
+        document.getElementById('startButton').disabled = false;
+        document.getElementById('targetTimeInput').disabled = false;
+
+        const targetSec = timeToSeconds(document.getElementById('targetTimeInput').value);
+        const diffSeconds = actualSeconds - targetSec;
+        let rating = 'NP', deduction = WEEKLY_DEDUCTION_NP, color = '#E75480';
+
+        if (diffSeconds <= 0) {
+            rating = 'FAB';
+            deduction = 0;
+            color = '#70B35C';
+        } else if (diffSeconds <= 10) {
+            rating = 'GOOD';
+            deduction = 0;
+            color = '#5B9BD5';
+        } else if (diffSeconds <= 20) {
+            rating = 'OK';
+            deduction = WEEKLY_DEDUCTION_OK;
+            color = '#E8A54D';
+        }
+
+        document.getElementById('transitionRatingDisplay').textContent = rating;
+        document.getElementById('transitionRatingDisplay').style.color = color;
+
+        playFinishSound(); // Play finish sound
+
+        if (deduction > 0) {
+            const currentScore = getWeeklyScore();
+            const newScore = Math.max(0, currentScore - deduction);
+            setWeeklyScore(newScore);
+            document.getElementById('weeklyTrackerDisplay').textContent = newScore;
+        }
+        
+        // Log transition to history
+        const notes = document.getElementById('notesInput').value;
+        logTransition(targetSec, actualSeconds, rating, notes);
+    }
+
+    function logTransition(targetTime, actualTime, rating, notes) {
+        try {
+            let history = localStorage.getItem('transitionHistory');
+            history = history ? JSON.parse(history) : [];
+            
+            const entry = {
+                timestamp: new Date().toISOString(),
+                targetTime: targetTime,
+                actualTime: actualTime,
+                rating: rating,
+                notes: notes
+            };
+            
+            history.unshift(entry); // Add to beginning
+            history = history.slice(0, 50); // Keep last 50
+            
+            localStorage.setItem('transitionHistory', JSON.stringify(history));
+            
+            // Also save to Google Sheets (if enabled)
+            if (APPS_SCRIPT_URL) {
+                saveToGoogleSheets('transitionHistory', history).catch(error => {
+                    console.error('Failed to sync transition history to Google Sheets:', error);
+                });
+            }
+        } catch (error) {
+            console.error('Error logging transition:', error);
+        }
+    }
+
+    function renderTransitionHistory() {
+        try {
+            let history = localStorage.getItem('transitionHistory');
+            history = history ? JSON.parse(history) : [];
+            
+            const container = document.getElementById('transitionHistoryList');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">no transitions logged yet</div>';
+                return;
+            }
+            
+            container.innerHTML = history.map(entry => {
+                const date = new Date(entry.timestamp);
+                const timeStr = date.toLocaleString('en-AU', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                const ratingClass = entry.rating.toLowerCase();
+                const notesHTML = entry.notes ? `<div class="history-notes">${entry.notes}</div>` : '';
+                
+                return `
+                    <div class="transition-history-item">
+                        <div class="history-header">
+                            <div class="history-time">${timeStr}</div>
+                            <div class="history-rating ${ratingClass}">${entry.rating}</div>
+                        </div>
+                        <div class="history-details">
+                            Target: ${secondsToTime(entry.targetTime)} | 
+                            Actual: ${secondsToTime(entry.actualTime)}
+                        </div>
+                        ${notesHTML}
+                    </div>
+                `;
+            }).join('');
+        } catch (error) {
+            console.error('Error rendering transition history:', error);
+        }
+    }
+
+    // Statistics functions
+    function renderStatistics() {
+        const dates = getLast7Days();
+        const weeklyData = {};
+        
+        // Collect data for each expectation
+        CLASS_EXPECTATIONS.forEach(exp => {
+            weeklyData[exp.id] = {
+                title: exp.title,
+                infractions: []
+            };
+            
+            dates.forEach(date => {
+                const data = getData(getStorageKey(date));
+                const studentData = data[exp.id] || {};
+                let total = 0;
+                Object.values(studentData).forEach(count => total += count);
+                weeklyData[exp.id].infractions.push(total);
+            });
+        });
+        
+        // Render bar chart
+        const chartContainer = document.getElementById('weeklyChart');
+        chartContainer.innerHTML = '';
+        
+        CLASS_EXPECTATIONS.forEach((exp, index) => {
+            const total = weeklyData[exp.id].infractions.reduce((a, b) => a + b, 0);
+            const percentage = calculatePercentage(total);
+            const height = (percentage / 100) * 180;
+            
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = height + 'px';
+            bar.title = exp.title; // Tooltip on hover
+            bar.innerHTML = `
+                <div class="bar-value">${percentage}%</div>
+                <div class="bar-label">${index + 1}</div>
+            `;
+            chartContainer.appendChild(bar);
+        });
+        
+        // Best performing expectation
+        let bestExp = null;
+        let bestScore = -1;
+        CLASS_EXPECTATIONS.forEach(exp => {
+            const total = weeklyData[exp.id].infractions.reduce((a, b) => a + b, 0);
+            const score = calculatePercentage(total);
+            if (score > bestScore) {
+                bestScore = score;
+                bestExp = exp.title;
+            }
+        });
+        
+        document.getElementById('bestExpectation').innerHTML = `
+            <div class="stat-item">
+                <div class="stat-label">${bestExp || 'N/A'}</div>
+                <div class="stat-value">${bestScore}%</div>
+            </div>
+        `;
+        
+        // Most improved
+        const improvements = CLASS_EXPECTATIONS.map(exp => {
+            const recent = weeklyData[exp.id].infractions.slice(-3).reduce((a, b) => a + b, 0);
+            const older = weeklyData[exp.id].infractions.slice(0, 3).reduce((a, b) => a + b, 0);
+            return {
+                title: exp.title,
+                improvement: older - recent
+            };
+        }).sort((a, b) => b.improvement - a.improvement);
+        
+        const mostImproved = improvements[0];
+        document.getElementById('mostImproved').innerHTML = `
+            <div class="stat-item">
+                <div class="stat-label">${mostImproved.title}</div>
+                <div class="stat-value">${mostImproved.improvement > 0 ? '+' : ''}${mostImproved.improvement}</div>
+            </div>
+        `;
+        
+        // Best day
+        const dayScores = dates.map((date, index) => {
+            let totalInfractions = 0;
+            CLASS_EXPECTATIONS.forEach(exp => {
+                totalInfractions += weeklyData[exp.id].infractions[index];
+            });
+            return {
+                date: date,
+                score: calculatePercentage(totalInfractions * CLASS_EXPECTATIONS.length)
+            };
+        }).sort((a, b) => b.score - a.score);
+        
+        const bestDayData = dayScores[0];
+        const dayName = new Date(bestDayData.date).toLocaleDateString('en-AU', { weekday: 'long' });
+        document.getElementById('bestDay').innerHTML = `
+            <div class="stat-item">
+                <div class="stat-label">${dayName}</div>
+                <div class="stat-value">${bestDayData.score}%</div>
+            </div>
+        `;
+        
+        // Class average
+        const avgScore = Math.round(dayScores.reduce((sum, d) => sum + d.score, 0) / dayScores.length);
+        document.getElementById('classAverage').innerHTML = `
+            <div class="stat-item">
+                <div class="stat-label">This Week</div>
+                <div class="stat-value">${avgScore}%</div>
+            </div>
+        `;
+    }
+
+    function getLast7Days() {
+        const dates = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            dates.push(date.toISOString().split('T')[0]);
+        }
+        return dates;
+    }
+
+    // Week View functions
+    function renderWeekView() {
+        const startDate = new Date(document.getElementById('weekStartDate').value);
+        const grid = document.getElementById('weekGrid');
+        grid.innerHTML = '';
+        
+        const today = getTodayDate();
+        const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        
+        for (let i = 0; i < 5; i++) {
+            const date = new Date(startDate);
+            date.setDate(date.getDate() + i);
+            const dateStr = date.toISOString().split('T')[0];
+            const data = getData(getStorageKey(dateStr));
+            
+            let totalInfractions = 0;
+            CLASS_EXPECTATIONS.forEach(exp => {
+                const studentData = data[exp.id] || {};
+                Object.values(studentData).forEach(count => totalInfractions += count);
+            });
+            
+            const percentage = calculatePercentage(totalInfractions);
+            const isToday = dateStr === today;
+            
+            const card = document.createElement('div');
+            card.className = `week-day-card ${isToday ? 'today' : ''}`;
+            card.onclick = () => {
+                document.getElementById('expectationDate').value = dateStr;
+                document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.querySelector('[data-page="expectations"]').classList.add('active');
+                document.getElementById('expectations-page').classList.add('active');
+                renderExpectations();
+            };
+            
+            card.innerHTML = `
+                <div class="week-day-header">${dayNames[i]}</div>
+                <div class="week-day-date">${date.toLocaleDateString('en-AU', { month: 'short', day: 'numeric' })}</div>
+                <div class="week-day-stats">
+                    <div class="week-stat">
+                        <span class="week-stat-label">overall:</span>
+                        <span class="week-stat-value">${percentage}%</span>
+                    </div>
+                    <div class="week-stat">
+                        <span class="week-stat-label">infractions:</span>
+                        <span class="week-stat-value">${totalInfractions}</span>
+                    </div>
+                </div>
+            `;
+            
+            grid.appendChild(card);
+        }
+    }
+
+    function getMonday(date) {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        d.setDate(diff);
+        return d;
+    }
+
+    // Student Profiles functions
+    function renderStudentProfiles() {
+        const grid = document.getElementById('studentProfileGrid');
+        grid.innerHTML = '';
+        
+        STUDENT_INITIALS.forEach(initial => {
+            const card = document.createElement('div');
+            card.className = 'student-profile-card';
+            card.textContent = initial;
+            card.onclick = () => showStudentDetail(initial);
+            grid.appendChild(card);
+        });
+    }
+
+    function showStudentDetail(studentInitial) {
+        document.getElementById('studentDetailName').textContent = studentInitial;
+        document.getElementById('studentProfileGrid').style.display = 'none';
+        document.getElementById('studentDetailView').classList.add('active');
+        
+        // Collect student's history
+        const dates = getLast7Days();
+        const history = {};
+        
+        CLASS_EXPECTATIONS.forEach(exp => {
+            history[exp.id] = {
+                title: exp.title,
+                total: 0
+            };
+            
+            dates.forEach(date => {
+                const data = getData(getStorageKey(date));
+                const studentData = data[exp.id] || {};
+                const count = studentData[studentInitial] || 0;
+                history[exp.id].total += count;
+            });
+        });
+        
+        const historyList = document.getElementById('studentHistoryList');
+        historyList.innerHTML = CLASS_EXPECTATIONS.map(exp => {
+            const count = history[exp.id].total;
+            return `
+                <div class="history-item">
+                    <div class="history-expectation">${exp.title}</div>
+                    <div class="history-count">${count > 0 ? '-' : ''}${count}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function closeStudentDetail() {
+        document.getElementById('studentProfileGrid').style.display = 'grid';
+        document.getElementById('studentDetailView').classList.remove('active');
+    }
+
+    // Random Student Picker
+    function pickRandomStudent() {
+        const randomIndex = Math.floor(Math.random() * STUDENT_INITIALS.length);
+        const picked = STUDENT_INITIALS[randomIndex];
+        document.getElementById('pickedStudent').textContent = picked;
+    }
+
+    // Report Generation
+    function generateReport() {
+        const includeExpectations = document.getElementById('reportExpectations').checked;
+        const includeTransitions = document.getElementById('reportTransitions').checked;
+        const includeStats = document.getElementById('reportStats').checked;
+        
+        let report = 'I3S CLASSROOM REPORT\n';
+        report += '='.repeat(50) + '\n';
+        report += `Generated: ${new Date().toLocaleString('en-AU')}\n\n`;
+        
+        if (includeExpectations) {
+            report += 'CLASS EXPECTATIONS SUMMARY\n';
+            report += '-'.repeat(50) + '\n';
+            
+            const dates = getLast7Days();
+            CLASS_EXPECTATIONS.forEach(exp => {
+                let totalInfractions = 0;
+                dates.forEach(date => {
+                    const data = getData(getStorageKey(date));
+                    const studentData = data[exp.id] || {};
+                    Object.values(studentData).forEach(count => totalInfractions += count);
+                });
+                
+                const percentage = calculatePercentage(totalInfractions);
+                report += `${exp.title}: ${percentage}% (${totalInfractions} infractions)\n`;
+            });
+            report += '\n';
+        }
+        
+        if (includeTransitions) {
+            report += 'TRANSITION SUMMARY\n';
+            report += '-'.repeat(50) + '\n';
+            report += `Weekly Tracker: ${getWeeklyScore()}%\n`;
+            
+            let history = localStorage.getItem('transitionHistory');
+            history = history ? JSON.parse(history) : [];
+            const recent = history.slice(0, 5);
+            
+            report += '\nRecent Transitions:\n';
+            recent.forEach(entry => {
+                const date = new Date(entry.timestamp).toLocaleString('en-AU');
+                report += `- ${date}: ${entry.rating} (${secondsToTime(entry.actualTime)})\n`;
+            });
+            report += '\n';
+        }
+        
+        if (includeStats) {
+            report += 'STATISTICS\n';
+            report += '-'.repeat(50) + '\n';
+            
+            const dates = getLast7Days();
+            const weeklyData = {};
+            
+            CLASS_EXPECTATIONS.forEach(exp => {
+                let total = 0;
+                dates.forEach(date => {
+                    const data = getData(getStorageKey(date));
+                    const studentData = data[exp.id] || {};
+                    Object.values(studentData).forEach(count => total += count);
+                });
+                weeklyData[exp.id] = total;
+            });
+            
+            let bestScore = -1;
+            let bestExp = '';
+            CLASS_EXPECTATIONS.forEach(exp => {
+                const score = calculatePercentage(weeklyData[exp.id]);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestExp = exp.title;
+                }
+            });
+            
+            report += `Best Performing Expectation: ${bestExp} (${bestScore}%)\n`;
+            report += '\n';
+        }
+        
+        // Download report
+        const blob = new Blob([report], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `I3S-Report-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Check for Understanding Dropdown & Popup
+    const cfuStrategies = {
+        write: {
+            title: 'drop everything and write',
+            instruction: 'Write nonstop for the set time — get all your ideas down without pausing.'
+        },
+        donow: {
+            title: 'do now / brain dump',
+            instruction: 'Attempt the task which is on the screen as soon as you enter the room.'
+        },
+        powerminute: {
+            title: 'power minute',
+            instruction: 'Speak for one minute without stopping to show what you know about the topic.'
+        },
+        thinkpairshare: {
+            title: 'think‑pair‑share',
+            instruction: 'Think quietly on your own. When prompted, talk with a partner. Be ready to share your best idea with the class.'
+        },
+        turntalk: {
+            title: 'turn and talk (A and B)',
+            instruction: 'Take turns explaining your thinking — one speaks while the other listens and responds.'
+        },
+        wholeclass: {
+            title: 'whole class discussion',
+            instruction: 'Join in the conversation — listen carefully and build on others\' ideas when you speak.'
+        },
+        coldcall: {
+            title: 'cold calling',
+            instruction: 'Be ready to share your thinking aloud — you might be chosen without warning.'
+        },
+        thinkdiscuss: {
+            title: 'think‑discuss‑reflect',
+            instruction: 'Think on your own, talk with others, then write or explain your final idea.'
+        },
+        turnteach: {
+            title: 'turn and teach',
+            instruction: 'Teach your partner what you\'ve learned — explain clearly and check they understand.'
+        },
+        spotmistake: {
+            title: 'spot and explain the mistake',
+            instruction: 'Find the error in someone\'s work or thinking — explain what went wrong and how to fix it.'
+        },
+        chinit: {
+            title: 'chin it',
+            instruction: 'Complete the task on your mini whiteboard. When prompted, hold it under your chin to show your answer.'
+        }
+    };
+
+    // Toggle dropdown
+    document.addEventListener('DOMContentLoaded', () => {
+        const dropdownBtn = document.getElementById('cfuDropdownBtn');
+        const dropdownMenu = document.getElementById('cfuDropdownMenu');
+        
+        dropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            dropdownMenu.classList.remove('show');
+        });
+        
+        dropdownMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    });
+
+    function showCFUPopup(strategyKey) {
+        const strategy = cfuStrategies[strategyKey];
+        if (!strategy) return;
+        
+        document.getElementById('cfuPopupTitle').textContent = strategy.title;
+        document.getElementById('cfuPopupInstruction').textContent = strategy.instruction;
+        document.getElementById('cfuPopupOverlay').classList.add('show');
+        
+        // Close dropdown
+        document.getElementById('cfuDropdownMenu').classList.remove('show');
+    }
+
+    function closeCFUPopup(event) {
+        if (!event || event.target.id === 'cfuPopupOverlay') {
+            document.getElementById('cfuPopupOverlay').classList.remove('show');
+        }
+    }
+
+    // Tools Sub-Navigation
+    function switchToolView(toolName) {
+        console.log('Switching to tool:', toolName);
+        
+        // Hide all tool views
+        document.querySelectorAll('.tool-view').forEach(view => {
+            view.classList.remove('active');
+        });
+        
+        // Show selected tool view
+        const toolView = document.getElementById(`tool-${toolName}`);
+        if (toolView) {
+            toolView.classList.add('active');
+            console.log('Tool view shown:', `tool-${toolName}`);
+        } else {
+            console.error(`Tool view not found: tool-${toolName}`);
+            return;
+        }
+        
+        // Update sub-nav buttons (changed from #toolsSubNav to .tools-sub-nav)
+        document.querySelectorAll('.tools-sub-nav').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const selectedBtn = document.querySelector(`[data-subtool="${toolName}"]`);
+        if (selectedBtn) {
+            selectedBtn.classList.add('active');
+        }
+        
+        // Initialize the tool if needed
+        try {
+            if (toolName === 'calendar') {
+                renderWeekView();
+                initCalendar();
+            } else if (toolName === 'statistics') {
+                console.log('Calling renderStatistics...');
+                renderStatistics();
+            } else if (toolName === 'students') {
+                console.log('Calling renderStudentProfiles...');
+                renderStudentProfiles();
+            } else if (toolName === 'history') {
+                console.log('Calling renderTransitionHistory...');
+                renderTransitionHistory();
+            } else if (toolName === 'picker') {
+                console.log('Random picker ready');
+            } else if (toolName === 'report') {
+                console.log('Report generator ready');
+            }
+        } catch (error) {
+            console.error('Error initializing tool:', error);
+        }
+    }
+
+    function renderStudentGrid() {
+        const grid = document.getElementById('studentGrid');
+        grid.innerHTML = '';
+        const tallies = getStudentTallies();
+
+        STUDENT_INITIALS.forEach(initial => {
+            const count = tallies[initial] || 0;
+            const div = document.createElement('div');
+            div.className = `student-initial ${count > 0 ? 'tally-active' : ''}`;
+            div.textContent = initial;
+            div.onclick = () => {
+                const currentTallies = getStudentTallies();
+                currentTallies[initial] = (currentTallies[initial] || 0) + 1;
+                setStudentTallies(currentTallies);
+                addRecentTally(initial);
+                
+                // Push to undo stack
+                pushUndo({
+                    type: 'tally',
+                    student: initial
+                });
+                
+                renderStudentGrid();
+            };
+
+            if (count > 0) {
+                const badge = document.createElement('span');
+                badge.className = 'tally-count';
+                badge.textContent = count;
+                div.appendChild(badge);
+            }
+
+            grid.appendChild(div);
+        });
+    }
+
+    function resetTallies() {
+        if (confirm('Reset all student participation tallies?')) {
+            setStudentTallies({});
+            renderStudentGrid();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const targetInput = document.getElementById('targetTimeInput');
+        targetInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            if (value.length > 4) value = value.substring(0, 4);
+            if (value.length > 2) {
+                e.target.value = value.substring(0, value.length - 2) + ':' + value.substring(value.length - 2);
+            } else {
+                e.target.value = value;
+            }
+        });
+    });
+
+    const pageTabs = document.querySelectorAll('.page-nav > .page-tab');
+    const pages = document.querySelectorAll('.page');
+
+    pageTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            pageTabs.forEach(t => t.classList.remove('active'));
+            pages.forEach(p => p.classList.remove('active'));
+            
+            this.classList.add('active');
+            const pageName = this.getAttribute('data-page');
+            const targetPage = document.getElementById(pageName + '-page');
+            
+            if (targetPage) {
+                targetPage.classList.add('active');
+            } else {
+                console.error('Page not found:', pageName + '-page');
+                return;
+            }
+            
+            if (pageName === 'progress') {
+                renderProgress();
+                initQuickTimer();
+            }
+            if (pageName === 'expectations') renderExpectations();
+            if (pageName === 'transitions') initTransitions();
+            if (pageName === 'tools') {
+                // Initialize calendar view by default
+                setTimeout(() => switchToolView('calendar'), 100);
+            }
+        });
+    });
+
+    function resetWeeklyScore() {
+        if (confirm('Reset weekly tracker to 100%?')) {
+            setWeeklyScore(100);
+            document.getElementById('weeklyTrackerDisplay').textContent = '100';
+        }
+    }
+
+    function initTransitions() {
+        const weeklyScore = getWeeklyScore();
+        document.getElementById('weeklyTrackerDisplay').textContent = weeklyScore;
+        renderStudentGrid();
+        updateRecentTalliesDisplay();
+
+        document.getElementById('startButton').onclick = startTimer;
+        document.getElementById('pauseButton').onclick = pauseTimer;
+        document.getElementById('resumeButton').onclick = resumeTimer;
+        document.getElementById('completeButton').onclick = completeTimer;
+        document.getElementById('resetTallyButton').onclick = resetTallies;
+        document.getElementById('weeklyResetButton').onclick = resetWeeklyScore;
+    }
+
+    // Calendar Page Logic
+    let currentCalendarDate = new Date();
+    let selectedCalendarDate = null;
+
+    function renderCalendar() {
+        const year = currentCalendarDate.getFullYear();
+        const month = currentCalendarDate.getMonth();
+        
+        // Update month/year display
+        const monthNames = ['january', 'february', 'march', 'april', 'may', 'june',
+                          'july', 'august', 'september', 'october', 'november', 'december'];
+        document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
+        
+        // Get first day of month and number of days
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDayOfWeek = firstDay.getDay();
+        
+        // Get previous month days
+        const prevMonthLastDay = new Date(year, month, 0).getDate();
+        
+        const grid = document.getElementById('calendarGrid');
+        grid.innerHTML = '';
+        
+        // Add day headers
+        const dayHeaders = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        dayHeaders.forEach(day => {
+            const header = document.createElement('div');
+            header.className = 'calendar-day-header';
+            header.textContent = day;
+            grid.appendChild(header);
+        });
+        
+        // Add previous month's trailing days
+        for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+            const day = document.createElement('div');
+            day.className = 'calendar-day other-month';
+            day.innerHTML = `<div class="calendar-day-number">${prevMonthLastDay - i}</div>`;
+            grid.appendChild(day);
+        }
+        
+        // Add current month's days
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dayData = getData(getStorageKey(dateStr));
+            const hasData = Object.keys(dayData).length > 0;
+            
+            const dayEl = document.createElement('div');
+            dayEl.className = 'calendar-day';
+            if (dateStr === todayStr) dayEl.classList.add('today');
+            if (hasData) dayEl.classList.add('has-data');
+            
+            dayEl.innerHTML = `<div class="calendar-day-number">${day}</div>`;
+            if (hasData) {
+                dayEl.innerHTML += `<div class="calendar-day-indicator"></div>`;
+            }
+            
+            dayEl.onclick = () => selectDate(dateStr);
+            grid.appendChild(dayEl);
+        }
+        
+        // Add next month's leading days
+        const remainingDays = 42 - (startingDayOfWeek + daysInMonth); // 6 rows * 7 days
+        for (let day = 1; day <= remainingDays; day++) {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'calendar-day other-month';
+            dayEl.innerHTML = `<div class="calendar-day-number">${day}</div>`;
+            grid.appendChild(dayEl);
+        }
+    }
+
+    function selectDate(dateStr) {
+        selectedCalendarDate = dateStr;
+        const data = getData(getStorageKey(dateStr));
+        
+        // Format date for display
+        const date = new Date(dateStr + 'T00:00:00');
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('selectedDateDisplay').textContent = 
+            date.toLocaleDateString('en-AU', options).toLowerCase();
+        
+        if (Object.keys(data).length === 0) {
+            document.getElementById('calendarDataPreview').style.display = 'none';
+            document.getElementById('calendarEmptyState').style.display = 'block';
+            document.getElementById('calendarEmptyState').textContent = 'no data for this date';
+        } else {
+            document.getElementById('calendarEmptyState').style.display = 'none';
+            document.getElementById('calendarDataPreview').style.display = 'block';
+            
+            const summaryContainer = document.getElementById('calendarDataSummary');
+            summaryContainer.innerHTML = '';
+            
+            CLASS_EXPECTATIONS.forEach(exp => {
+                const studentData = data[exp.id] || {};
+                let totalInfractions = 0;
+                Object.values(studentData).forEach(count => totalInfractions += count);
+                
+                const card = document.createElement('div');
+                card.className = 'calendar-summary-card';
+                if (totalInfractions > 0) card.classList.add('has-infractions');
+                
+                card.innerHTML = `
+                    <div class="calendar-summary-title">${exp.title}</div>
+                    <div class="calendar-summary-value">${totalInfractions > 0 ? '-' : ''}${totalInfractions}</div>
+                `;
+                summaryContainer.appendChild(card);
+            });
+        }
+    }
+
+    function viewFullDay() {
+        if (selectedCalendarDate) {
+            // Switch to expectations page with selected date
+            document.getElementById('expectationDate').value = selectedCalendarDate;
+            
+            // Switch tabs
+            document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            
+            document.querySelector('[data-page="expectations"]').classList.add('active');
+            document.getElementById('expectations-page').classList.add('active');
+            
+            renderExpectations();
+        }
+    }
+
+    function initCalendar() {
+        currentCalendarDate = new Date();
+        selectedCalendarDate = null;
+        
+        document.getElementById('prevMonthBtn').onclick = () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderCalendar();
+        };
+        
+        document.getElementById('nextMonthBtn').onclick = () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderCalendar();
+        };
+        
+        document.getElementById('todayBtn').onclick = () => {
+            currentCalendarDate = new Date();
+            renderCalendar();
+            selectDate(getTodayDate());
+        };
+        
+        renderCalendar();
+        document.getElementById('calendarEmptyState').style.display = 'block';
+        document.getElementById('calendarDataPreview').style.display = 'none';
+    }
+
+    // Wait for DOM to be fully loaded before initializing
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+        // DOM already loaded
+        initializeApp();
+    }
+    
+    function initializeApp() {
+        const today = getTodayDate();
+        document.getElementById('expectationDate').value = today;
+        
+        const monday = getMonday(new Date());
+        document.getElementById('weekStartDate').value = monday.toISOString().split('T')[0];
+        
+        document.getElementById('expectationDate').addEventListener('change', renderExpectations);
+        document.getElementById('weekStartDate').addEventListener('change', renderWeekView);
+        
+        renderProgress();
+        initQuickTimer(); // Initialize quick timer on page load
+        
+        // Start Google Sheets auto-sync (if enabled) - delay to ensure all functions are loaded
+        if (APPS_SCRIPT_URL) {
+            console.log('✅ Google Sheets sync enabled!');
+            setTimeout(() => {
+                try {
+                    startAutoSync();
+                } catch (error) {
+                    console.error('Error starting auto-sync:', error);
+                    console.log('Widget will work in offline mode (localStorage only)');
+                }
+            }, 3000); // Wait 3 seconds for everything to load
+        } else {
+            console.log('📝 Using localStorage only (offline mode)');
+            console.log('To enable Google Sheets sync, add your Apps Script URL to APPS_SCRIPT_URL');
+        }
+    }
+</script>
+</body>
+</html>
