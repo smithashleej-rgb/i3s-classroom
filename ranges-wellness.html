@@ -202,7 +202,7 @@
 
         /* ============ LANDING ============ */
         .role-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-        @media (min-width: 700px) { .role-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 700px) { .role-grid { grid-template-columns: repeat(2, 1fr); } }
 
         .role-card {
             background: var(--card);
@@ -660,18 +660,25 @@
                     <div class="role-desc">Check in after every practice &amp; game, see your trends</div>
                 </div>
             </button>
+            <button class="role-card" onclick="requestPin('wellbeing')">
+                <div class="role-icon coach">💛</div>
+                <div>
+                    <div class="role-name">Wellbeing</div>
+                    <div class="role-desc">Wellness coordinator — all athlete data, trends over time &amp; alerts</div>
+                </div>
+            </button>
             <button class="role-card" onclick="requestPin('coach')">
                 <div class="role-icon coach">📋</div>
                 <div>
                     <div class="role-name">Coach</div>
-                    <div class="role-desc">Team snapshot, alerts &amp; athlete detail</div>
+                    <div class="role-desc">Notifications only — athletes who've asked to chat with you</div>
                 </div>
             </button>
             <button class="role-card" onclick="requestPin('admin')">
                 <div class="role-icon admin">⚙️</div>
                 <div>
                     <div class="role-name">Admin</div>
-                    <div class="role-desc">Roster, alert rules &amp; settings</div>
+                    <div class="role-desc">Setup only — questions, roster &amp; rules. No athlete data.</div>
                 </div>
             </button>
         </div>
@@ -716,10 +723,22 @@
         <div id="checkinBody"></div>
     </div>
 
-    <!-- ================= COACH ================= -->
+    <!-- ================= COACH (notifications only) ================= -->
     <div class="screen" id="screen-coach">
+        <div class="eyebrow section-eyebrow" style="margin-top:4px;">chat requests for the coach</div>
+        <div class="card" id="coachNotifs"></div>
+        <div class="note-card">
+            This screen only shows athletes who chose a communication option that involves the coach.
+            Wellness scores and trends are visible to the wellbeing coordinator only.
+        </div>
+    </div>
+
+    <!-- ================= WELLBEING (full data) ================= -->
+    <div class="screen" id="screen-wellbeing">
         <div id="coachAlertBanner"></div>
         <div class="stat-row" id="coachStats"></div>
+        <div class="eyebrow section-eyebrow">team wellbeing over time · higher = better</div>
+        <div class="card" id="teamOverTime"></div>
         <div class="eyebrow section-eyebrow">team snapshot — <span id="snapshotWeekLabel"></span></div>
         <div class="card">
             <div class="table-scroll" id="teamTableWrap"></div>
@@ -739,6 +758,20 @@
 
     <!-- ================= ADMIN ================= -->
     <div class="screen" id="screen-admin">
+        <div class="eyebrow section-eyebrow">check-in questions</div>
+        <div class="card">
+            <div class="form-hint" style="margin-bottom:12px;">
+                Add, remove, reorder or reword questions. Every question keeps a 1→5 scale
+                (1 = best, 5 = worst) so trends and baseline alerts keep working. Existing
+                answers are kept even if a question is removed. Remember to <b>Save all settings</b> below.
+            </div>
+            <div id="questionEditor"></div>
+            <button class="btn btn-green" style="margin-top:6px;" onclick="qAdd()">+ Add question</button>
+            <hr class="divider">
+            <div class="form-label" style="margin-bottom:8px;">💬 Communication question (fixed structure — wording &amp; routing editable)</div>
+            <div id="commEditor"></div>
+        </div>
+
         <div class="eyebrow section-eyebrow">alert rules — compared to each athlete's own baseline</div>
         <div class="card">
             <div class="form-hint" style="margin-bottom:12px;">
@@ -825,20 +858,24 @@
             <button class="btn btn-green" onclick="addRosterAthlete()">+ Add athlete</button>
             <hr class="divider">
             <div id="rosterList"></div>
-            <div class="form-hint">Athletes not on the roster can still check in — they show as "unrostered" on the coach screen. The roster powers the "not yet checked in" list.</div>
+            <div class="form-hint">Athletes not on the roster can still check in — they show as "unrostered" on the wellbeing screen. The roster powers the "not yet checked in" list.</div>
         </div>
 
         <div class="eyebrow section-eyebrow">security</div>
         <div class="card">
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Coach PIN</label>
-                    <input class="form-input" id="cfgCoachPin" inputmode="numeric" maxlength="6" placeholder="1111">
+                    <label class="form-label">Wellbeing PIN (all athlete data)</label>
+                    <input class="form-input" id="cfgWellbeingPin" inputmode="numeric" maxlength="6" placeholder="1111">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Admin PIN</label>
-                    <input class="form-input" id="cfgAdminPin" inputmode="numeric" maxlength="6" placeholder="9999">
+                    <label class="form-label">Coach PIN (notifications only)</label>
+                    <input class="form-input" id="cfgCoachPin" inputmode="numeric" maxlength="6" placeholder="2222">
                 </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Admin PIN (setup only — no athlete data)</label>
+                <input class="form-input" id="cfgAdminPin" inputmode="numeric" maxlength="6" placeholder="9999">
             </div>
         </div>
 
@@ -859,11 +896,10 @@
         <div class="eyebrow section-eyebrow">data</div>
         <div class="card">
             <div class="btn-wrap">
-                <button class="btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
                 <button class="btn-ghost" onclick="loadDemoData()">Load demo data</button>
                 <button class="btn btn-danger" onclick="clearAllData()">Clear all data</button>
             </div>
-            <div class="form-hint" style="margin-top:10px;">Demo data adds sample athletes &amp; check-ins so you can preview the coach screen (one athlete declines, to show alerts). Clear removes everything from this device (and the sheet if sync is on).</div>
+            <div class="form-hint" style="margin-top:10px;">Demo data adds sample athletes &amp; check-ins so you can preview the wellbeing screen (one athlete declines, to show alerts). Clear removes everything from this device (and the sheet if sync is on). CSV export lives on the wellbeing screen — admin has no access to athlete data.</div>
         </div>
 
         <div style="text-align:center;margin:8px 0 20px;">
@@ -907,7 +943,8 @@
    ========================================================= */
 
 // ------------------ QUESTION DEFINITIONS ------------------
-const METRICS = [
+// Defaults only — admins can add/remove/reword questions (stored in config).
+const DEFAULT_METRICS = [
     { key: 'sleep',      label: 'Sleep quality',   icon: '😴',
       question: 'How was your sleep?', options: ['Excellent', 'Good', 'OK', 'Poor', 'Very poor'] },
     { key: 'tiredness',  label: 'Tiredness',       icon: '🔋',
@@ -924,7 +961,7 @@ const METRICS = [
       question: 'How hard was the session or game?', options: ['Light activity', 'Moderate activity', 'Vigorous activity', 'Very hard activity', 'Max effort activity'] }
 ];
 
-const COMM = {
+const DEFAULT_COMM = {
     key: 'communication', label: 'Communication', icon: '💬',
     question: 'Anything you want to talk about?',
     options: [
@@ -932,10 +969,25 @@ const COMM = {
         'I would like to chat with the Wellness Coordinator',
         'I would like to chat with the Coach, Head Coach and Wellness Coordinator',
         "I've emailed the Head Coach to arrange a chat"
-    ]
+    ],
+    // who is notified per option: 'none' | 'wellbeing' | 'both' (coach + wellbeing)
+    notify: ['none', 'wellbeing', 'both', 'both']
 };
 
-const WELLNESS_KEYS = METRICS.filter(m => !m.isLoad).map(m => m.key);
+// live question set — rebuilt from config (admin can customise)
+let METRICS = DEFAULT_METRICS;
+let COMM = DEFAULT_COMM;
+let WELLNESS_KEYS = [];
+
+function rebuildQuestionRefs() {
+    METRICS = (config.metrics && Array.isArray(config.metrics) && config.metrics.length)
+        ? config.metrics : DEFAULT_METRICS;
+    COMM = (config.comm && config.comm.options && config.comm.options.length === 4)
+        ? Object.assign({}, DEFAULT_COMM, config.comm, { key: 'communication' })
+        : DEFAULT_COMM;
+    if (!Array.isArray(COMM.notify) || COMM.notify.length !== 4) COMM.notify = DEFAULT_COMM.notify.slice();
+    WELLNESS_KEYS = METRICS.filter(m => !m.isLoad).map(m => m.key);
+}
 
 // ------------------ STORAGE ------------------
 const LS = {
@@ -958,8 +1010,9 @@ const DEFAULT_CONFIG = {
     coordName: 'Melissa Rosie',
     coordEmail: '',
     coachEmail: 'headcoachmdna@gmail.com',
-    coachPin: '1111',
-    adminPin: '9999',
+    wellbeingPin: '1111',   // full athlete data (wellness coordinator)
+    coachPin: '2222',       // notifications only
+    adminPin: '9999',       // setup only, no athlete data
     syncUrl: ''
 };
 
@@ -979,6 +1032,7 @@ let roster   = lsGet(LS.roster, []);
 let actioned = lsGet(LS.actioned, []);   // flag ids marked handled
 let notified = lsGet(LS.notified, []);   // flag ids already emailed
 let profile  = lsGet(LS.profile, null);  // {userId, name} — remembered on this device
+rebuildQuestionRefs();
 
 // ------------------ SYNC (Google Apps Script) ------------------
 let syncState = 'off'; // off | ok | err | pending
@@ -1010,6 +1064,7 @@ async function syncPull() {
                 const myUrl = config.syncUrl; // each device keeps its own URL
                 config = Object.assign({}, DEFAULT_CONFIG, data.config, { syncUrl: myUrl });
                 lsSet(LS.config, config);
+                rebuildQuestionRefs();
             }
             if (Array.isArray(data.roster)) { roster = data.roster; lsSet(LS.roster, roster); }
             if (Array.isArray(data.actioned)) {
@@ -1240,11 +1295,14 @@ function computeFlags() {
             }
         });
 
-        // ---- COMMUNICATION: any chat request alerts immediately ----
-        checkins.filter(c => c.userId === userId && c.answers.communication >= 2).forEach(c => {
+        // ---- COMMUNICATION: chat requests alert immediately ----
+        // per-option routing: 'none' | 'wellbeing' | 'both' (coach + wellbeing)
+        checkins.filter(c => c.userId === userId && c.answers.communication).forEach(c => {
+            const route = COMM.notify[c.answers.communication - 1] || 'none';
+            if (route === 'none') return;
             flags.push({
                 id: userId + '|comm|' + c.id,
-                type: 'comm', severity: 'comm',
+                type: 'comm', severity: 'comm', audience: route,
                 userId, metric: 'communication', weekKey: isoWeekKey(new Date(c.dateISO)), dateISO: c.dateISO,
                 title: 'Chat requested',
                 detail: '"' + COMM.options[c.answers.communication - 1] + '"'
@@ -1338,7 +1396,14 @@ function allAthleteIds() {
 
 // ------------------ NAVIGATION ------------------
 let currentScreen = 'landing';
-let unlocked = { coach: false, admin: false };
+let unlocked = { coach: false, wellbeing: false, admin: false };
+
+function pinFor(target) {
+    return target === 'admin' ? config.adminPin
+         : target === 'wellbeing' ? config.wellbeingPin
+         : config.coachPin;
+}
+const ROLE_LABEL = { coach: 'Coach', wellbeing: 'Wellbeing', admin: 'Admin' };
 
 function show(name) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1354,7 +1419,8 @@ function goHome() { show('landing'); }
 
 function refreshCurrentScreen() {
     if (currentScreen === 'athlete-home') renderAthleteHome();
-    else if (currentScreen === 'coach') renderCoach();
+    else if (currentScreen === 'wellbeing') renderWellbeing();
+    else if (currentScreen === 'coach') renderCoachNotifs();
     else if (currentScreen === 'admin') renderAdmin();
 }
 
@@ -1369,8 +1435,9 @@ function renderHeader() {
         'athlete-setup': 'first-time setup',
         'athlete-home': syncBit + 'athlete · ' + (profile ? esc(profile.userId) : ''),
         'checkin': 'check-in · ' + (profile ? esc(profile.userId) : ''),
-        'coach': syncBit + 'coach view',
-        'admin': syncBit + 'admin settings'
+        'wellbeing': syncBit + 'wellbeing — wellness coordinator',
+        'coach': syncBit + 'coach — notifications',
+        'admin': syncBit + 'admin — setup only'
     };
     eyebrow.innerHTML = subs[currentScreen] || 'load &amp; wellness monitoring';
     let html = '';
@@ -1378,7 +1445,10 @@ function renderHeader() {
         if (currentScreen === 'athlete-home') {
             html += '<button class="btn-ghost" onclick="switchAthlete()">Switch ID</button>';
         }
-        if (currentScreen === 'coach' || currentScreen === 'athlete-home') {
+        if (currentScreen === 'wellbeing') {
+            html += '<button class="btn-ghost" onclick="exportCSV()">⬇ CSV</button>';
+        }
+        if (currentScreen === 'wellbeing' || currentScreen === 'coach' || currentScreen === 'athlete-home') {
             html += '<button class="btn-ghost" onclick="manualSync()">↻ Refresh</button>';
         }
         html += '<button class="btn-ghost" onclick="goHome()">⌂ Home</button>';
@@ -1394,7 +1464,7 @@ function requestPin(target) {
     if (unlocked[target]) { openRole(target); return; }
     pinTarget = target;
     pinEntry = '';
-    document.getElementById('pinTitle').textContent = (target === 'coach' ? 'Coach' : 'Admin') + ' access';
+    document.getElementById('pinTitle').textContent = ROLE_LABEL[target] + ' access';
     document.getElementById('pinSub').textContent = 'Enter the ' + target + ' PIN';
     document.getElementById('pinError').textContent = '';
     buildPinPad();
@@ -1413,7 +1483,7 @@ function buildPinPad() {
 }
 
 function renderPinDots() {
-    const wanted = (pinTarget === 'admin' ? config.adminPin : config.coachPin).length;
+    const wanted = pinFor(pinTarget).length;
     let html = '';
     for (let i = 0; i < wanted; i++) {
         html += '<div class="pin-dot' + (i < pinEntry.length ? ' filled' : '') + '"></div>';
@@ -1422,7 +1492,7 @@ function renderPinDots() {
 }
 
 function pinPress(n) {
-    const wanted = (pinTarget === 'admin' ? config.adminPin : config.coachPin);
+    const wanted = pinFor(pinTarget);
     if (pinEntry.length >= wanted.length) return;
     pinEntry += String(n);
     renderPinDots();
@@ -1432,7 +1502,7 @@ function pinPress(n) {
 function pinClear() { pinEntry = ''; renderPinDots(); document.getElementById('pinError').textContent = ''; }
 
 function pinSubmit() {
-    const wanted = (pinTarget === 'admin' ? config.adminPin : config.coachPin);
+    const wanted = pinFor(pinTarget);
     if (pinEntry === wanted) {
         unlocked[pinTarget] = true;
         closePin();
@@ -1447,7 +1517,8 @@ function pinSubmit() {
 function closePin() { document.getElementById('pinOverlay').classList.remove('show'); }
 
 function openRole(role) {
-    if (role === 'coach') { show('coach'); renderCoach(); }
+    if (role === 'wellbeing') { show('wellbeing'); renderWellbeing(); }
+    else if (role === 'coach') { show('coach'); renderCoachNotifs(); }
     else { show('admin'); renderAdmin(); }
 }
 
@@ -1572,7 +1643,7 @@ function sparkline(pts, baseline) {
 }
 
 // ------------------ CHECK-IN FLOW ------------------
-const CHECKIN_STEPS = METRICS.concat([COMM]);
+function checkinSteps() { return METRICS.concat([COMM]); }
 let stepIndex = 0;
 let draft = {};
 
@@ -1586,7 +1657,7 @@ function startCheckin() {
 const SCORE_CHIP_CLASS = { 1: 'sc-1', 2: 'sc-2', 3: 'sc-3', 4: 'sc-4', 5: 'sc-5' };
 
 function renderCheckinStep() {
-    const total = CHECKIN_STEPS.length + 1; // + review
+    const total = checkinSteps().length + 1; // + review
     let segs = '';
     for (let i = 0; i < total; i++) {
         segs += '<div class="seg' + (i < stepIndex ? ' done' : (i === stepIndex ? ' current' : '')) + '"></div>';
@@ -1594,8 +1665,8 @@ function renderCheckinStep() {
     document.getElementById('checkinProgress').innerHTML = segs;
 
     const body = document.getElementById('checkinBody');
-    if (stepIndex < CHECKIN_STEPS.length) {
-        const q = CHECKIN_STEPS[stepIndex];
+    if (stepIndex < checkinSteps().length) {
+        const q = checkinSteps()[stepIndex];
         const isComm = q.key === 'communication';
         body.innerHTML =
             '<div class="question-card">' +
@@ -1620,7 +1691,7 @@ function renderCheckinStep() {
                 '<div class="q-icon">👀</div>' +
                 '<div class="q-title">Quick check</div>' +
                 '<div class="q-sub">All good? Hit submit</div>' +
-                CHECKIN_STEPS.map(q => {
+                checkinSteps().map(q => {
                     const v = draft[q.key];
                     const isComm = q.key === 'communication';
                     return '<div class="review-row"><span>' + q.icon + ' ' + q.label + '</span>' +
@@ -1638,11 +1709,11 @@ function renderCheckinStep() {
 function pickOption(key, v) {
     draft[key] = v;
     renderCheckinStep();
-    setTimeout(() => { if (CHECKIN_STEPS[stepIndex] && draft[CHECKIN_STEPS[stepIndex].key] === v) checkinNext(); }, 240);
+    setTimeout(() => { if (checkinSteps()[stepIndex] && draft[checkinSteps()[stepIndex].key] === v) checkinNext(); }, 240);
 }
 
 function checkinNext() {
-    if (stepIndex < CHECKIN_STEPS.length) stepIndex++;
+    if (stepIndex < checkinSteps().length) stepIndex++;
     renderCheckinStep();
 }
 
@@ -1653,7 +1724,7 @@ function checkinBack() {
 }
 
 function submitCheckin() {
-    const missing = CHECKIN_STEPS.filter(q => !draft[q.key]);
+    const missing = checkinSteps().filter(q => !draft[q.key]);
     if (missing.length) { toast('Missing: ' + missing.map(q => q.label).join(', '), 'bad'); return; }
     const c = {
         id: 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
@@ -1684,11 +1755,32 @@ function submitCheckin() {
     document.getElementById('checkinProgress').innerHTML = '';
 }
 
-// ------------------ COACH ------------------
-function renderCoach() {
+// ------------------ COACH (notifications only) ------------------
+function renderCoachNotifs() {
+    const notifs = activeFlags().filter(f => f.type === 'comm' && f.audience === 'both');
+    const el = document.getElementById('coachNotifs');
+    if (!notifs.length) {
+        el.innerHTML = '<div class="empty-state"><div class="es-icon">📭</div>No chat requests right now.<br>You\'ll see athletes here when they ask to talk with you.</div>';
+        return;
+    }
+    el.innerHTML = notifs.map(f =>
+        '<div class="alert-item comm">' +
+            '<div class="alert-main">' +
+                '<div class="alert-who"><span class="sev-tag comm">chat</span>' + esc(rosterName(f.userId)) + '</div>' +
+                '<div class="alert-why">' + esc(f.detail) + '</div>' +
+                '<div class="alert-date">' + fmtDate(f.dateISO) + '</div>' +
+            '</div>' +
+            '<button class="btn btn-green" onclick="markActioned(\'' + f.id.replace(/'/g, "\\'") + '\')">✓ Actioned</button>' +
+        '</div>'
+    ).join('');
+}
+
+// ------------------ WELLBEING (wellness coordinator — full data) ------------------
+function renderWellbeing() {
     const flags = activeFlags();
     const wk = currentWeekKey();
     document.getElementById('snapshotWeekLabel').textContent = fmtWeek(wk);
+    document.getElementById('teamOverTime').innerHTML = teamOverTimeChart();
 
     const banner = document.getElementById('coachAlertBanner');
     if (flags.length) {
@@ -1792,6 +1884,46 @@ function renderCoach() {
     }
 }
 
+// team average readiness per week (last 8 weeks) — 0–100, higher is better
+function teamOverTimeChart() {
+    const weeks = [];
+    let wk = currentWeekKey();
+    for (let i = 0; i < 8; i++) { weeks.unshift(wk); wk = prevWeekKey(wk); }
+    const pts = weeks.map(w => {
+        const vals = checkins
+            .filter(c => isoWeekKey(new Date(c.dateISO)) === w)
+            .map(c => readinessOf(c)).filter(v => v !== null);
+        return { week: w, avg: vals.length ? Math.round(mean(vals)) : null, n: vals.length };
+    });
+    if (!pts.some(p => p.avg !== null)) {
+        return '<div class="empty-state"><div class="es-icon">📈</div>The team readiness line appears here once check-ins start</div>';
+    }
+    const W = 520, H = 130, P = 14, bottom = 20;
+    const xOf = i => P + i / (weeks.length - 1) * (W - 2 * P);
+    const yOf = v => 8 + (100 - v) / 100 * (H - bottom - 16);
+    let path = '', started = false;
+    let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="width:100%;height:130px;display:block;">';
+    // gridlines at 25/50/75
+    [25, 50, 75].forEach(g => {
+        svg += '<line x1="0" y1="' + yOf(g).toFixed(1) + '" x2="' + W + '" y2="' + yOf(g).toFixed(1) + '" stroke="#EEF2F7" stroke-width="1"/>';
+    });
+    pts.forEach((p, i) => {
+        if (p.avg === null) return;
+        path += (started ? 'L' : 'M') + xOf(i).toFixed(1) + ',' + yOf(p.avg).toFixed(1);
+        started = true;
+    });
+    svg += '<path d="' + path + '" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>';
+    pts.forEach((p, i) => {
+        svg += '<text x="' + xOf(i).toFixed(1) + '" y="' + (H - 4) + '" text-anchor="middle" font-size="9" font-weight="600" fill="#94A3B8">' + p.week.split('-W')[1] + '</text>';
+        if (p.avg === null) return;
+        const col = p.avg >= 70 ? '#22C55E' : p.avg >= 45 ? '#EAB308' : '#EF4444';
+        svg += '<circle cx="' + xOf(i).toFixed(1) + '" cy="' + yOf(p.avg).toFixed(1) + '" r="4" fill="' + col + '" stroke="#FFF" stroke-width="1.4"/>';
+        svg += '<text x="' + xOf(i).toFixed(1) + '" y="' + (yOf(p.avg) - 8).toFixed(1) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#0F172A">' + p.avg + '</text>';
+    });
+    svg += '</svg>';
+    return svg;
+}
+
 function statCard(label, value, sub) {
     return '<div class="stat-card">' +
         '<div class="eyebrow">' + label + '</div>' +
@@ -1803,7 +1935,7 @@ function markActioned(flagId) {
     if (!actioned.includes(flagId)) actioned.push(flagId);
     lsSet(LS.actioned, actioned);
     pushShared();
-    renderCoach();
+    refreshCurrentScreen();
     toast('Marked as actioned', 'good');
 }
 
@@ -1908,11 +2040,103 @@ function renderAdmin() {
     document.getElementById('cfgCoordName').value = config.coordName || '';
     document.getElementById('cfgCoordEmail').value = config.coordEmail || '';
     document.getElementById('cfgCoachEmail').value = config.coachEmail || '';
+    document.getElementById('cfgWellbeingPin').value = config.wellbeingPin || '';
     document.getElementById('cfgCoachPin').value = config.coachPin || '';
     document.getElementById('cfgAdminPin').value = config.adminPin || '';
     document.getElementById('cfgSyncUrl').value = config.syncUrl || '';
+    editMetrics = JSON.parse(JSON.stringify(METRICS));
+    editComm = JSON.parse(JSON.stringify(COMM));
+    renderQuestionEditor();
     renderRosterList();
     renderSyncStatus();
+}
+
+// ---------- question editor ----------
+let editMetrics = [];
+let editComm = null;
+
+function renderQuestionEditor() {
+    const el = document.getElementById('questionEditor');
+    el.innerHTML = editMetrics.map((m, i) =>
+        '<div style="border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;">' +
+            '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">' +
+                '<input class="form-input" id="qm_' + i + '_icon" value="' + esc(m.icon || '') + '" maxlength="4" style="width:58px;text-align:center;flex:none;" title="Icon (emoji)">' +
+                '<input class="form-input" id="qm_' + i + '_label" value="' + esc(m.label) + '" placeholder="Short name" style="flex:1;">' +
+                '<button class="icon-btn" onclick="qMove(' + i + ',-1)" title="Move up">↑</button>' +
+                '<button class="icon-btn" onclick="qMove(' + i + ',1)" title="Move down">↓</button>' +
+                '<button class="icon-btn" onclick="qRemove(' + i + ')" title="Remove question">🗑</button>' +
+            '</div>' +
+            '<input class="form-input" id="qm_' + i + '_question" value="' + esc(m.question) + '" placeholder="Question athletes see" style="margin-bottom:8px;">' +
+            m.options.map((o, j) =>
+                '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">' +
+                    '<span class="score-chip sc-' + (j + 1) + '" style="flex:none;">' + (j + 1) + '</span>' +
+                    '<input class="form-input" id="qm_' + i + '_opt' + j + '" value="' + esc(o) + '" style="flex:1;">' +
+                '</div>').join('') +
+            '<div class="toggle-row" style="padding-bottom:0;">' +
+                '<div class="t-label" style="font-size:12px;">Training-load question (RPE-style — only alerts if enabled in rules)</div>' +
+                '<div class="toggle-switch' + (m.isLoad ? ' on' : '') + '" onclick="qToggleLoad(' + i + ')"><div class="toggle-slider"></div></div>' +
+            '</div>' +
+        '</div>').join('');
+
+    const ce = document.getElementById('commEditor');
+    ce.innerHTML =
+        '<input class="form-input" id="qc_question" value="' + esc(editComm.question) + '" style="margin-bottom:8px;">' +
+        editComm.options.map((o, j) =>
+            '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap;">' +
+                '<span class="score-chip ' + (j === 0 ? 'sc-1' : 'sc-4') + '" style="flex:none;">' + (j + 1) + '</span>' +
+                '<input class="form-input" id="qc_opt' + j + '" value="' + esc(o) + '" style="flex:1;min-width:180px;">' +
+                '<select class="form-select" id="qc_notify' + j + '" style="width:auto;flex:none;">' +
+                    '<option value="none"' + (editComm.notify[j] === 'none' ? ' selected' : '') + '>no alert</option>' +
+                    '<option value="wellbeing"' + (editComm.notify[j] === 'wellbeing' ? ' selected' : '') + '>alert wellbeing</option>' +
+                    '<option value="both"' + (editComm.notify[j] === 'both' ? ' selected' : '') + '>alert coach + wellbeing</option>' +
+                '</select>' +
+            '</div>').join('') +
+        '<div class="form-hint">"Alert coach + wellbeing" options also appear on the coach\'s notification screen.</div>';
+}
+
+function captureQuestionEditor() {
+    editMetrics = editMetrics.map((m, i) => Object.assign({}, m, {
+        icon: document.getElementById('qm_' + i + '_icon').value.trim() || '📝',
+        label: document.getElementById('qm_' + i + '_label').value.trim() || m.label,
+        question: document.getElementById('qm_' + i + '_question').value.trim() || m.question,
+        options: m.options.map((o, j) => document.getElementById('qm_' + i + '_opt' + j).value.trim() || o)
+    }));
+    editComm.question = document.getElementById('qc_question').value.trim() || editComm.question;
+    editComm.options = editComm.options.map((o, j) => document.getElementById('qc_opt' + j).value.trim() || o);
+    editComm.notify = editComm.options.map((o, j) => document.getElementById('qc_notify' + j).value);
+}
+
+function qMove(i, dir) {
+    captureQuestionEditor();
+    const j = i + dir;
+    if (j < 0 || j >= editMetrics.length) return;
+    const t = editMetrics[i]; editMetrics[i] = editMetrics[j]; editMetrics[j] = t;
+    renderQuestionEditor();
+}
+
+function qRemove(i) {
+    captureQuestionEditor();
+    if (editMetrics.length <= 1) { toast('Keep at least one question', 'bad'); return; }
+    if (!confirm('Remove "' + editMetrics[i].label + '"? Past answers are kept in the data but no longer shown.')) return;
+    editMetrics.splice(i, 1);
+    renderQuestionEditor();
+}
+
+function qToggleLoad(i) {
+    captureQuestionEditor();
+    editMetrics[i].isLoad = !editMetrics[i].isLoad;
+    renderQuestionEditor();
+}
+
+function qAdd() {
+    captureQuestionEditor();
+    editMetrics.push({
+        key: 'q_' + Date.now().toString(36),
+        label: 'New question', icon: '📝',
+        question: 'How are you going?',
+        options: ['Great', 'Good', 'OK', 'Not great', 'Really struggling']
+    });
+    renderQuestionEditor();
 }
 
 function toggleCfg(key, el) {
@@ -1958,6 +2182,9 @@ function removeRosterAthlete(i) {
 }
 
 function saveAdminConfig() {
+    captureQuestionEditor();
+    config.metrics = editMetrics;
+    config.comm = editComm;
     config.redDelta = Number(document.getElementById('cfgRedDelta').value);
     config.spikeDelta = Number(document.getElementById('cfgSpikeDelta').value);
     config.trendDelta = Number(document.getElementById('cfgTrendDelta').value);
@@ -1965,10 +2192,12 @@ function saveAdminConfig() {
     config.coordName = document.getElementById('cfgCoordName').value.trim();
     config.coordEmail = document.getElementById('cfgCoordEmail').value.trim();
     config.coachEmail = document.getElementById('cfgCoachEmail').value.trim();
+    config.wellbeingPin = document.getElementById('cfgWellbeingPin').value.trim() || DEFAULT_CONFIG.wellbeingPin;
     config.coachPin = document.getElementById('cfgCoachPin').value.trim() || DEFAULT_CONFIG.coachPin;
     config.adminPin = document.getElementById('cfgAdminPin').value.trim() || DEFAULT_CONFIG.adminPin;
     config.syncUrl = document.getElementById('cfgSyncUrl').value.trim();
     lsSet(LS.config, config);
+    rebuildQuestionRefs();
     pushShared();
     renderSyncStatus();
     renderHeader();
@@ -2069,7 +2298,7 @@ function loadDemoData() {
     checkins = Object.values(byId).sort((a, b) => a.dateISO < b.dateISO ? -1 : 1);
     lsSet(LS.checkins, checkins);
     notifyNewFlags();
-    toast('Demo data loaded — check the coach screen', 'good');
+    toast('Demo data loaded — check the wellbeing screen', 'good');
 }
 
 function clearAllData() {

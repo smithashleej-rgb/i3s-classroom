@@ -166,12 +166,14 @@ function handleAlert(body) {
         : severity === 'comm'
           ? 'The athlete has asked to talk — please reach out to them.\n\n'
           : 'This is a sustained or noticeable negative change from this athlete\'s own baseline — worth a check-in when convenient.\n\n') +
-      'Open the wellness app (coach screen) for their full trends.\n\n' +
+      'Open the wellness app (wellbeing screen) for their full trends.\n\n' +
       '— RANGES wellness monitor (automated)';
     try {
+      // chat requests routed to "coach + wellbeing" email the coach directly
+      var to = (f.audience === 'both' && coachEmail) ? coordEmail + ',' + coachEmail : coordEmail;
       MailApp.sendEmail({
-        to: coordEmail,
-        cc: coachEmail || undefined,
+        to: to,
+        cc: (f.audience === 'both') ? undefined : (coachEmail || undefined),
         subject: subject,
         body: bodyText
       });
