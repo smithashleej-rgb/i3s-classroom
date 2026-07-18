@@ -44,7 +44,7 @@ Without it, the app still works, but data stays on each individual device.
 1. Go to [sheets.google.com](https://sheets.google.com) → new blank spreadsheet.
    Name it e.g. `RANGES Wellness Data`.
 2. **Extensions → Apps Script**. Delete the placeholder code.
-3. Copy the entire contents of `ranges-wellness-apps-script.gs` and paste it in. **Save** (💾).
+3. Copy the entire contents of `ranges-wellness-apps-script.gs` and paste it in. **Save**.
 4. **Deploy → New deployment** → gear icon → **Web app**:
    - Description: `ranges wellness`
    - Execute as: **Me**
@@ -91,9 +91,9 @@ is caught early. Scores run 1 (best) → 5 (worst).
 
 | Severity | Fires when | Default |
 |---|---|---|
-| 🔴 **Red** | Massive negative change within **1–2 sessions** vs baseline | one session +3.0 worse, or two in a row each +2.5 worse |
-| 🟡 **Yellow** | Gradual change: one week's average notably worse, **or** two consecutive weeks each somewhat worse than baseline | +1.5 in a week / +0.75 two weeks running |
-| 💬 **Chat request** | Athlete picks any "I'd like to chat…" option on the communication question | immediate, always |
+| **Red** | Massive negative change within **1–2 sessions** vs baseline | one session +3.0 worse, or two in a row each +2.5 worse |
+| **Yellow** | Gradual change: one week's average notably worse, **or** two consecutive weeks each somewhat worse than baseline | +1.5 in a week / +0.75 two weeks running |
+| **Chat request** | Athlete picks any "I'd like to chat…" option on the communication question | immediate, always |
 
 - Baselines activate after a minimum number of check-ins (default 4). Until
   then only chat requests alert.
@@ -107,7 +107,7 @@ automatically, with severity, athlete, and detail. Chat requests routed to
 "coach + wellbeing" also email the coach directly and appear on the coach's
 notification screen. Each
 alert is emailed only once (deduped in the `Alerts` sheet). Coaches mark
-alerts **✓ Actioned** in the app to clear them; the actioned list syncs to
+alerts **Actioned** in the app to clear them; the actioned list syncs to
 every device.
 
 ## What's in the sheet

@@ -149,9 +149,9 @@ function handleAlert(body) {
 
   var sent = false;
   if (coordEmail) {
-    var sevLabel = severity === 'red' ? '🔴 RED ALERT'
-                 : severity === 'comm' ? '💬 CHAT REQUEST'
-                 : '🟡 Yellow alert';
+    var sevLabel = severity === 'red' ? 'RED ALERT'
+                 : severity === 'comm' ? 'CHAT REQUEST'
+                 : 'Yellow alert';
     var subject = '[RANGES wellness] ' + sevLabel + ' — ' + athlete + ' — ' + f.title;
     var bodyText =
       'Hi ' + coordName + ',\n\n' +

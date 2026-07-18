@@ -8,7 +8,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="RANGES Wellness">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏐</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%232563EB%22/><text x=%2250%22 y=%2271%22 font-size=%2260%22 font-family=%22Arial,sans-serif%22 font-weight=%22bold%22 fill=%22white%22 text-anchor=%22middle%22>R</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
@@ -226,12 +226,16 @@
             width: 54px; height: 54px;
             border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 26px;
+            font-family: var(--f-display);
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: .06em;
             flex-shrink: 0;
         }
-        .role-icon.athlete { background: var(--blue-soft); border: 1px solid var(--blue-line); }
-        .role-icon.coach   { background: var(--green-soft); border: 1px solid var(--green-line); }
-        .role-icon.admin   { background: var(--amber-soft); border: 1px solid var(--amber-line); }
+        .role-icon.athlete { background: var(--blue-soft); border: 1px solid var(--blue-line); color: var(--blue-deep); }
+        .role-icon.coach   { background: var(--green-soft); border: 1px solid var(--green-line); color: var(--green); }
+        .role-icon.coach2  { background: var(--blue-soft); border: 1px solid var(--blue-line); color: var(--blue-deep); }
+        .role-icon.admin   { background: var(--amber-soft); border: 1px solid var(--amber-line); color: var(--amber); }
         .role-name { font-family: var(--f-display); font-size: 16px; font-weight: 800; color: var(--ink); }
         .role-desc { font-size: 12.5px; font-weight: 600; color: var(--sub); margin-top: 3px; line-height: 1.45; }
 
@@ -654,28 +658,28 @@
     <div class="screen" id="screen-landing">
         <div class="role-grid">
             <button class="role-card" onclick="enterAthlete()">
-                <div class="role-icon athlete">🏐</div>
+                <div class="role-icon athlete">ATH</div>
                 <div>
                     <div class="role-name">Athlete</div>
                     <div class="role-desc">Check in after every practice &amp; game, see your trends</div>
                 </div>
             </button>
             <button class="role-card" onclick="requestPin('wellbeing')">
-                <div class="role-icon coach">💛</div>
+                <div class="role-icon coach">WB</div>
                 <div>
                     <div class="role-name">Wellbeing</div>
                     <div class="role-desc">Wellness coordinator — all athlete data, trends over time &amp; alerts</div>
                 </div>
             </button>
             <button class="role-card" onclick="requestPin('coach')">
-                <div class="role-icon coach">📋</div>
+                <div class="role-icon coach2">CO</div>
                 <div>
                     <div class="role-name">Coach</div>
                     <div class="role-desc">Notifications only — athletes who've asked to chat with you</div>
                 </div>
             </button>
             <button class="role-card" onclick="requestPin('admin')">
-                <div class="role-icon admin">⚙️</div>
+                <div class="role-icon admin">AD</div>
                 <div>
                     <div class="role-name">Admin</div>
                     <div class="role-desc">Setup only — questions, roster &amp; rules. No athlete data.</div>
@@ -683,7 +687,7 @@
             </button>
         </div>
         <div class="note-card">
-            💡 <b>Athletes:</b> save this page to your phone's home screen so it's one tap away —
+            <b>Athletes:</b> save this page to your phone's home screen so it's one tap away —
             iPhone: Share → Add to Home Screen · Android: menu (⋮) → Add to Home Screen.
             You only enter your ID once — this device remembers you.
         </div>
@@ -710,11 +714,25 @@
     <!-- ================= ATHLETE HOME ================= -->
     <div class="screen" id="screen-athlete-home">
         <div class="card" id="athleteHero"></div>
-        <button class="big-cta" id="checkinCta" onclick="startCheckin()">✏️ Check in now</button>
+        <button class="big-cta" id="checkinCta" onclick="startCheckin()">Check in now</button>
+        <button class="btn-ghost" style="width:100%;padding:12px;margin-bottom:6px;" onclick="openAthleteData()">My data over time</button>
         <div class="eyebrow section-eyebrow">my trends · last 8 weeks · dotted line = my baseline</div>
         <div class="trend-grid" id="athleteTrends"></div>
         <div class="eyebrow section-eyebrow">my recent check-ins</div>
         <div class="card" id="athleteHistory"></div>
+    </div>
+
+    <!-- ================= ATHLETE DATA OVER TIME ================= -->
+    <div class="screen" id="screen-athlete-data">
+        <div class="btn-wrap" id="dataRangeToggle" style="margin-bottom:4px;"></div>
+        <div class="eyebrow section-eyebrow">my readiness over time · higher = better</div>
+        <div class="card" id="myReadiness"></div>
+        <div class="eyebrow section-eyebrow">my weekly training load · rpe total</div>
+        <div class="card bar-chart-wrap" id="myLoad"></div>
+        <div class="eyebrow section-eyebrow">each area over time · dotted line = my baseline</div>
+        <div class="trend-grid" id="myTrends"></div>
+        <div class="eyebrow section-eyebrow">all my check-ins</div>
+        <div class="card" id="myHistory"></div>
     </div>
 
     <!-- ================= CHECK-IN FLOW ================= -->
@@ -768,7 +786,7 @@
             <div id="questionEditor"></div>
             <button class="btn btn-green" style="margin-top:6px;" onclick="qAdd()">+ Add question</button>
             <hr class="divider">
-            <div class="form-label" style="margin-bottom:8px;">💬 Communication question (fixed structure — wording &amp; routing editable)</div>
+            <div class="form-label" style="margin-bottom:8px;">Communication question (fixed structure — wording &amp; routing editable)</div>
             <div id="commEditor"></div>
         </div>
 
@@ -945,25 +963,18 @@
 // ------------------ QUESTION DEFINITIONS ------------------
 // Defaults only — admins can add/remove/reword questions (stored in config).
 const DEFAULT_METRICS = [
-    { key: 'sleep',      label: 'Sleep quality',   icon: '😴',
-      question: 'How was your sleep?', options: ['Excellent', 'Good', 'OK', 'Poor', 'Very poor'] },
-    { key: 'tiredness',  label: 'Tiredness',       icon: '🔋',
-      question: 'How fresh are you feeling?', options: ['Very fresh', 'Fresh', 'Normal', 'Tired', 'Exhausted'] },
-    { key: 'motivation', label: 'Motivation',      icon: '🔥',
-      question: 'How motivated are you?', options: ['Pumped', 'Keen', 'Ok', 'Yeah nah', 'Completely uninterested'] },
-    { key: 'confidence', label: 'Self confidence', icon: '💪',
-      question: 'How are your goals going?', options: ['Achieving my goals', 'Achieving a few goals', "It's been a while since achieving a goal", "Not sure if I'm achieving goals", 'Not achieving anything'] },
-    { key: 'stress',     label: 'Stress level',    icon: '🧘',
-      question: 'How stressed are you?', options: ['Chilled', 'Relaxed', 'Ok', 'Bit stressed', 'Stressed & overwhelmed'] },
-    { key: 'soreness',   label: 'Muscle soreness', icon: '🦵',
-      question: 'How sore are your muscles?', options: ['No soreness', 'Minor post training/game soreness', 'Persistent minor soreness', 'Quite sore', 'Acute soreness'] },
-    { key: 'rpe',        label: 'Session RPE',     icon: '📈', isLoad: true,
+    { key: 'sleep',      label: 'Sleep quality',   question: 'How was your sleep?', options: ['Excellent', 'Good', 'OK', 'Poor', 'Very poor'] },
+    { key: 'tiredness',  label: 'Tiredness',       question: 'How fresh are you feeling?', options: ['Very fresh', 'Fresh', 'Normal', 'Tired', 'Exhausted'] },
+    { key: 'motivation', label: 'Motivation',      question: 'How motivated are you?', options: ['Pumped', 'Keen', 'Ok', 'Yeah nah', 'Completely uninterested'] },
+    { key: 'confidence', label: 'Self confidence', question: 'How are your goals going?', options: ['Achieving my goals', 'Achieving a few goals', "It's been a while since achieving a goal", "Not sure if I'm achieving goals", 'Not achieving anything'] },
+    { key: 'stress',     label: 'Stress level',    question: 'How stressed are you?', options: ['Chilled', 'Relaxed', 'Ok', 'Bit stressed', 'Stressed & overwhelmed'] },
+    { key: 'soreness',   label: 'Muscle soreness', question: 'How sore are your muscles?', options: ['No soreness', 'Minor post training/game soreness', 'Persistent minor soreness', 'Quite sore', 'Acute soreness'] },
+    { key: 'rpe',        label: 'Session RPE',     isLoad: true,
       question: 'How hard was the session or game?', options: ['Light activity', 'Moderate activity', 'Vigorous activity', 'Very hard activity', 'Max effort activity'] }
 ];
 
 const DEFAULT_COMM = {
-    key: 'communication', label: 'Communication', icon: '💬',
-    question: 'Anything you want to talk about?',
+    key: 'communication', label: 'Communication', question: 'Anything you want to talk about?',
     options: [
         "I'm comfortable communicating any queries with the Coach or Team Captain",
         'I would like to chat with the Wellness Coordinator',
@@ -1365,6 +1376,11 @@ function rosterName(userId) {
     return r ? (r.name + ' (' + userId + ')') : userId;
 }
 
+// short column heading for the team table, e.g. "Sleep quality" -> "sleep"
+function metricAbbr(m) {
+    return esc(m.label.split(' ')[0].slice(0, 6).toLowerCase());
+}
+
 // ------------------ READINESS / STATS ------------------
 function readinessOf(checkin) {
     const vals = WELLNESS_KEYS.map(k => checkin.answers[k]).filter(Boolean);
@@ -1419,6 +1435,7 @@ function goHome() { show('landing'); }
 
 function refreshCurrentScreen() {
     if (currentScreen === 'athlete-home') renderAthleteHome();
+    else if (currentScreen === 'athlete-data') renderAthleteData();
     else if (currentScreen === 'wellbeing') renderWellbeing();
     else if (currentScreen === 'coach') renderCoachNotifs();
     else if (currentScreen === 'admin') renderAdmin();
@@ -1434,6 +1451,7 @@ function renderHeader() {
         'landing': 'load &amp; wellness monitoring',
         'athlete-setup': 'first-time setup',
         'athlete-home': syncBit + 'athlete · ' + (profile ? esc(profile.userId) : ''),
+        'athlete-data': 'my data over time · ' + (profile ? esc(profile.userId) : ''),
         'checkin': 'check-in · ' + (profile ? esc(profile.userId) : ''),
         'wellbeing': syncBit + 'wellbeing — wellness coordinator',
         'coach': syncBit + 'coach — notifications',
@@ -1445,13 +1463,16 @@ function renderHeader() {
         if (currentScreen === 'athlete-home') {
             html += '<button class="btn-ghost" onclick="switchAthlete()">Switch ID</button>';
         }
+        if (currentScreen === 'athlete-data') {
+            html += '<button class="btn-ghost" onclick="show(\'athlete-home\');renderAthleteHome();">← Back</button>';
+        }
         if (currentScreen === 'wellbeing') {
-            html += '<button class="btn-ghost" onclick="exportCSV()">⬇ CSV</button>';
+            html += '<button class="btn-ghost" onclick="exportCSV()">CSV</button>';
         }
         if (currentScreen === 'wellbeing' || currentScreen === 'coach' || currentScreen === 'athlete-home') {
-            html += '<button class="btn-ghost" onclick="manualSync()">↻ Refresh</button>';
+            html += '<button class="btn-ghost" onclick="manualSync()">Refresh</button>';
         }
-        html += '<button class="btn-ghost" onclick="goHome()">⌂ Home</button>';
+        html += '<button class="btn-ghost" onclick="goHome()">Home</button>';
     }
     actions.innerHTML = html;
 }
@@ -1478,7 +1499,7 @@ function buildPinPad() {
     for (let i = 1; i <= 9; i++) html += '<button class="pin-key" onclick="pinPress(' + i + ')">' + i + '</button>';
     html += '<button class="pin-key" onclick="pinClear()">⌫</button>';
     html += '<button class="pin-key" onclick="pinPress(0)">0</button>';
-    html += '<button class="pin-key" onclick="pinSubmit()">✓</button>';
+    html += '<button class="pin-key" onclick="pinSubmit()">OK</button>';
     pad.innerHTML = html;
 }
 
@@ -1568,7 +1589,7 @@ function renderAthleteHome() {
                 '<div class="ring-val"><div class="num">' + (readiness === null ? '–' : readiness) + '</div><div class="lbl">ready</div></div>' +
             '</div>' +
             '<div>' +
-                '<h2>Hey ' + esc(heroName) + ' 👋</h2>' +
+                '<h2>Hey ' + esc(heroName) + '</h2>' +
                 '<div class="hero-sub">' + (last ? 'Last check-in: ' + fmtDate(last.dateISO) : 'No check-ins yet — do your first one below!') + '</div>' +
                 '<div class="hero-badges">' +
                     '<span class="pill ' + (thisWeek > 0 ? 'green' : 'amber') + '">this week: ' + thisWeek + ' check-in' + (thisWeek === 1 ? '' : 's') + '</span>' +
@@ -1578,12 +1599,12 @@ function renderAthleteHome() {
         '</div>';
 
     const cta = document.getElementById('checkinCta');
-    cta.innerHTML = thisWeek > 0 ? '✏️ Check in — after every practice & game' : '✏️ Check in now';
+    cta.innerHTML = thisWeek > 0 ? 'Check in — after every practice & game' : 'Check in now';
 
     // trends with personal baseline
     const trendsEl = document.getElementById('athleteTrends');
     if (!mine.length) {
-        trendsEl.innerHTML = '<div class="card empty-state" style="grid-column:1/-1;"><div class="es-icon">📈</div>Your trends will appear here after your first check-in</div>';
+        trendsEl.innerHTML = '<div class="card empty-state" style="grid-column:1/-1;">Your trends will appear here after your first check-in</div>';
     } else {
         trendsEl.innerHTML = METRICS.map(m => {
             const pts = mine.filter(c => c.answers[m.key]).slice(-16)
@@ -1591,7 +1612,7 @@ function renderAthleteHome() {
             const latest = pts.length ? pts[pts.length - 1].y : null;
             const base = baselineAll(profile.userId, m.key);
             return '<div class="trend-card">' +
-                '<div class="trend-head"><div class="trend-name">' + m.icon + ' ' + m.label + '</div>' +
+                '<div class="trend-head"><div class="trend-name">' + esc(m.label) + '</div>' +
                 (latest ? '<span class="score-chip sc-' + latest + '">' + latest + '</span>' : '') + '</div>' +
                 sparkline(pts, base) +
             '</div>';
@@ -1601,7 +1622,7 @@ function renderAthleteHome() {
     // history
     const histEl = document.getElementById('athleteHistory');
     if (!mine.length) {
-        histEl.innerHTML = '<div class="empty-state"><div class="es-icon">📝</div>Nothing here yet</div>';
+        histEl.innerHTML = '<div class="empty-state">Nothing here yet</div>';
     } else {
         histEl.innerHTML = mine.slice(-10).reverse().map(c =>
             '<div class="history-item">' +
@@ -1642,6 +1663,78 @@ function sparkline(pts, baseline) {
     return svg;
 }
 
+// ------------------ ATHLETE DATA OVER TIME ------------------
+let athleteDataRange = 8; // weeks; 0 = all time
+
+function openAthleteData() {
+    show('athlete-data');
+    renderAthleteData();
+}
+
+function setDataRange(n) {
+    athleteDataRange = n;
+    renderAthleteData();
+}
+
+function renderAthleteData() {
+    const mine = userCheckins(profile.userId);
+    // window: chosen weeks, or everything since first check-in (capped for readability)
+    let nWeeks = athleteDataRange;
+    if (nWeeks === 0) {
+        if (mine.length) {
+            const firstWeekMon = weekKeyToMonday(isoWeekKey(new Date(mine[0].dateISO)));
+            nWeeks = Math.min(26, Math.max(8, Math.round((Date.now() - firstWeekMon.getTime()) / (7 * 86400000)) + 1));
+        } else {
+            nWeeks = 8;
+        }
+    }
+    const cutoff = athleteDataRange === 0 ? 0 : Date.now() - athleteDataRange * 7 * 86400000;
+
+    document.getElementById('dataRangeToggle').innerHTML =
+        '<button class="' + (athleteDataRange === 8 ? 'btn' : 'btn-ghost') + '" onclick="setDataRange(8)">Last 8 weeks</button>' +
+        '<button class="' + (athleteDataRange === 16 ? 'btn' : 'btn-ghost') + '" onclick="setDataRange(16)">Last 16 weeks</button>' +
+        '<button class="' + (athleteDataRange === 0 ? 'btn' : 'btn-ghost') + '" onclick="setDataRange(0)">All time</button>';
+
+    document.getElementById('myReadiness').innerHTML = teamOverTimeChart(nWeeks, profile.userId);
+    document.getElementById('myLoad').innerHTML = mine.length
+        ? loadBars(profile.userId, nWeeks)
+        : '<div class="empty-state">Your training load appears here after your first check-in</div>';
+
+    const inRange = mine.filter(c => new Date(c.dateISO).getTime() >= cutoff);
+    const trendsEl = document.getElementById('myTrends');
+    if (!inRange.length) {
+        trendsEl.innerHTML = '<div class="card empty-state" style="grid-column:1/-1;">No check-ins in this period yet</div>';
+    } else {
+        trendsEl.innerHTML = METRICS.map(m => {
+            const pts = inRange.filter(c => c.answers[m.key]).slice(-60)
+                .map(c => ({ x: new Date(c.dateISO).getTime(), y: c.answers[m.key] }));
+            const latest = pts.length ? pts[pts.length - 1].y : null;
+            const base = baselineAll(profile.userId, m.key);
+            return '<div class="trend-card">' +
+                '<div class="trend-head"><div class="trend-name">' + esc(m.label) + '</div>' +
+                (latest ? '<span class="score-chip sc-' + latest + '">' + latest + '</span>' : '') + '</div>' +
+                sparkline(pts, base) +
+            '</div>';
+        }).join('');
+    }
+
+    const histEl = document.getElementById('myHistory');
+    if (!inRange.length) {
+        histEl.innerHTML = '<div class="empty-state">Nothing here yet</div>';
+    } else {
+        histEl.innerHTML = inRange.slice(-60).reverse().map(c =>
+            '<div class="history-item">' +
+                '<div>' + fmtDate(c.dateISO) + (c.answers.communication >= 2 ? ' · chat' : '') + '</div>' +
+                '<div class="history-scores">' +
+                    METRICS.map(m => c.answers[m.key]
+                        ? '<span class="score-chip sc-' + c.answers[m.key] + '" title="' + esc(m.label) + '">' + c.answers[m.key] + '</span>'
+                        : '').join('') +
+                '</div>' +
+            '</div>'
+        ).join('');
+    }
+}
+
 // ------------------ CHECK-IN FLOW ------------------
 function checkinSteps() { return METRICS.concat([COMM]); }
 let stepIndex = 0;
@@ -1670,7 +1763,6 @@ function renderCheckinStep() {
         const isComm = q.key === 'communication';
         body.innerHTML =
             '<div class="question-card">' +
-                '<div class="q-icon">' + q.icon + '</div>' +
                 '<div class="q-title">' + q.question + '</div>' +
                 '<div class="q-sub">' + (isComm ? 'Your answer goes straight to the wellness team' : 'Tap the one that fits right now') + '</div>' +
                 q.options.map((opt, i) => {
@@ -1688,20 +1780,19 @@ function renderCheckinStep() {
     } else {
         body.innerHTML =
             '<div class="question-card">' +
-                '<div class="q-icon">👀</div>' +
                 '<div class="q-title">Quick check</div>' +
                 '<div class="q-sub">All good? Hit submit</div>' +
                 checkinSteps().map(q => {
                     const v = draft[q.key];
                     const isComm = q.key === 'communication';
-                    return '<div class="review-row"><span>' + q.icon + ' ' + q.label + '</span>' +
+                    return '<div class="review-row"><span>' + esc(q.label) + '</span>' +
                         '<span class="rv-val"><span class="score-chip ' + (isComm ? (v === 1 ? 'sc-1' : 'sc-4') : SCORE_CHIP_CLASS[v]) + '">' + v + '</span>' +
                         (isComm ? '' : ' ' + esc(q.options[v - 1])) + '</span></div>';
                 }).join('') +
             '</div>' +
             '<div class="checkin-nav">' +
                 '<button class="btn-ghost" onclick="checkinBack()">← Back</button>' +
-                '<button class="btn btn-green" style="padding:12px 28px;" onclick="submitCheckin()">Submit ✓</button>' +
+                '<button class="btn btn-green" style="padding:12px 28px;" onclick="submitCheckin()">Submit</button>' +
             '</div>';
     }
 }
@@ -1741,13 +1832,12 @@ function submitCheckin() {
 
     const readiness = readinessOf(c);
     const msgs = readiness >= 70
-        ? ['Looking fresh! 🔥', 'Keep doing what you\'re doing.']
+        ? ['Looking fresh!', 'Keep doing what you\'re doing.']
         : readiness >= 45
-            ? ['Thanks for checking in 🙌', 'Keep an eye on recovery this week.']
-            : ['Thanks for being honest 💛', 'The wellness team can see this — reach out any time.'];
+            ? ['Thanks for checking in', 'Keep an eye on recovery this week.']
+            : ['Thanks for being honest', 'The wellness team can see this — reach out any time.'];
     document.getElementById('checkinBody').innerHTML =
         '<div class="question-card celebrate">' +
-            '<div class="big-emoji">🏐</div>' +
             '<h2>' + msgs[0] + '</h2>' +
             '<p>Check-in saved' + (config.syncUrl ? ' &amp; synced' : '') + '. ' + msgs[1] + '</p>' +
             '<div style="margin-top:22px;"><button class="btn" style="padding:12px 30px;" onclick="show(\'athlete-home\');renderAthleteHome();">Done</button></div>' +
@@ -1760,7 +1850,7 @@ function renderCoachNotifs() {
     const notifs = activeFlags().filter(f => f.type === 'comm' && f.audience === 'both');
     const el = document.getElementById('coachNotifs');
     if (!notifs.length) {
-        el.innerHTML = '<div class="empty-state"><div class="es-icon">📭</div>No chat requests right now.<br>You\'ll see athletes here when they ask to talk with you.</div>';
+        el.innerHTML = '<div class="empty-state">No chat requests right now.<br>You\'ll see athletes here when they ask to talk with you.</div>';
         return;
     }
     el.innerHTML = notifs.map(f =>
@@ -1770,7 +1860,7 @@ function renderCoachNotifs() {
                 '<div class="alert-why">' + esc(f.detail) + '</div>' +
                 '<div class="alert-date">' + fmtDate(f.dateISO) + '</div>' +
             '</div>' +
-            '<button class="btn btn-green" onclick="markActioned(\'' + f.id.replace(/'/g, "\\'") + '\')">✓ Actioned</button>' +
+            '<button class="btn btn-green" onclick="markActioned(\'' + f.id.replace(/'/g, "\\'") + '\')">Actioned</button>' +
         '</div>'
     ).join('');
 }
@@ -1792,9 +1882,9 @@ function renderWellbeing() {
         if (yellows) bits.push(yellows + ' yellow');
         if (comms) bits.push(comms + ' chat request' + (comms > 1 ? 's' : ''));
         banner.innerHTML = '<div class="alert-banner warn" onclick="document.getElementById(\'coachAlertsList\').scrollIntoView({behavior:\'smooth\'})">' +
-            '<span>🚨 ' + bits.join(' · ') + ' — tap to view</span><span>↓</span></div>';
+            '<span>' + bits.join(' · ') + ' — tap to view</span><span>↓</span></div>';
     } else {
-        banner.innerHTML = '<div class="alert-banner ok"><span>✅ No active alerts — everyone tracking near their baseline</span></div>';
+        banner.innerHTML = '<div class="alert-banner ok"><span>No active alerts — everyone tracking near their baseline</span></div>';
     }
 
     // stats
@@ -1836,7 +1926,7 @@ function renderWellbeing() {
         }).join('');
         const rd = latest ? readinessOf(latest) : null;
         return '<tr onclick="openDetail(\'' + esc(id) + '\')">' +
-            '<td><div class="athlete-name-cell">' + (flagged ? '🚨 ' : '') + esc(r ? r.name : id) + '</div>' +
+            '<td><div class="athlete-name-cell">' + (flagged ? '<span class="sync-dot err" style="margin-right:6px;"></span>' : '') + esc(r ? r.name : id) + '</div>' +
             '<div class="athlete-id-cell">' + esc(id) + (r ? '' : ' · unrostered') + '</div></td>' +
             cells +
             '<td><span class="score-chip ' + (rd === null ? 'sc-none' : (rd >= 70 ? 'sc-1' : rd >= 45 ? 'sc-3' : 'sc-5')) + '" style="min-width:34px;">' + (rd === null ? '–' : rd) + '</span></td>' +
@@ -1846,25 +1936,25 @@ function renderWellbeing() {
 
     document.getElementById('teamTableWrap').innerHTML = ids.length
         ? '<table class="team-table"><thead><tr><th>athlete</th>' +
-            METRICS.map(m => '<th title="' + m.label + '">' + m.icon + '</th>').join('') +
+            METRICS.map(m => '<th title="' + esc(m.label) + '">' + metricAbbr(m) + '</th>').join('') +
             '<th>ready</th><th>wk</th></tr></thead><tbody>' + rows + '</tbody></table>'
-        : '<div class="empty-state"><div class="es-icon">👥</div>No athletes yet — add the roster in admin, or wait for first check-ins.<br>(Admin → load demo data to preview.)</div>';
+        : '<div class="empty-state">No athletes yet — add the roster in admin, or wait for first check-ins.<br>(Admin → load demo data to preview.)</div>';
 
     // alerts list
     const alertsEl = document.getElementById('coachAlertsList');
     if (!flags.length) {
-        alertsEl.innerHTML = '<div class="empty-state"><div class="es-icon">🎉</div>No active alerts</div>';
+        alertsEl.innerHTML = '<div class="empty-state">No active alerts</div>';
     } else {
         alertsEl.innerHTML = flags.map(f =>
             '<div class="alert-item ' + f.type + '">' +
                 '<div class="alert-main">' +
-                    '<div class="alert-who"><span class="sev-tag ' + (f.severity === 'comm' ? 'comm' : f.severity) + '">' + (f.severity === 'comm' ? 'chat' : f.severity) + '</span>' + (f.type === 'load' ? '📈 ' : '') + esc(rosterName(f.userId)) + ' — ' + esc(f.title) + '</div>' +
+                    '<div class="alert-who"><span class="sev-tag ' + (f.severity === 'comm' ? 'comm' : f.severity) + '">' + (f.severity === 'comm' ? 'chat' : f.severity) + '</span>' + esc(rosterName(f.userId)) + ' — ' + esc(f.title) + '</div>' +
                     '<div class="alert-why">' + esc(f.detail) + '</div>' +
                     '<div class="alert-date">' + fmtWeek(f.weekKey) + (f.type === 'comm' ? ' · ' + fmtDate(f.dateISO) : '') + '</div>' +
                 '</div>' +
                 '<div class="btn-wrap">' +
-                    (config.coordEmail ? '<button class="btn-ghost" onclick="emailCoordinator(\'' + f.id.replace(/'/g, "\\'") + '\')">✉ Email</button>' : '') +
-                    '<button class="btn btn-green" onclick="markActioned(\'' + f.id.replace(/'/g, "\\'") + '\')">✓ Actioned</button>' +
+                    (config.coordEmail ? '<button class="btn-ghost" onclick="emailCoordinator(\'' + f.id.replace(/'/g, "\\'") + '\')">Email</button>' : '') +
+                    '<button class="btn btn-green" onclick="markActioned(\'' + f.id.replace(/'/g, "\\'") + '\')">Actioned</button>' +
                 '</div>' +
             '</div>'
         ).join('');
@@ -1876,7 +1966,7 @@ function renderWellbeing() {
     if (!roster.length) {
         missingEl.innerHTML = '<div class="empty-state">Add athletes to the roster (admin screen) to track who still needs to check in</div>';
     } else if (!missing.length) {
-        missingEl.innerHTML = '<div class="empty-state"><div class="es-icon">💯</div>Everyone has checked in at least once this week</div>';
+        missingEl.innerHTML = '<div class="empty-state">Everyone has checked in at least once this week</div>';
     } else {
         missingEl.innerHTML = missing.map(r =>
             '<span class="pill amber missing-pill">' + esc(r.name) + '</span>'
@@ -1884,19 +1974,21 @@ function renderWellbeing() {
     }
 }
 
-// team average readiness per week (last 8 weeks) — 0–100, higher is better
-function teamOverTimeChart() {
+// average readiness per week — 0–100, higher is better.
+// userId null = whole team; nWeeks controls the window.
+function teamOverTimeChart(nWeeks, userId) {
+    nWeeks = nWeeks || 8;
     const weeks = [];
     let wk = currentWeekKey();
-    for (let i = 0; i < 8; i++) { weeks.unshift(wk); wk = prevWeekKey(wk); }
+    for (let i = 0; i < nWeeks; i++) { weeks.unshift(wk); wk = prevWeekKey(wk); }
     const pts = weeks.map(w => {
         const vals = checkins
-            .filter(c => isoWeekKey(new Date(c.dateISO)) === w)
+            .filter(c => (!userId || c.userId === userId) && isoWeekKey(new Date(c.dateISO)) === w)
             .map(c => readinessOf(c)).filter(v => v !== null);
         return { week: w, avg: vals.length ? Math.round(mean(vals)) : null, n: vals.length };
     });
     if (!pts.some(p => p.avg !== null)) {
-        return '<div class="empty-state"><div class="es-icon">📈</div>The team readiness line appears here once check-ins start</div>';
+        return '<div class="empty-state">The team readiness line appears here once check-ins start</div>';
     }
     const W = 520, H = 130, P = 14, bottom = 20;
     const xOf = i => P + i / (weeks.length - 1) * (W - 2 * P);
@@ -1985,7 +2077,7 @@ function openDetail(userId) {
                 const latest = pts.length ? pts[pts.length - 1].y : null;
                 const base = baselineAll(userId, m.key);
                 return '<div class="trend-card">' +
-                    '<div class="trend-head"><div class="trend-name">' + m.icon + ' ' + m.label + '</div>' +
+                    '<div class="trend-head"><div class="trend-name">' + esc(m.label) + '</div>' +
                     (latest ? '<span class="score-chip sc-' + latest + '">' + latest + '</span>' : '') + '</div>' +
                     sparkline(pts, base) + '</div>';
             }).join('') + '</div>';
@@ -1993,7 +2085,7 @@ function openDetail(userId) {
         html += '<div class="eyebrow" style="margin:14px 0 8px;">recent check-ins</div>';
         html += mine.slice(-8).reverse().map(c => {
             const comm = c.answers.communication;
-            return '<div class="history-item"><div>' + fmtDate(c.dateISO) + (comm && comm >= 2 ? ' 💬' : '') + '</div>' +
+            return '<div class="history-item"><div>' + fmtDate(c.dateISO) + (comm && comm >= 2 ? ' · chat' : '') + '</div>' +
                 '<div class="history-scores">' +
                 METRICS.map(m => c.answers[m.key]
                     ? '<span class="score-chip sc-' + c.answers[m.key] + '" title="' + m.label + '">' + c.answers[m.key] + '</span>' : '').join('') +
@@ -2007,10 +2099,11 @@ function openDetail(userId) {
 
 function closeDetail() { document.getElementById('detailOverlay').classList.remove('show'); }
 
-function loadBars(userId) {
+function loadBars(userId, nWeeks) {
+    nWeeks = nWeeks || 8;
     const weeks = [];
     let wk = currentWeekKey();
-    for (let i = 0; i < 8; i++) { weeks.unshift(wk); wk = prevWeekKey(wk); }
+    for (let i = 0; i < nWeeks; i++) { weeks.unshift(wk); wk = prevWeekKey(wk); }
     const sums = weeks.map(w =>
         checkins.filter(c => c.userId === userId && isoWeekKey(new Date(c.dateISO)) === w)
             .reduce((a, c) => a + (c.answers.rpe || 0), 0));
@@ -2060,11 +2153,10 @@ function renderQuestionEditor() {
     el.innerHTML = editMetrics.map((m, i) =>
         '<div style="border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;">' +
             '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">' +
-                '<input class="form-input" id="qm_' + i + '_icon" value="' + esc(m.icon || '') + '" maxlength="4" style="width:58px;text-align:center;flex:none;" title="Icon (emoji)">' +
                 '<input class="form-input" id="qm_' + i + '_label" value="' + esc(m.label) + '" placeholder="Short name" style="flex:1;">' +
                 '<button class="icon-btn" onclick="qMove(' + i + ',-1)" title="Move up">↑</button>' +
                 '<button class="icon-btn" onclick="qMove(' + i + ',1)" title="Move down">↓</button>' +
-                '<button class="icon-btn" onclick="qRemove(' + i + ')" title="Remove question">🗑</button>' +
+                '<button class="icon-btn" onclick="qRemove(' + i + ')" title="Remove question">×</button>' +
             '</div>' +
             '<input class="form-input" id="qm_' + i + '_question" value="' + esc(m.question) + '" placeholder="Question athletes see" style="margin-bottom:8px;">' +
             m.options.map((o, j) =>
@@ -2096,7 +2188,6 @@ function renderQuestionEditor() {
 
 function captureQuestionEditor() {
     editMetrics = editMetrics.map((m, i) => Object.assign({}, m, {
-        icon: document.getElementById('qm_' + i + '_icon').value.trim() || '📝',
         label: document.getElementById('qm_' + i + '_label').value.trim() || m.label,
         question: document.getElementById('qm_' + i + '_question').value.trim() || m.question,
         options: m.options.map((o, j) => document.getElementById('qm_' + i + '_opt' + j).value.trim() || o)
@@ -2132,8 +2223,7 @@ function qAdd() {
     captureQuestionEditor();
     editMetrics.push({
         key: 'q_' + Date.now().toString(36),
-        label: 'New question', icon: '📝',
-        question: 'How are you going?',
+        label: 'New question', question: 'How are you going?',
         options: ['Great', 'Good', 'OK', 'Not great', 'Really struggling']
     });
     renderQuestionEditor();
@@ -2153,7 +2243,7 @@ function renderRosterList() {
     el.innerHTML = roster.map((r, i) =>
         '<div class="roster-item">' +
             '<div><div class="r-name">' + esc(r.name) + '</div><div class="r-id">' + esc(r.id) + '</div></div>' +
-            '<button class="icon-btn" title="remove" onclick="removeRosterAthlete(' + i + ')">🗑</button>' +
+            '<button class="icon-btn" title="remove" onclick="removeRosterAthlete(' + i + ')">×</button>' +
         '</div>').join('');
 }
 
@@ -2201,13 +2291,13 @@ function saveAdminConfig() {
     pushShared();
     renderSyncStatus();
     renderHeader();
-    toast('Settings saved ✓', 'good');
+    toast('Settings saved', 'good');
 }
 
 function renderSyncStatus() {
     const el = document.getElementById('syncStatusText');
     if (!config.syncUrl) { el.innerHTML = 'Sync is <b>off</b> — data lives on each device only.'; return; }
-    el.innerHTML = 'Sync is <b>on</b> · status: ' + (syncState === 'ok' ? '✅ connected' : syncState === 'err' ? '❌ last attempt failed' : '⏳ ' + syncState);
+    el.innerHTML = 'Sync is <b>on</b> · status: ' + (syncState === 'ok' ? 'connected' : syncState === 'err' ? 'last attempt failed' : syncState);
 }
 
 async function testSync() {
@@ -2218,7 +2308,7 @@ async function testSync() {
     toast('Testing…');
     try {
         const data = await api({ action: 'ping' });
-        if (data && data.ok) { syncState = 'ok'; toast('Connected ✓ Google Sheet is talking', 'good'); }
+        if (data && data.ok) { syncState = 'ok'; toast('Connected — Google Sheet is talking', 'good'); }
         else { syncState = 'err'; toast('Reached the URL but got an unexpected reply', 'bad'); }
     } catch (e) {
         syncState = 'err';
@@ -2233,7 +2323,7 @@ async function manualSync() {
     toast('Syncing…');
     await flushQueue();
     await syncPull();
-    toast(syncState === 'ok' ? 'Synced ✓' : 'Sync failed — will retry', syncState === 'ok' ? 'good' : 'bad');
+    toast(syncState === 'ok' ? 'Synced' : 'Sync failed — will retry', syncState === 'ok' ? 'good' : 'bad');
 }
 
 // ------------------ EXPORT / DEMO / RESET ------------------
