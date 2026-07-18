@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#F6F8FB">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="RANGES Wellness">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏐</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <title>RANGES Wellness &amp; Load Monitoring</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            /* Chunk & Check design tokens */
+            --bg: #F6F8FB;
+            --card: #FFFFFF;
+            --line: #E6EBF2;
+            --line-soft: #EEF2F7;
+            --ink: #0F172A;
+            --sub: #64748B;
+            --faint: #94A3B8;
+            --blue: #2563EB;
+            --blue-deep: #1D4ED8;
+            --blue-soft: #EFF6FF;
+            --blue-line: #BFDBFE;
+            --amber: #B45309;
+            --amber-soft: #FFFBEB;
+            --amber-line: #FDE68A;
+            --green: #047857;
+            --green-soft: #ECFDF5;
+            --green-line: #A7F3D0;
+            /* score tones (1 best → 5 worst) */
+            --s-good: #15803D;   --s-good-soft: #F0FDF4;  --s-good-line: #BBF7D0;
+            --s-ok: #A16207;     --s-ok-soft: #FEFCE8;    --s-ok-line: #FDE68A;
+            --s-watch: #C2410C;  --s-watch-soft: #FFF7ED; --s-watch-line: #FED7AA;
+            --s-act: #B91C1C;    --s-act-soft: #FEF2F2;   --s-act-line: #FECACA;
+            --shadow: 0 1px 2px rgba(15,23,42,.05), 0 4px 14px rgba(15,23,42,.05);
+            --shadow-lift: 0 2px 4px rgba(15,23,42,.06), 0 10px 30px rgba(15,23,42,.09);
+            --f-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+            --f-body: 'Inter', system-ui, sans-serif;
+        }
+
+        html { -webkit-text-size-adjust: 100%; }
+
+        body {
+            font-family: var(--f-body);
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 14px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 1060px;
+            align-self: flex-start;
+        }
+
+        @media (min-width: 700px) { body { padding: 28px; } }
+
+        /* ============ HEADER ============ */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .eyebrow {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--faint);
+        }
+
+        .header h1 {
+            font-family: var(--f-display);
+            font-size: 1.45em;
+            font-weight: 800;
+            color: var(--ink);
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+        }
+
+        @media (min-width: 700px) { .header h1 { font-size: 1.9em; } }
+
+        .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+        /* ============ BUTTONS & PILLS ============ */
+        .btn {
+            cursor: pointer;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 20px;
+            background: var(--blue);
+            color: #FFFFFF;
+            font-family: var(--f-body);
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 1px 2px rgba(37,99,235,.35), 0 6px 16px rgba(37,99,235,.25);
+            transition: transform .15s, box-shadow .15s, background .15s;
+        }
+        .btn:hover { transform: translateY(-1px); background: var(--blue-deep); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-ghost {
+            cursor: pointer;
+            border-radius: 999px;
+            padding: 9px 16px;
+            background: var(--card);
+            color: var(--ink);
+            border: 1px solid var(--line);
+            font-family: var(--f-body);
+            font-size: 12.5px;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(15,23,42,.05);
+            transition: transform .15s, background .15s;
+        }
+        .btn-ghost:hover { transform: translateY(-1px); background: var(--bg); }
+
+        .btn-green {
+            background: var(--green);
+            box-shadow: 0 1px 2px rgba(4,120,87,.35), 0 6px 16px rgba(4,120,87,.22);
+        }
+        .btn-green:hover { background: #065F46; }
+        .btn-danger {
+            background: #DC2626;
+            box-shadow: 0 1px 2px rgba(220,38,38,.35), 0 6px 16px rgba(220,38,38,.22);
+        }
+        .btn-danger:hover { background: #B91C1C; }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 5px 12px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            box-shadow: 0 1px 2px rgba(15,23,42,.05);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink);
+            white-space: nowrap;
+        }
+        .pill.blue  { background: var(--blue-soft);  border-color: var(--blue-line);  color: var(--blue-deep); }
+        .pill.amber { background: var(--amber-soft); border-color: var(--amber-line); color: var(--amber); }
+        .pill.green { background: var(--green-soft); border-color: var(--green-line); color: var(--green); }
+        .pill.red   { background: var(--s-act-soft); border-color: var(--s-act-line); color: var(--s-act); }
+        .pill.ink   { background: var(--ink); border-color: var(--ink); color: #FFF; }
+
+        .sync-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
+        .sync-dot.on { background: #22C55E; }
+        .sync-dot.err { background: #EF4444; }
+
+        /* ============ SCREENS / CARDS ============ */
+        .screen { display: none; animation: fadeUp .25s ease-out; }
+        .screen.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+
+        .card-title {
+            font-family: var(--f-display);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 10px;
+        }
+
+        .section-eyebrow { margin: 22px 4px 8px; }
+
+        /* ============ LANDING ============ */
+        .role-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 700px) { .role-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        .role-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 22px 18px;
+            cursor: pointer;
+            font-family: var(--f-body);
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform .15s, box-shadow .15s;
+        }
+        @media (min-width: 700px) {
+            .role-card { flex-direction: column; text-align: center; padding: 28px 18px; }
+        }
+        .role-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+        .role-icon {
+            width: 54px; height: 54px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+        .role-icon.athlete { background: var(--blue-soft); border: 1px solid var(--blue-line); }
+        .role-icon.coach   { background: var(--green-soft); border: 1px solid var(--green-line); }
+        .role-icon.admin   { background: var(--amber-soft); border: 1px solid var(--amber-line); }
+        .role-name { font-family: var(--f-display); font-size: 16px; font-weight: 800; color: var(--ink); }
+        .role-desc { font-size: 12.5px; font-weight: 600; color: var(--sub); margin-top: 3px; line-height: 1.45; }
+
+        .note-card {
+            background: var(--blue-soft);
+            border: 1px solid var(--blue-line);
+            border-radius: 18px;
+            padding: 16px 18px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--blue-deep);
+            line-height: 1.65;
+            margin-top: 14px;
+        }
+
+        /* ============ ATHLETE ============ */
+        .hero {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .ring-wrap { position: relative; width: 92px; height: 92px; }
+        .ring-wrap svg { transform: rotate(-90deg); display: block; }
+        .ring-val {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        .ring-val .num { font-family: var(--f-display); font-size: 24px; font-weight: 800; line-height: 1; color: var(--ink); }
+        .ring-val .lbl { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin-top: 2px; }
+
+        .hero h2 { font-family: var(--f-display); font-size: 18px; font-weight: 800; color: var(--ink); }
+        .hero .hero-sub { font-size: 12.5px; font-weight: 600; color: var(--sub); margin-top: 4px; line-height: 1.5; }
+        .hero-badges { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+
+        .big-cta {
+            width: 100%;
+            cursor: pointer;
+            border: none;
+            border-radius: 999px;
+            padding: 16px 20px;
+            background: var(--blue);
+            color: #FFF;
+            font-family: var(--f-display);
+            font-size: 15px;
+            font-weight: 800;
+            box-shadow: 0 1px 2px rgba(37,99,235,.35), 0 8px 22px rgba(37,99,235,.28);
+            transition: transform .15s, background .15s;
+            margin-bottom: 6px;
+        }
+        .big-cta:hover { transform: translateY(-1px); background: var(--blue-deep); }
+
+        .trend-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 560px) { .trend-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 900px) { .trend-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        .trend-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 14px 16px;
+            margin: 0;
+            transition: transform .15s;
+        }
+        .trend-card:hover { transform: translateY(-2px); }
+        .trend-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .trend-name { font-size: 12.5px; font-weight: 700; color: var(--ink); }
+        .trend-card svg { width: 100%; height: 60px; display: block; }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 2px;
+            border-bottom: 1px solid var(--line-soft);
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--sub);
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-scores { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+
+        .score-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 4px;
+            border-radius: 8px;
+            border: 1px solid;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+        .sc-1, .sc-2 { background: var(--s-good-soft); border-color: var(--s-good-line); color: var(--s-good); }
+        .sc-3 { background: var(--s-ok-soft); border-color: var(--s-ok-line); color: var(--s-ok); }
+        .sc-4 { background: var(--s-watch-soft); border-color: var(--s-watch-line); color: var(--s-watch); }
+        .sc-5 { background: var(--s-act-soft); border-color: var(--s-act-line); color: var(--s-act); }
+        .sc-none { background: var(--card); border-color: var(--line); color: var(--faint); }
+
+        /* ============ CHECK-IN ============ */
+        .checkin-progress { display: flex; gap: 5px; margin-bottom: 16px; }
+        .checkin-progress .seg {
+            flex: 1; height: 5px; border-radius: 3px;
+            background: var(--line);
+            transition: background .25s;
+        }
+        .checkin-progress .seg.done { background: var(--green-line); }
+        .checkin-progress .seg.current { background: var(--blue); }
+
+        .question-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow-lift);
+            padding: 24px 18px;
+            animation: fadeUp .22s ease-out;
+        }
+        .q-icon { font-size: 32px; text-align: center; margin-bottom: 6px; }
+        .q-title { font-family: var(--f-display); font-size: 18px; font-weight: 800; color: var(--ink); text-align: center; }
+        .q-sub { font-size: 12px; font-weight: 600; color: var(--faint); text-align: center; margin: 4px 0 16px; }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            border: 1px solid var(--line);
+            background: var(--card);
+            border-radius: 14px;
+            padding: 13px 14px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-family: var(--f-body);
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--ink);
+            text-align: left;
+            transition: transform .12s, border-color .12s, background .12s;
+        }
+        .option-btn:hover { transform: translateX(3px); border-color: var(--blue-line); background: var(--blue-soft); }
+        .option-btn.selected { border-color: var(--blue); background: var(--blue-soft); box-shadow: 0 0 0 1px var(--blue); }
+        .option-num {
+            min-width: 30px; height: 30px;
+            border-radius: 10px;
+            border: 1px solid;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .checkin-nav { display: flex; justify-content: space-between; margin-top: 14px; gap: 10px; }
+
+        .review-row {
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
+            padding: 10px 2px; border-bottom: 1px solid var(--line-soft);
+            font-size: 13px; font-weight: 600; color: var(--ink);
+        }
+        .review-row:last-child { border-bottom: none; }
+        .review-row .rv-val { font-size: 12px; color: var(--sub); text-align: right; }
+
+        .celebrate { text-align: center; padding: 34px 12px; }
+        .celebrate .big-emoji { font-size: 52px; margin-bottom: 12px; }
+        .celebrate h2 { font-family: var(--f-display); font-size: 20px; font-weight: 800; color: var(--ink); margin-bottom: 8px; }
+        .celebrate p { color: var(--sub); font-weight: 600; font-size: 13px; line-height: 1.65; max-width: 420px; margin: 0 auto; }
+
+        /* ============ COACH ============ */
+        .alert-banner {
+            border-radius: 18px;
+            padding: 15px 18px;
+            margin-bottom: 14px;
+            font-weight: 700;
+            font-size: 13.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border: 1px solid;
+            transition: transform .15s;
+        }
+        .alert-banner:hover { transform: translateY(-1px); }
+        .alert-banner.warn { background: var(--s-act-soft); border-color: var(--s-act-line); color: var(--s-act); }
+        .alert-banner.ok { background: var(--green-soft); border-color: var(--green-line); color: var(--green); cursor: default; }
+        .alert-banner.ok:hover { transform: none; }
+
+        .stat-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 4px; }
+        @media (min-width: 700px) { .stat-row { grid-template-columns: repeat(4, 1fr); } }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 15px 16px;
+        }
+        .stat-card .stat-value { font-family: var(--f-display); font-size: 26px; font-weight: 800; color: var(--ink); margin-top: 6px; line-height: 1; }
+        .stat-card .stat-sub { font-size: 11.5px; font-weight: 600; color: var(--sub); margin-top: 6px; }
+
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table.team-table { border-collapse: collapse; width: 100%; min-width: 680px; }
+        .team-table th {
+            font-size: 10px; font-weight: 700; color: var(--faint);
+            letter-spacing: .1em; text-transform: uppercase;
+            text-align: center; padding: 6px 4px;
+            border-bottom: 1px solid var(--line);
+            white-space: nowrap;
+        }
+        .team-table th:first-child { text-align: left; padding-left: 2px; }
+        .team-table td { padding: 9px 4px; text-align: center; border-bottom: 1px solid var(--line-soft); }
+        .team-table tbody tr:last-child td { border-bottom: none; }
+        .team-table td:first-child { text-align: left; padding-left: 2px; }
+        .team-table tbody tr { cursor: pointer; transition: background .15s; }
+        .team-table tbody tr:hover td { background: var(--blue-soft); }
+        .athlete-name-cell { font-weight: 700; color: var(--ink); font-size: 13px; white-space: nowrap; }
+        .athlete-id-cell { font-weight: 600; color: var(--faint); font-size: 11px; margin-top: 1px; }
+        .delta-tag { font-size: 10px; font-weight: 700; display: block; margin-top: 2px; }
+        .delta-up { color: var(--s-act); }
+        .delta-down { color: var(--s-good); }
+        .delta-flat { color: var(--faint); }
+
+        .legend-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+        .alert-item {
+            border: 1px solid;
+            border-radius: 16px;
+            padding: 13px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .alert-item.yellow { background: var(--s-ok-soft); border-color: var(--s-ok-line); }
+        .alert-item.red    { background: var(--s-act-soft); border-color: var(--s-act-line); }
+        .alert-item.comm   { background: var(--blue-soft); border-color: var(--blue-line); }
+        .alert-item.load   { background: var(--amber-soft); border-color: var(--amber-line); }
+        .sev-tag {
+            display: inline-flex; align-items: center;
+            border-radius: 999px; padding: 2px 9px;
+            font-size: 9.5px; font-weight: 800;
+            letter-spacing: .1em; text-transform: uppercase;
+            margin-right: 6px; vertical-align: middle;
+        }
+        .sev-tag.red { background: #DC2626; color: #FFF; }
+        .sev-tag.yellow { background: #EAB308; color: #FFF; }
+        .sev-tag.comm { background: var(--blue); color: #FFF; }
+        .alert-main { flex: 1; min-width: 220px; }
+        .alert-who { font-weight: 700; color: var(--ink); font-size: 13.5px; }
+        .alert-why { font-weight: 600; color: var(--sub); font-size: 12px; margin-top: 3px; line-height: 1.55; }
+        .alert-date { font-weight: 600; color: var(--faint); font-size: 10.5px; margin-top: 4px; letter-spacing: .06em; text-transform: uppercase; }
+
+        .missing-pill { margin: 0 6px 6px 0; }
+
+        /* ============ POPUPS ============ */
+        .popup-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,0.45);
+            backdrop-filter: blur(2px);
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px 12px;
+            overflow-y: auto;
+            animation: fadeIn .2s ease-out;
+        }
+        .popup-overlay.show { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .popup {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 26px 20px;
+            max-width: 720px;
+            width: 100%;
+            box-shadow: var(--shadow-lift);
+            animation: popupSlide .22s ease-out;
+            position: relative;
+            margin: auto 0;
+        }
+        @keyframes popupSlide { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+        .popup-close {
+            position: absolute; top: 14px; right: 14px;
+            background: var(--card); color: var(--sub);
+            border: 1px solid var(--line);
+            width: 34px; height: 34px;
+            border-radius: 50%; cursor: pointer;
+            font-size: 17px; font-weight: 700; line-height: 1;
+            transition: all .2s;
+        }
+        .popup-close:hover { background: var(--s-act-soft); border-color: var(--s-act-line); color: var(--s-act); }
+        .popup h3 { font-family: var(--f-display); font-size: 18px; font-weight: 800; color: var(--ink); padding-right: 40px; }
+        .popup .popup-sub { font-size: 12px; font-weight: 600; color: var(--sub); margin: 3px 0 14px; }
+
+        /* PIN pad */
+        .pin-dots { display: flex; gap: 12px; justify-content: center; margin: 16px 0; }
+        .pin-dot { width: 13px; height: 13px; border-radius: 50%; background: var(--line); transition: all .15s; }
+        .pin-dot.filled { background: var(--blue); transform: scale(1.15); }
+        .pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 260px; margin: 0 auto; }
+        .pin-key {
+            background: var(--bg); border: 1px solid var(--line); border-radius: 14px;
+            padding: 14px; font-family: var(--f-display); font-size: 18px; font-weight: 700;
+            color: var(--ink); cursor: pointer; transition: all .12s;
+        }
+        .pin-key:hover { background: var(--blue-soft); border-color: var(--blue-line); }
+        .pin-key:active { transform: scale(.95); }
+        .pin-error { text-align: center; color: var(--s-act); font-weight: 700; font-size: 12.5px; min-height: 18px; margin-top: 10px; }
+
+        /* ============ FORMS ============ */
+        .form-group { margin-bottom: 13px; }
+        .form-label { display: block; font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+        .form-input, .form-select {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-family: var(--f-body);
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--ink);
+            background: var(--card);
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .form-input:focus, .form-select:focus { border-color: var(--blue-line); box-shadow: 0 0 0 3px var(--blue-soft); }
+        .form-hint { font-size: 11.5px; font-weight: 600; color: var(--faint); margin-top: 5px; line-height: 1.55; }
+        .form-hint b { color: var(--sub); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; gap: 12px; }
+        .toggle-row .t-label { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.45; }
+        .toggle-switch {
+            position: relative; min-width: 40px; width: 40px; height: 23px;
+            background: #CBD5E1; border-radius: 999px; cursor: pointer;
+            transition: background .15s; flex-shrink: 0;
+        }
+        .toggle-switch.on { background: var(--blue); }
+        .toggle-slider {
+            position: absolute; top: 2.5px; left: 2.5px;
+            width: 18px; height: 18px;
+            background: #fff; border-radius: 50%;
+            transition: left .15s;
+            box-shadow: 0 1px 3px rgba(15,23,42,.25);
+        }
+        .toggle-switch.on .toggle-slider { left: 19.5px; }
+
+        .roster-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 9px 2px; border-bottom: 1px solid var(--line-soft); gap: 10px;
+        }
+        .roster-item:last-child { border-bottom: none; }
+        .roster-item .r-name { font-weight: 700; color: var(--ink); font-size: 13px; }
+        .roster-item .r-id { font-weight: 600; color: var(--faint); font-size: 11px; }
+        .icon-btn {
+            background: none; border: 1px solid transparent; cursor: pointer;
+            font-size: 15px; padding: 6px 8px; border-radius: 10px;
+            transition: all .15s;
+        }
+        .icon-btn:hover { background: var(--s-act-soft); border-color: var(--s-act-line); }
+
+        .toast {
+            position: fixed;
+            bottom: 22px; left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--ink);
+            color: #fff;
+            border-radius: 999px;
+            padding: 12px 22px;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: var(--shadow-lift);
+            z-index: 3000;
+            opacity: 0;
+            transition: all .3s;
+            max-width: 90vw;
+            text-align: center;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.good { background: var(--green); }
+        .toast.bad { background: #DC2626; }
+
+        .empty-state {
+            text-align: center;
+            padding: 24px 10px;
+            color: var(--faint);
+            font-weight: 600;
+            font-size: 12.5px;
+            line-height: 1.65;
+        }
+        .empty-state .es-icon { font-size: 26px; margin-bottom: 6px; }
+
+        .divider { border: none; border-top: 1px solid var(--line-soft); margin: 14px 0; }
+
+        .detail-chart-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media (min-width: 560px) { .detail-chart-grid { grid-template-columns: 1fr 1fr; } }
+        .bar-chart-wrap svg { width: 100%; height: 110px; display: block; }
+        .btn-wrap { display: flex; gap: 8px; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <div>
+            <div class="eyebrow" id="headerEyebrow">load &amp; wellness monitoring</div>
+            <h1>RANGES Wellness</h1>
+        </div>
+        <div class="header-actions" id="headerActions"></div>
+    </div>
+
+    <!-- ================= LANDING ================= -->
+    <div class="screen" id="screen-landing">
+        <div class="role-grid">
+            <button class="role-card" onclick="enterAthlete()">
+                <div class="role-icon athlete">🏐</div>
+                <div>
+                    <div class="role-name">Athlete</div>
+                    <div class="role-desc">Check in after every practice &amp; game, see your trends</div>
+                </div>
+            </button>
+            <button class="role-card" onclick="requestPin('coach')">
+                <div class="role-icon coach">📋</div>
+                <div>
+                    <div class="role-name">Coach</div>
+                    <div class="role-desc">Team snapshot, alerts &amp; athlete detail</div>
+                </div>
+            </button>
+            <button class="role-card" onclick="requestPin('admin')">
+                <div class="role-icon admin">⚙️</div>
+                <div>
+                    <div class="role-name">Admin</div>
+                    <div class="role-desc">Roster, alert rules &amp; settings</div>
+                </div>
+            </button>
+        </div>
+        <div class="note-card">
+            💡 <b>Athletes:</b> save this page to your phone's home screen so it's one tap away —
+            iPhone: Share → Add to Home Screen · Android: menu (⋮) → Add to Home Screen.
+            You only enter your ID once — this device remembers you.
+        </div>
+    </div>
+
+    <!-- ================= ATHLETE SETUP ================= -->
+    <div class="screen" id="screen-athlete-setup">
+        <div class="card" style="max-width:500px;margin:0 auto;">
+            <div class="eyebrow" style="margin-bottom:6px;">first-time setup</div>
+            <div class="card-title">Welcome! Let's set you up</div>
+            <div class="form-group">
+                <label class="form-label">My personal user ID</label>
+                <input class="form-input" id="setupUserId" placeholder="e.g. 19TS" autocapitalize="characters" maxlength="12">
+                <div class="form-hint">Age group + initials (ex. 19TS). <b>Use the same ID every time you report in.</b> You'll only need to do this once on this device.</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">First name (optional)</label>
+                <input class="form-input" id="setupName" placeholder="e.g. Taylah" maxlength="30">
+            </div>
+            <button class="btn" style="width:100%;padding:13px;" onclick="saveAthleteProfile()">Let's go →</button>
+        </div>
+    </div>
+
+    <!-- ================= ATHLETE HOME ================= -->
+    <div class="screen" id="screen-athlete-home">
+        <div class="card" id="athleteHero"></div>
+        <button class="big-cta" id="checkinCta" onclick="startCheckin()">✏️ Check in now</button>
+        <div class="eyebrow section-eyebrow">my trends · last 8 weeks · dotted line = my baseline</div>
+        <div class="trend-grid" id="athleteTrends"></div>
+        <div class="eyebrow section-eyebrow">my recent check-ins</div>
+        <div class="card" id="athleteHistory"></div>
+    </div>
+
+    <!-- ================= CHECK-IN FLOW ================= -->
+    <div class="screen" id="screen-checkin">
+        <div class="checkin-progress" id="checkinProgress"></div>
+        <div id="checkinBody"></div>
+    </div>
+
+    <!-- ================= COACH ================= -->
+    <div class="screen" id="screen-coach">
+        <div id="coachAlertBanner"></div>
+        <div class="stat-row" id="coachStats"></div>
+        <div class="eyebrow section-eyebrow">team snapshot — <span id="snapshotWeekLabel"></span></div>
+        <div class="card">
+            <div class="table-scroll" id="teamTableWrap"></div>
+            <div class="legend-row">
+                <span class="pill"><span class="score-chip sc-1">1</span>&nbsp;good</span>
+                <span class="pill"><span class="score-chip sc-3">3</span>&nbsp;ok</span>
+                <span class="pill"><span class="score-chip sc-4">4</span>&nbsp;watch</span>
+                <span class="pill"><span class="score-chip sc-5">5</span>&nbsp;act</span>
+                <span class="pill">▲▼ = vs own baseline · tap a row for detail</span>
+            </div>
+        </div>
+        <div class="eyebrow section-eyebrow">alerts</div>
+        <div class="card" id="coachAlertsList"></div>
+        <div class="eyebrow section-eyebrow">not yet checked in this week</div>
+        <div class="card" id="coachMissing"></div>
+    </div>
+
+    <!-- ================= ADMIN ================= -->
+    <div class="screen" id="screen-admin">
+        <div class="eyebrow section-eyebrow">alert rules — compared to each athlete's own baseline</div>
+        <div class="card">
+            <div class="form-hint" style="margin-bottom:12px;">
+                The app learns a personal baseline for every athlete in each wellness area (their average from previous check-ins).
+                Alerts fire on <b>negative change from that baseline</b> — not on fixed scores — so a naturally sore athlete doesn't
+                trigger false alarms, and a decline in a usually-fresh athlete is caught early.
+            </div>
+            <div class="form-group">
+                <label class="form-label"><span class="sev-tag red">red</span> Massive change within 1–2 sessions</label>
+                <select class="form-select" id="cfgRedDelta">
+                    <option value="2">one session +2.5 worse, or two in a row each +2.0 (sensitive)</option>
+                    <option value="2.5" selected>one session +3.0 worse, or two in a row each +2.5 (recommended)</option>
+                    <option value="3">one session +3.5 worse, or two in a row each +3.0 (only extreme)</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label"><span class="sev-tag yellow">yellow</span> One week at least this much worse</label>
+                    <select class="form-select" id="cfgSpikeDelta">
+                        <option value="1">+1.0 (sensitive)</option>
+                        <option value="1.5" selected>+1.5 (recommended)</option>
+                        <option value="2">+2.0 (only big shifts)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><span class="sev-tag yellow">yellow</span> 2 weeks in a row each at least</label>
+                    <select class="form-select" id="cfgTrendDelta">
+                        <option value="0.5">+0.5 (sensitive)</option>
+                        <option value="0.75" selected>+0.75 (recommended)</option>
+                        <option value="1">+1.0 (only clear declines)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Minimum check-ins before an athlete's baseline is trusted</label>
+                <select class="form-select" id="cfgMinBaseline">
+                    <option value="3">3</option>
+                    <option value="4" selected>4 (recommended)</option>
+                    <option value="6">6</option>
+                </select>
+                <div class="form-hint">Until then, no baseline alerts fire for that athlete (chat requests still alert immediately).</div>
+            </div>
+            <div class="toggle-row">
+                <div class="t-label">Also fire a <b>red</b> alert on any single score of 5, regardless of baseline</div>
+                <div class="toggle-switch" id="cfgRedlineToggle" onclick="toggleCfg('redline', this)"><div class="toggle-slider"></div></div>
+            </div>
+            <div class="toggle-row">
+                <div class="t-label">Include session RPE (training load) in baseline alerts</div>
+                <div class="toggle-switch" id="cfgRpeToggle" onclick="toggleCfg('includeRpe', this)"><div class="toggle-slider"></div></div>
+            </div>
+        </div>
+
+        <div class="eyebrow section-eyebrow">people &amp; notifications</div>
+        <div class="card">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Wellness coordinator name</label>
+                    <input class="form-input" id="cfgCoordName" placeholder="Melissa Rosie">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Coordinator email</label>
+                    <input class="form-input" id="cfgCoordEmail" type="email" placeholder="coordinator@email.com">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Head coach email (cc on alerts)</label>
+                <input class="form-input" id="cfgCoachEmail" type="email" placeholder="headcoachmdna@gmail.com">
+            </div>
+            <div class="form-hint">With Google Sheets sync connected (below), alert emails are sent <b>automatically the moment an athlete's check-in trips a rule</b> — no one needs to be watching the app.</div>
+        </div>
+
+        <div class="eyebrow section-eyebrow">athlete roster</div>
+        <div class="card">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">User ID</label>
+                    <input class="form-input" id="rosterId" placeholder="19TS" autocapitalize="characters" maxlength="12">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input class="form-input" id="rosterName" placeholder="Taylah S" maxlength="40">
+                </div>
+            </div>
+            <button class="btn btn-green" onclick="addRosterAthlete()">+ Add athlete</button>
+            <hr class="divider">
+            <div id="rosterList"></div>
+            <div class="form-hint">Athletes not on the roster can still check in — they show as "unrostered" on the coach screen. The roster powers the "not yet checked in" list.</div>
+        </div>
+
+        <div class="eyebrow section-eyebrow">security</div>
+        <div class="card">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Coach PIN</label>
+                    <input class="form-input" id="cfgCoachPin" inputmode="numeric" maxlength="6" placeholder="1111">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Admin PIN</label>
+                    <input class="form-input" id="cfgAdminPin" inputmode="numeric" maxlength="6" placeholder="9999">
+                </div>
+            </div>
+        </div>
+
+        <div class="eyebrow section-eyebrow">google sheets sync</div>
+        <div class="card">
+            <div class="form-group">
+                <label class="form-label">Apps Script web app URL</label>
+                <input class="form-input" id="cfgSyncUrl" placeholder="https://script.google.com/macros/s/…/exec">
+                <div class="form-hint">Follow <b>RANGES_Wellness_Setup.md</b> to create the Google Sheet + Apps Script (about 10 minutes, free). Sync makes check-ins visible on every device and turns on automatic alert emails. Without it, data stays on each device only.</div>
+            </div>
+            <div class="btn-wrap">
+                <button class="btn" onclick="testSync()">Test connection</button>
+                <button class="btn-ghost" onclick="manualSync()">Sync now</button>
+            </div>
+            <div class="form-hint" id="syncStatusText" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="eyebrow section-eyebrow">data</div>
+        <div class="card">
+            <div class="btn-wrap">
+                <button class="btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+                <button class="btn-ghost" onclick="loadDemoData()">Load demo data</button>
+                <button class="btn btn-danger" onclick="clearAllData()">Clear all data</button>
+            </div>
+            <div class="form-hint" style="margin-top:10px;">Demo data adds sample athletes &amp; check-ins so you can preview the coach screen (one athlete declines, to show alerts). Clear removes everything from this device (and the sheet if sync is on).</div>
+        </div>
+
+        <div style="text-align:center;margin:8px 0 20px;">
+            <button class="btn" style="padding:13px 40px;font-size:14px;" onclick="saveAdminConfig()">Save all settings</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ PIN OVERLAY ============ -->
+<div class="popup-overlay" id="pinOverlay">
+    <div class="popup" style="max-width:360px;">
+        <button class="popup-close" onclick="closePin()">×</button>
+        <h3 id="pinTitle">Enter PIN</h3>
+        <div class="popup-sub" id="pinSub"></div>
+        <div class="pin-dots" id="pinDots"></div>
+        <div class="pin-pad" id="pinPad"></div>
+        <div class="pin-error" id="pinError"></div>
+    </div>
+</div>
+
+<!-- ============ ATHLETE DETAIL OVERLAY (coach) ============ -->
+<div class="popup-overlay" id="detailOverlay">
+    <div class="popup">
+        <button class="popup-close" onclick="closeDetail()">×</button>
+        <div id="detailBody"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+/* =========================================================
+   RANGES ATHLETE WELLNESS & LOAD MONITORING
+   Screens: athlete / coach / admin (single file).
+   Alerts: baseline-driven — each athlete's own average is
+   the reference; sudden or 2-week negative change flags.
+   Data: localStorage first; optional Google Apps Script
+   sync for shared data + automatic coordinator emails.
+   ========================================================= */
+
+// ------------------ QUESTION DEFINITIONS ------------------
+const METRICS = [
+    { key: 'sleep',      label: 'Sleep quality',   icon: '😴',
+      question: 'How was your sleep?', options: ['Excellent', 'Good', 'OK', 'Poor', 'Very poor'] },
+    { key: 'tiredness',  label: 'Tiredness',       icon: '🔋',
+      question: 'How fresh are you feeling?', options: ['Very fresh', 'Fresh', 'Normal', 'Tired', 'Exhausted'] },
+    { key: 'motivation', label: 'Motivation',      icon: '🔥',
+      question: 'How motivated are you?', options: ['Pumped', 'Keen', 'Ok', 'Yeah nah', 'Completely uninterested'] },
+    { key: 'confidence', label: 'Self confidence', icon: '💪',
+      question: 'How are your goals going?', options: ['Achieving my goals', 'Achieving a few goals', "It's been a while since achieving a goal", "Not sure if I'm achieving goals", 'Not achieving anything'] },
+    { key: 'stress',     label: 'Stress level',    icon: '🧘',
+      question: 'How stressed are you?', options: ['Chilled', 'Relaxed', 'Ok', 'Bit stressed', 'Stressed & overwhelmed'] },
+    { key: 'soreness',   label: 'Muscle soreness', icon: '🦵',
+      question: 'How sore are your muscles?', options: ['No soreness', 'Minor post training/game soreness', 'Persistent minor soreness', 'Quite sore', 'Acute soreness'] },
+    { key: 'rpe',        label: 'Session RPE',     icon: '📈', isLoad: true,
+      question: 'How hard was the session or game?', options: ['Light activity', 'Moderate activity', 'Vigorous activity', 'Very hard activity', 'Max effort activity'] }
+];
+
+const COMM = {
+    key: 'communication', label: 'Communication', icon: '💬',
+    question: 'Anything you want to talk about?',
+    options: [
+        "I'm comfortable communicating any queries with the Coach or Team Captain",
+        'I would like to chat with the Wellness Coordinator',
+        'I would like to chat with the Coach, Head Coach and Wellness Coordinator',
+        "I've emailed the Head Coach to arrange a chat"
+    ]
+};
+
+const WELLNESS_KEYS = METRICS.filter(m => !m.isLoad).map(m => m.key);
+
+// ------------------ STORAGE ------------------
+const LS = {
+    checkins: 'rw_checkins',
+    config:   'rw_config',
+    roster:   'rw_roster',
+    actioned: 'rw_actioned',
+    notified: 'rw_notified',
+    profile:  'rw_profile',
+    queue:    'rw_queue'
+};
+
+const DEFAULT_CONFIG = {
+    redDelta: 2.5,       // RED: two consecutive sessions each this much worse than baseline (single session needs +0.5 more)
+    spikeDelta: 1.5,     // YELLOW: one-week negative change vs baseline
+    trendDelta: 0.75,    // YELLOW: per-week change vs baseline, 2 consecutive weeks
+    minBaseline: 4,      // check-ins needed before baseline alerts activate
+    redline: false,      // any single 5 fires a red alert regardless of baseline
+    includeRpe: false,
+    coordName: 'Melissa Rosie',
+    coordEmail: '',
+    coachEmail: 'headcoachmdna@gmail.com',
+    coachPin: '1111',
+    adminPin: '9999',
+    syncUrl: ''
+};
+
+function lsGet(key, fallback) {
+    try {
+        const raw = localStorage.getItem(key);
+        return raw === null ? fallback : JSON.parse(raw);
+    } catch (e) { return fallback; }
+}
+function lsSet(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { console.error(e); }
+}
+
+let checkins = lsGet(LS.checkins, []);
+let config   = Object.assign({}, DEFAULT_CONFIG, lsGet(LS.config, {}));
+let roster   = lsGet(LS.roster, []);
+let actioned = lsGet(LS.actioned, []);   // flag ids marked handled
+let notified = lsGet(LS.notified, []);   // flag ids already emailed
+let profile  = lsGet(LS.profile, null);  // {userId, name} — remembered on this device
+
+// ------------------ SYNC (Google Apps Script) ------------------
+let syncState = 'off'; // off | ok | err | pending
+
+async function api(params, body) {
+    if (!config.syncUrl) return null;
+    const url = config.syncUrl + '?' + new URLSearchParams(params).toString();
+    const opts = body
+        ? { method: 'POST', body: JSON.stringify(body), redirect: 'follow' }
+        : { method: 'GET', redirect: 'follow' };
+    const res = await fetch(url, opts);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+}
+
+async function syncPull() {
+    if (!config.syncUrl) { syncState = 'off'; renderHeader(); return; }
+    syncState = 'pending'; renderHeader();
+    try {
+        const data = await api({ action: 'pull' });
+        if (data && data.ok) {
+            if (Array.isArray(data.checkins)) {
+                const byId = {};
+                checkins.concat(data.checkins).forEach(c => { if (c && c.id) byId[c.id] = c; });
+                checkins = Object.values(byId).sort((a, b) => a.dateISO < b.dateISO ? -1 : 1);
+                lsSet(LS.checkins, checkins);
+            }
+            if (data.config && typeof data.config === 'object') {
+                const myUrl = config.syncUrl; // each device keeps its own URL
+                config = Object.assign({}, DEFAULT_CONFIG, data.config, { syncUrl: myUrl });
+                lsSet(LS.config, config);
+            }
+            if (Array.isArray(data.roster)) { roster = data.roster; lsSet(LS.roster, roster); }
+            if (Array.isArray(data.actioned)) {
+                actioned = Array.from(new Set(actioned.concat(data.actioned)));
+                lsSet(LS.actioned, actioned);
+            }
+            syncState = 'ok';
+        } else {
+            syncState = 'err';
+        }
+    } catch (e) {
+        console.error('sync pull failed', e);
+        syncState = 'err';
+    }
+    renderHeader();
+    refreshCurrentScreen();
+}
+
+async function flushQueue() {
+    if (!config.syncUrl) return;
+    let queue = lsGet(LS.queue, []);
+    while (queue.length) {
+        const item = queue[0];
+        try {
+            await api({ action: item.action }, item.payload);
+            queue.shift();
+            lsSet(LS.queue, queue);
+        } catch (e) {
+            console.error('queue flush failed, will retry later', e);
+            break;
+        }
+    }
+}
+
+function enqueue(action, payload) {
+    const queue = lsGet(LS.queue, []);
+    queue.push({ action, payload });
+    lsSet(LS.queue, queue);
+    flushQueue();
+}
+
+function pushShared() {
+    if (!config.syncUrl) return;
+    const cfg = Object.assign({}, config);
+    delete cfg.syncUrl;
+    enqueue('saveShared', { config: cfg, roster: roster, actioned: actioned });
+}
+
+// ------------------ DATE / WEEK HELPERS ------------------
+function isoWeekKey(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    const week = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+    return date.getUTCFullYear() + '-W' + String(week).padStart(2, '0');
+}
+function weekKeyToMonday(key) {
+    const parts = key.split('-W');
+    const y = Number(parts[0]), w = Number(parts[1]);
+    const jan4 = new Date(Date.UTC(y, 0, 4));
+    const mon = new Date(jan4);
+    mon.setUTCDate(jan4.getUTCDate() - (jan4.getUTCDay() || 7) + 1 + (w - 1) * 7);
+    return mon;
+}
+function prevWeekKey(key) {
+    const mon = weekKeyToMonday(key);
+    mon.setUTCDate(mon.getUTCDate() - 7);
+    return isoWeekKey(new Date(mon.getUTCFullYear(), mon.getUTCMonth(), mon.getUTCDate()));
+}
+function currentWeekKey() { return isoWeekKey(new Date()); }
+function fmtDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function fmtWeek(key) {
+    const mon = weekKeyToMonday(key);
+    return 'wk of ' + mon.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+}
+
+// ------------------ BASELINE ALERT ENGINE ------------------
+// Each athlete's baseline per metric = mean of their check-in scores
+// BEFORE the window being examined. Alerts fire on negative change
+// (score increase) relative to that personal baseline:
+//   RED    — massive change within 1–2 sessions:
+//            one session >= baseline + redDelta + 0.5, or
+//            two consecutive sessions each >= baseline + redDelta
+//   YELLOW — a week's mean >= baseline + spikeDelta, or
+//            2 consecutive weeks each >= baseline + trendDelta
+//   COMM   — any chat request, immediately
+// Baseline needs >= minBaseline prior check-ins to be trusted.
+
+function alertMetricKeys() {
+    return config.includeRpe ? WELLNESS_KEYS.concat(['rpe']) : WELLNESS_KEYS;
+}
+
+// chronological per-user, per-metric raw series: [{weekKey, dateISO, value}]
+function metricSeries(userId, metricKey) {
+    return checkins
+        .filter(c => c.userId === userId && c.answers[metricKey])
+        .map(c => ({ weekKey: isoWeekKey(new Date(c.dateISO)), dateISO: c.dateISO, value: c.answers[metricKey] }));
+}
+
+function mean(arr) { return arr.reduce((a, b) => a + b, 0) / arr.length; }
+function round1(n) { return Math.round(n * 10) / 10; }
+
+// weekly means for a series: ordered [{weekKey, mean, count}]
+function weeklyMeans(series) {
+    const byWeek = {};
+    series.forEach(p => {
+        if (!byWeek[p.weekKey]) byWeek[p.weekKey] = [];
+        byWeek[p.weekKey].push(p.value);
+    });
+    return Object.keys(byWeek).sort().map(wk => ({ weekKey: wk, mean: mean(byWeek[wk]), count: byWeek[wk].length }));
+}
+
+// baseline for a user+metric using only check-ins before cutoff weekKey
+function baselineBefore(series, cutoffWeekKey) {
+    const prior = series.filter(p => p.weekKey < cutoffWeekKey);
+    if (prior.length < Number(config.minBaseline)) return null;
+    return mean(prior.map(p => p.value));
+}
+
+// current baseline (all data) — used for display deltas
+function baselineAll(userId, metricKey) {
+    const s = metricSeries(userId, metricKey);
+    if (s.length < Number(config.minBaseline)) return null;
+    return mean(s.map(p => p.value));
+}
+
+// baseline from all sessions strictly before index i (needs minBaseline)
+function baselineBeforeIndex(series, i) {
+    if (i < Number(config.minBaseline)) return null;
+    return mean(series.slice(0, i).map(p => p.value));
+}
+
+function computeFlags() {
+    const flags = [];
+    const users = allAthleteIds();
+    const redD = Number(config.redDelta);
+    const spikeD = Number(config.spikeDelta);
+    const trendD = Number(config.trendDelta);
+
+    users.forEach(userId => {
+        alertMetricKeys().forEach(mk => {
+            const metric = METRICS.find(m => m.key === mk);
+            const series = metricSeries(userId, mk);
+            if (!series.length) return;
+            const weeks = weeklyMeans(series);
+
+            // ---- RED: massive change within 1–2 sessions ----
+            series.forEach((p, i) => {
+                const base = baselineBeforeIndex(series, i);
+                if (base === null) return;
+                if (p.value - base >= redD + 0.5) {
+                    flags.push({
+                        id: userId + '|red1|' + mk + '|' + p.dateISO,
+                        type: metric.isLoad ? 'load' : 'red', severity: 'red',
+                        userId, metric: mk, weekKey: p.weekKey, dateISO: p.dateISO,
+                        title: metric.label + ' — massive change in one session',
+                        detail: metric.label.toLowerCase() + ' hit ' + p.value + '/5 (' + metric.options[p.value - 1].toLowerCase() + ') on ' + fmtDate(p.dateISO) + ' vs their usual ' + round1(base) + '/5'
+                    });
+                } else if (i > 0) {
+                    const prevP = series[i - 1];
+                    const base2 = baselineBeforeIndex(series, i - 1);
+                    if (base2 !== null &&
+                        p.value - base2 >= redD &&
+                        prevP.value - base2 >= redD) {
+                        flags.push({
+                            id: userId + '|red2|' + mk + '|' + p.dateISO,
+                            type: metric.isLoad ? 'load' : 'red', severity: 'red',
+                            userId, metric: mk, weekKey: p.weekKey, dateISO: p.dateISO,
+                            title: metric.label + ' — massive change over two sessions',
+                            detail: metric.label.toLowerCase() + ' was ' + prevP.value + '/5 then ' + p.value + '/5 in back-to-back sessions vs their usual ' + round1(base2) + '/5'
+                        });
+                    }
+                }
+            });
+
+            // ---- YELLOW: gradual change vs baseline ----
+            weeks.forEach((w, i) => {
+                // one week significantly worse than baseline built from all prior weeks
+                const spikeBase = baselineBefore(series, w.weekKey);
+                if (spikeBase !== null && w.mean - spikeBase >= spikeD) {
+                    flags.push({
+                        id: userId + '|spike|' + mk + '|' + w.weekKey,
+                        type: metric.isLoad ? 'load' : 'yellow', severity: 'yellow',
+                        userId, metric: mk, weekKey: w.weekKey,
+                        dateISO: weekKeyToMonday(w.weekKey).toISOString(),
+                        title: metric.label + ' — noticeable change this week',
+                        detail: metric.label.toLowerCase() + ' averaged ' + round1(w.mean) + '/5 this week vs their usual ' + round1(spikeBase) + '/5 (a ' + round1(w.mean - spikeBase) + ' point negative shift)'
+                    });
+                }
+                // this week + previous calendar week both elevated vs baseline before the pair
+                if (i > 0) {
+                    const prev = weeks[i - 1];
+                    if (prev.weekKey === prevWeekKey(w.weekKey)) {
+                        const trendBase = baselineBefore(series, prev.weekKey);
+                        if (trendBase !== null &&
+                            w.mean - trendBase >= trendD &&
+                            prev.mean - trendBase >= trendD) {
+                            flags.push({
+                                id: userId + '|trend|' + mk + '|' + w.weekKey,
+                                type: metric.isLoad ? 'load' : 'yellow', severity: 'yellow',
+                                userId, metric: mk, weekKey: w.weekKey,
+                                dateISO: weekKeyToMonday(w.weekKey).toISOString(),
+                                title: metric.label + ' — 2-week decline',
+                                detail: metric.label.toLowerCase() + ' has run worse than their baseline (' + round1(trendBase) + '/5) for 2 weeks in a row: ' + round1(prev.mean) + ' then ' + round1(w.mean)
+                            });
+                        }
+                    }
+                }
+            });
+
+            // ---- RED LINE (optional): any single score of 5 ----
+            if (config.redline && !metric.isLoad) {
+                series.forEach(p => {
+                    if (p.value === 5) {
+                        flags.push({
+                            id: userId + '|red5|' + mk + '|' + p.dateISO,
+                            type: 'red', severity: 'red',
+                            userId, metric: mk, weekKey: p.weekKey, dateISO: p.dateISO,
+                            title: metric.label + ' — red line',
+                            detail: 'reported ' + metric.options[4].toLowerCase() + ' (5/5) on ' + fmtDate(p.dateISO)
+                        });
+                    }
+                });
+            }
+        });
+
+        // ---- COMMUNICATION: any chat request alerts immediately ----
+        checkins.filter(c => c.userId === userId && c.answers.communication >= 2).forEach(c => {
+            flags.push({
+                id: userId + '|comm|' + c.id,
+                type: 'comm', severity: 'comm',
+                userId, metric: 'communication', weekKey: isoWeekKey(new Date(c.dateISO)), dateISO: c.dateISO,
+                title: 'Chat requested',
+                detail: '"' + COMM.options[c.answers.communication - 1] + '"'
+            });
+        });
+    });
+
+    // consolidate baseline flags: one per athlete+metric (most severe, then
+    // most recent) so a decline across weeks doesn't flood the coach/coordinator.
+    // chat requests stay one-per-request.
+    const best = {};
+    flags.filter(f => f.severity !== 'comm').forEach(f => {
+        const k = f.userId + '|' + f.metric;
+        const cur = best[k];
+        const rank = f.severity === 'red' ? 0 : 1;
+        const curRank = cur ? (cur.severity === 'red' ? 0 : 1) : 9;
+        if (!cur || rank < curRank || (rank === curRank && f.dateISO > cur.dateISO)) best[k] = f;
+    });
+    const out = Object.values(best).concat(flags.filter(f => f.severity === 'comm'));
+
+    // red & comm first, then yellow; newest first within each tier
+    const sevRank = { red: 0, comm: 1, yellow: 2 };
+    out.sort((a, b) => {
+        const ra = sevRank[a.severity] !== undefined ? sevRank[a.severity] : 3;
+        const rb = sevRank[b.severity] !== undefined ? sevRank[b.severity] : 3;
+        if (ra !== rb) return ra - rb;
+        return a.dateISO < b.dateISO ? 1 : -1;
+    });
+    return out;
+}
+
+function activeFlags() {
+    return computeFlags().filter(f => !actioned.includes(f.id));
+}
+
+// Fire automatic notifications for flags not yet notified.
+// With sync on, the Apps Script emails the coordinator (and dedupes server-side).
+function notifyNewFlags() {
+    const flags = computeFlags();
+    const fresh = flags.filter(f => !notified.includes(f.id));
+    if (!fresh.length) return;
+    fresh.forEach(f => notified.push(f.id));
+    if (notified.length > 800) notified = notified.slice(-500);
+    lsSet(LS.notified, notified);
+    if (config.syncUrl) {
+        fresh.forEach(f => {
+            enqueue('alert', {
+                flag: f,
+                athleteName: rosterName(f.userId),
+                coordName: config.coordName,
+                coordEmail: config.coordEmail,
+                coachEmail: config.coachEmail
+            });
+        });
+    }
+}
+
+function rosterName(userId) {
+    const r = roster.find(x => x.id === userId);
+    return r ? (r.name + ' (' + userId + ')') : userId;
+}
+
+// ------------------ READINESS / STATS ------------------
+function readinessOf(checkin) {
+    const vals = WELLNESS_KEYS.map(k => checkin.answers[k]).filter(Boolean);
+    if (!vals.length) return null;
+    return Math.round(((5 - mean(vals)) / 4) * 100);
+}
+
+function userCheckins(userId) {
+    return checkins.filter(c => c.userId === userId).sort((a, b) => a.dateISO < b.dateISO ? -1 : 1);
+}
+
+function weekCount(userId, wk) {
+    return checkins.filter(c => c.userId === userId && isoWeekKey(new Date(c.dateISO)) === wk).length;
+}
+
+function streakWeeks(userId) {
+    let wk = currentWeekKey();
+    let streak = 0;
+    if (weekCount(userId, wk) === 0) wk = prevWeekKey(wk);
+    while (weekCount(userId, wk) > 0) { streak++; wk = prevWeekKey(wk); if (streak > 200) break; }
+    return streak;
+}
+
+function allAthleteIds() {
+    const ids = new Set(roster.map(r => r.id));
+    checkins.forEach(c => ids.add(c.userId));
+    return Array.from(ids).sort();
+}
+
+// ------------------ NAVIGATION ------------------
+let currentScreen = 'landing';
+let unlocked = { coach: false, admin: false };
+
+function show(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    currentScreen = name;
+    renderHeader();
+    window.scrollTo({ top: 0 });
+}
+
+function goHome() { show('landing'); }
+
+function refreshCurrentScreen() {
+    if (currentScreen === 'athlete-home') renderAthleteHome();
+    else if (currentScreen === 'coach') renderCoach();
+    else if (currentScreen === 'admin') renderAdmin();
+}
+
+function renderHeader() {
+    const eyebrow = document.getElementById('headerEyebrow');
+    const actions = document.getElementById('headerActions');
+    const syncBit = config.syncUrl
+        ? '<span class="sync-dot ' + (syncState === 'ok' ? 'on' : (syncState === 'err' ? 'err' : '')) + '" style="margin-right:5px;"></span>'
+        : '';
+    const subs = {
+        'landing': 'load &amp; wellness monitoring',
+        'athlete-setup': 'first-time setup',
+        'athlete-home': syncBit + 'athlete · ' + (profile ? esc(profile.userId) : ''),
+        'checkin': 'check-in · ' + (profile ? esc(profile.userId) : ''),
+        'coach': syncBit + 'coach view',
+        'admin': syncBit + 'admin settings'
+    };
+    eyebrow.innerHTML = subs[currentScreen] || 'load &amp; wellness monitoring';
+    let html = '';
+    if (currentScreen !== 'landing') {
+        if (currentScreen === 'athlete-home') {
+            html += '<button class="btn-ghost" onclick="switchAthlete()">Switch ID</button>';
+        }
+        if (currentScreen === 'coach' || currentScreen === 'athlete-home') {
+            html += '<button class="btn-ghost" onclick="manualSync()">↻ Refresh</button>';
+        }
+        html += '<button class="btn-ghost" onclick="goHome()">⌂ Home</button>';
+    }
+    actions.innerHTML = html;
+}
+
+// ------------------ PIN GATE ------------------
+let pinTarget = null;
+let pinEntry = '';
+
+function requestPin(target) {
+    if (unlocked[target]) { openRole(target); return; }
+    pinTarget = target;
+    pinEntry = '';
+    document.getElementById('pinTitle').textContent = (target === 'coach' ? 'Coach' : 'Admin') + ' access';
+    document.getElementById('pinSub').textContent = 'Enter the ' + target + ' PIN';
+    document.getElementById('pinError').textContent = '';
+    buildPinPad();
+    renderPinDots();
+    document.getElementById('pinOverlay').classList.add('show');
+}
+
+function buildPinPad() {
+    const pad = document.getElementById('pinPad');
+    let html = '';
+    for (let i = 1; i <= 9; i++) html += '<button class="pin-key" onclick="pinPress(' + i + ')">' + i + '</button>';
+    html += '<button class="pin-key" onclick="pinClear()">⌫</button>';
+    html += '<button class="pin-key" onclick="pinPress(0)">0</button>';
+    html += '<button class="pin-key" onclick="pinSubmit()">✓</button>';
+    pad.innerHTML = html;
+}
+
+function renderPinDots() {
+    const wanted = (pinTarget === 'admin' ? config.adminPin : config.coachPin).length;
+    let html = '';
+    for (let i = 0; i < wanted; i++) {
+        html += '<div class="pin-dot' + (i < pinEntry.length ? ' filled' : '') + '"></div>';
+    }
+    document.getElementById('pinDots').innerHTML = html;
+}
+
+function pinPress(n) {
+    const wanted = (pinTarget === 'admin' ? config.adminPin : config.coachPin);
+    if (pinEntry.length >= wanted.length) return;
+    pinEntry += String(n);
+    renderPinDots();
+    if (pinEntry.length === wanted.length) setTimeout(pinSubmit, 120);
+}
+
+function pinClear() { pinEntry = ''; renderPinDots(); document.getElementById('pinError').textContent = ''; }
+
+function pinSubmit() {
+    const wanted = (pinTarget === 'admin' ? config.adminPin : config.coachPin);
+    if (pinEntry === wanted) {
+        unlocked[pinTarget] = true;
+        closePin();
+        openRole(pinTarget);
+    } else {
+        document.getElementById('pinError').textContent = 'Wrong PIN — try again';
+        pinEntry = '';
+        renderPinDots();
+    }
+}
+
+function closePin() { document.getElementById('pinOverlay').classList.remove('show'); }
+
+function openRole(role) {
+    if (role === 'coach') { show('coach'); renderCoach(); }
+    else { show('admin'); renderAdmin(); }
+}
+
+// ------------------ ATHLETE ------------------
+function enterAthlete() {
+    // remembered on this device — only asks for ID on a new device
+    if (profile && profile.userId) { show('athlete-home'); renderAthleteHome(); }
+    else show('athlete-setup');
+}
+
+function saveAthleteProfile() {
+    const id = document.getElementById('setupUserId').value.trim().toUpperCase();
+    const name = document.getElementById('setupName').value.trim();
+    if (!id || id.length < 2) { toast('Please enter your user ID (e.g. 19TS)', 'bad'); return; }
+    profile = { userId: id, name: name };
+    lsSet(LS.profile, profile);
+    show('athlete-home');
+    renderAthleteHome();
+}
+
+function switchAthlete() {
+    if (!confirm('Switch to a different user ID? Check-in history stays saved.')) return;
+    profile = null;
+    lsSet(LS.profile, profile);
+    show('athlete-setup');
+}
+
+function renderAthleteHome() {
+    const mine = userCheckins(profile.userId);
+    const last = mine[mine.length - 1] || null;
+    const readiness = last ? readinessOf(last) : null;
+    const wk = currentWeekKey();
+    const thisWeek = weekCount(profile.userId, wk);
+    const streak = streakWeeks(profile.userId);
+
+    const ringColor = readiness === null ? '#CBD5E1' : (readiness >= 70 ? '#22C55E' : (readiness >= 45 ? '#EAB308' : '#EF4444'));
+    const circumference = 2 * Math.PI * 40;
+    const dash = readiness === null ? 0 : circumference * readiness / 100;
+    const heroName = profile.name || profile.userId;
+    document.getElementById('athleteHero').innerHTML =
+        '<div class="hero">' +
+            '<div class="ring-wrap">' +
+                '<svg width="92" height="92" viewBox="0 0 92 92">' +
+                    '<circle cx="46" cy="46" r="40" fill="none" stroke="var(--line-soft)" stroke-width="8"/>' +
+                    '<circle cx="46" cy="46" r="40" fill="none" stroke="' + ringColor + '" stroke-width="8" stroke-linecap="round" stroke-dasharray="' + dash + ' ' + circumference + '"/>' +
+                '</svg>' +
+                '<div class="ring-val"><div class="num">' + (readiness === null ? '–' : readiness) + '</div><div class="lbl">ready</div></div>' +
+            '</div>' +
+            '<div>' +
+                '<h2>Hey ' + esc(heroName) + ' 👋</h2>' +
+                '<div class="hero-sub">' + (last ? 'Last check-in: ' + fmtDate(last.dateISO) : 'No check-ins yet — do your first one below!') + '</div>' +
+                '<div class="hero-badges">' +
+                    '<span class="pill ' + (thisWeek > 0 ? 'green' : 'amber') + '">this week: ' + thisWeek + ' check-in' + (thisWeek === 1 ? '' : 's') + '</span>' +
+                    '<span class="pill blue">streak: ' + streak + ' wk' + (streak === 1 ? '' : 's') + '</span>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+
+    const cta = document.getElementById('checkinCta');
+    cta.innerHTML = thisWeek > 0 ? '✏️ Check in — after every practice & game' : '✏️ Check in now';
+
+    // trends with personal baseline
+    const trendsEl = document.getElementById('athleteTrends');
+    if (!mine.length) {
+        trendsEl.innerHTML = '<div class="card empty-state" style="grid-column:1/-1;"><div class="es-icon">📈</div>Your trends will appear here after your first check-in</div>';
+    } else {
+        trendsEl.innerHTML = METRICS.map(m => {
+            const pts = mine.filter(c => c.answers[m.key]).slice(-16)
+                .map(c => ({ x: new Date(c.dateISO).getTime(), y: c.answers[m.key] }));
+            const latest = pts.length ? pts[pts.length - 1].y : null;
+            const base = baselineAll(profile.userId, m.key);
+            return '<div class="trend-card">' +
+                '<div class="trend-head"><div class="trend-name">' + m.icon + ' ' + m.label + '</div>' +
+                (latest ? '<span class="score-chip sc-' + latest + '">' + latest + '</span>' : '') + '</div>' +
+                sparkline(pts, base) +
+            '</div>';
+        }).join('');
+    }
+
+    // history
+    const histEl = document.getElementById('athleteHistory');
+    if (!mine.length) {
+        histEl.innerHTML = '<div class="empty-state"><div class="es-icon">📝</div>Nothing here yet</div>';
+    } else {
+        histEl.innerHTML = mine.slice(-10).reverse().map(c =>
+            '<div class="history-item">' +
+                '<div>' + fmtDate(c.dateISO) + '</div>' +
+                '<div class="history-scores">' +
+                    METRICS.map(m => c.answers[m.key]
+                        ? '<span class="score-chip sc-' + c.answers[m.key] + '" title="' + m.label + '">' + c.answers[m.key] + '</span>'
+                        : '').join('') +
+                '</div>' +
+            '</div>'
+        ).join('');
+    }
+}
+
+// sparkline: y 1 (top, good) → 5 (bottom); dashed line = personal baseline
+function sparkline(pts, baseline) {
+    const W = 260, H = 60, P = 6;
+    if (!pts.length) return '<svg viewBox="0 0 ' + W + ' ' + H + '"></svg>';
+    const minX = pts[0].x, maxX = pts[pts.length - 1].x || minX + 1;
+    const spanX = Math.max(maxX - minX, 1);
+    const yOf = v => P + (v - 1) / 4 * (H - 2 * P);
+    const xy = pts.map(p => [
+        pts.length === 1 ? W / 2 : P + (p.x - minX) / spanX * (W - 2 * P),
+        yOf(p.y)
+    ]);
+    const line = xy.map((c, i) => (i ? 'L' : 'M') + c[0].toFixed(1) + ',' + c[1].toFixed(1)).join(' ');
+    let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">';
+    if (baseline !== null && baseline !== undefined) {
+        const by = yOf(baseline);
+        svg += '<line x1="0" y1="' + by.toFixed(1) + '" x2="' + W + '" y2="' + by.toFixed(1) + '" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4 4"/>';
+    }
+    svg += '<path d="' + line + '" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
+    xy.forEach((c, i) => {
+        const v = pts[i].y;
+        svg += '<circle cx="' + c[0].toFixed(1) + '" cy="' + c[1].toFixed(1) + '" r="3.2" fill="' + (v >= 4 ? '#EF4444' : '#2563EB') + '" stroke="#FFF" stroke-width="1.2"/>';
+    });
+    svg += '</svg>';
+    return svg;
+}
+
+// ------------------ CHECK-IN FLOW ------------------
+const CHECKIN_STEPS = METRICS.concat([COMM]);
+let stepIndex = 0;
+let draft = {};
+
+function startCheckin() {
+    stepIndex = 0;
+    draft = {};
+    show('checkin');
+    renderCheckinStep();
+}
+
+const SCORE_CHIP_CLASS = { 1: 'sc-1', 2: 'sc-2', 3: 'sc-3', 4: 'sc-4', 5: 'sc-5' };
+
+function renderCheckinStep() {
+    const total = CHECKIN_STEPS.length + 1; // + review
+    let segs = '';
+    for (let i = 0; i < total; i++) {
+        segs += '<div class="seg' + (i < stepIndex ? ' done' : (i === stepIndex ? ' current' : '')) + '"></div>';
+    }
+    document.getElementById('checkinProgress').innerHTML = segs;
+
+    const body = document.getElementById('checkinBody');
+    if (stepIndex < CHECKIN_STEPS.length) {
+        const q = CHECKIN_STEPS[stepIndex];
+        const isComm = q.key === 'communication';
+        body.innerHTML =
+            '<div class="question-card">' +
+                '<div class="q-icon">' + q.icon + '</div>' +
+                '<div class="q-title">' + q.question + '</div>' +
+                '<div class="q-sub">' + (isComm ? 'Your answer goes straight to the wellness team' : 'Tap the one that fits right now') + '</div>' +
+                q.options.map((opt, i) => {
+                    const v = i + 1;
+                    const chipCls = isComm ? (v === 1 ? 'sc-1' : 'sc-4') : SCORE_CHIP_CLASS[v];
+                    const sel = draft[q.key] === v ? ' selected' : '';
+                    return '<button class="option-btn' + sel + '" onclick="pickOption(\'' + q.key + '\',' + v + ')">' +
+                        '<span class="option-num score-chip ' + chipCls + '" style="border-radius:10px;">' + v + '</span><span>' + esc(opt) + '</span></button>';
+                }).join('') +
+            '</div>' +
+            '<div class="checkin-nav">' +
+                '<button class="btn-ghost" onclick="checkinBack()">← Back</button>' +
+                (draft[q.key] ? '<button class="btn" onclick="checkinNext()">Next →</button>' : '<span></span>') +
+            '</div>';
+    } else {
+        body.innerHTML =
+            '<div class="question-card">' +
+                '<div class="q-icon">👀</div>' +
+                '<div class="q-title">Quick check</div>' +
+                '<div class="q-sub">All good? Hit submit</div>' +
+                CHECKIN_STEPS.map(q => {
+                    const v = draft[q.key];
+                    const isComm = q.key === 'communication';
+                    return '<div class="review-row"><span>' + q.icon + ' ' + q.label + '</span>' +
+                        '<span class="rv-val"><span class="score-chip ' + (isComm ? (v === 1 ? 'sc-1' : 'sc-4') : SCORE_CHIP_CLASS[v]) + '">' + v + '</span>' +
+                        (isComm ? '' : ' ' + esc(q.options[v - 1])) + '</span></div>';
+                }).join('') +
+            '</div>' +
+            '<div class="checkin-nav">' +
+                '<button class="btn-ghost" onclick="checkinBack()">← Back</button>' +
+                '<button class="btn btn-green" style="padding:12px 28px;" onclick="submitCheckin()">Submit ✓</button>' +
+            '</div>';
+    }
+}
+
+function pickOption(key, v) {
+    draft[key] = v;
+    renderCheckinStep();
+    setTimeout(() => { if (CHECKIN_STEPS[stepIndex] && draft[CHECKIN_STEPS[stepIndex].key] === v) checkinNext(); }, 240);
+}
+
+function checkinNext() {
+    if (stepIndex < CHECKIN_STEPS.length) stepIndex++;
+    renderCheckinStep();
+}
+
+function checkinBack() {
+    if (stepIndex === 0) { show('athlete-home'); renderAthleteHome(); return; }
+    stepIndex--;
+    renderCheckinStep();
+}
+
+function submitCheckin() {
+    const missing = CHECKIN_STEPS.filter(q => !draft[q.key]);
+    if (missing.length) { toast('Missing: ' + missing.map(q => q.label).join(', '), 'bad'); return; }
+    const c = {
+        id: 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+        userId: profile.userId,
+        name: profile.name || '',
+        dateISO: new Date().toISOString(),
+        answers: Object.assign({}, draft)
+    };
+    checkins.push(c);
+    checkins.sort((a, b) => a.dateISO < b.dateISO ? -1 : 1);
+    lsSet(LS.checkins, checkins);
+    enqueue('submit', { checkin: c });
+    notifyNewFlags();
+
+    const readiness = readinessOf(c);
+    const msgs = readiness >= 70
+        ? ['Looking fresh! 🔥', 'Keep doing what you\'re doing.']
+        : readiness >= 45
+            ? ['Thanks for checking in 🙌', 'Keep an eye on recovery this week.']
+            : ['Thanks for being honest 💛', 'The wellness team can see this — reach out any time.'];
+    document.getElementById('checkinBody').innerHTML =
+        '<div class="question-card celebrate">' +
+            '<div class="big-emoji">🏐</div>' +
+            '<h2>' + msgs[0] + '</h2>' +
+            '<p>Check-in saved' + (config.syncUrl ? ' &amp; synced' : '') + '. ' + msgs[1] + '</p>' +
+            '<div style="margin-top:22px;"><button class="btn" style="padding:12px 30px;" onclick="show(\'athlete-home\');renderAthleteHome();">Done</button></div>' +
+        '</div>';
+    document.getElementById('checkinProgress').innerHTML = '';
+}
+
+// ------------------ COACH ------------------
+function renderCoach() {
+    const flags = activeFlags();
+    const wk = currentWeekKey();
+    document.getElementById('snapshotWeekLabel').textContent = fmtWeek(wk);
+
+    const banner = document.getElementById('coachAlertBanner');
+    if (flags.length) {
+        const reds = flags.filter(f => f.severity === 'red').length;
+        const comms = flags.filter(f => f.severity === 'comm').length;
+        const yellows = flags.length - reds - comms;
+        const bits = [];
+        if (reds) bits.push(reds + ' red');
+        if (yellows) bits.push(yellows + ' yellow');
+        if (comms) bits.push(comms + ' chat request' + (comms > 1 ? 's' : ''));
+        banner.innerHTML = '<div class="alert-banner warn" onclick="document.getElementById(\'coachAlertsList\').scrollIntoView({behavior:\'smooth\'})">' +
+            '<span>🚨 ' + bits.join(' · ') + ' — tap to view</span><span>↓</span></div>';
+    } else {
+        banner.innerHTML = '<div class="alert-banner ok"><span>✅ No active alerts — everyone tracking near their baseline</span></div>';
+    }
+
+    // stats
+    const ids = allAthleteIds();
+    const thisWeekCheckins = checkins.filter(c => isoWeekKey(new Date(c.dateISO)) === wk);
+    const checkedIn = new Set(thisWeekCheckins.map(c => c.userId));
+    const readinessVals = ids.map(id => {
+        const mine = userCheckins(id);
+        return mine.length ? readinessOf(mine[mine.length - 1]) : null;
+    }).filter(v => v !== null);
+    const avgReadiness = readinessVals.length ? Math.round(mean(readinessVals)) : null;
+    const weekLoad = thisWeekCheckins.reduce((a, c) => a + (c.answers.rpe || 0), 0);
+
+    document.getElementById('coachStats').innerHTML =
+        statCard('checked in this week', checkedIn.size + '/' + ids.length, 'athletes reported') +
+        statCard('team readiness', avgReadiness === null ? '–' : avgReadiness, 'avg of latest check-ins') +
+        statCard('team load this week', weekLoad, 'sum of session RPE') +
+        statCard('active alerts', flags.length, flags.length ? 'needs attention' : 'all clear');
+
+    // team table: this week's mean per metric + delta vs personal baseline
+    const rows = ids.map(id => {
+        const mine = userCheckins(id);
+        const latest = mine[mine.length - 1];
+        const r = roster.find(x => x.id === id);
+        const flagged = flags.some(f => f.userId === id);
+        const cells = METRICS.map(m => {
+            const series = metricSeries(id, m.key).filter(p => p.weekKey === wk);
+            if (!series.length) return '<td><span class="score-chip sc-none">–</span></td>';
+            const v = round1(mean(series.map(p => p.value)));
+            const base = baselineAll(id, m.key);
+            let delta = '';
+            if (base !== null) {
+                const d = round1(v - base);
+                if (d >= 0.5) delta = '<span class="delta-tag delta-up">▲' + d + '</span>';
+                else if (d <= -0.5) delta = '<span class="delta-tag delta-down">▼' + Math.abs(d) + '</span>';
+                else delta = '<span class="delta-tag delta-flat">·</span>';
+            }
+            return '<td><span class="score-chip sc-' + Math.min(5, Math.round(v)) + '">' + v + '</span>' + delta + '</td>';
+        }).join('');
+        const rd = latest ? readinessOf(latest) : null;
+        return '<tr onclick="openDetail(\'' + esc(id) + '\')">' +
+            '<td><div class="athlete-name-cell">' + (flagged ? '🚨 ' : '') + esc(r ? r.name : id) + '</div>' +
+            '<div class="athlete-id-cell">' + esc(id) + (r ? '' : ' · unrostered') + '</div></td>' +
+            cells +
+            '<td><span class="score-chip ' + (rd === null ? 'sc-none' : (rd >= 70 ? 'sc-1' : rd >= 45 ? 'sc-3' : 'sc-5')) + '" style="min-width:34px;">' + (rd === null ? '–' : rd) + '</span></td>' +
+            '<td style="font-weight:700;color:var(--sub);font-size:12px;">' + weekCount(id, wk) + '</td>' +
+        '</tr>';
+    }).join('');
+
+    document.getElementById('teamTableWrap').innerHTML = ids.length
+        ? '<table class="team-table"><thead><tr><th>athlete</th>' +
+            METRICS.map(m => '<th title="' + m.label + '">' + m.icon + '</th>').join('') +
+            '<th>ready</th><th>wk</th></tr></thead><tbody>' + rows + '</tbody></table>'
+        : '<div class="empty-state"><div class="es-icon">👥</div>No athletes yet — add the roster in admin, or wait for first check-ins.<br>(Admin → load demo data to preview.)</div>';
+
+    // alerts list
+    const alertsEl = document.getElementById('coachAlertsList');
+    if (!flags.length) {
+        alertsEl.innerHTML = '<div class="empty-state"><div class="es-icon">🎉</div>No active alerts</div>';
+    } else {
+        alertsEl.innerHTML = flags.map(f =>
+            '<div class="alert-item ' + f.type + '">' +
+                '<div class="alert-main">' +
+                    '<div class="alert-who"><span class="sev-tag ' + (f.severity === 'comm' ? 'comm' : f.severity) + '">' + (f.severity === 'comm' ? 'chat' : f.severity) + '</span>' + (f.type === 'load' ? '📈 ' : '') + esc(rosterName(f.userId)) + ' — ' + esc(f.title) + '</div>' +
+                    '<div class="alert-why">' + esc(f.detail) + '</div>' +
+                    '<div class="alert-date">' + fmtWeek(f.weekKey) + (f.type === 'comm' ? ' · ' + fmtDate(f.dateISO) : '') + '</div>' +
+                '</div>' +
+                '<div class="btn-wrap">' +
+                    (config.coordEmail ? '<button class="btn-ghost" onclick="emailCoordinator(\'' + f.id.replace(/'/g, "\\'") + '\')">✉ Email</button>' : '') +
+                    '<button class="btn btn-green" onclick="markActioned(\'' + f.id.replace(/'/g, "\\'") + '\')">✓ Actioned</button>' +
+                '</div>' +
+            '</div>'
+        ).join('');
+    }
+
+    // not yet checked in
+    const missingEl = document.getElementById('coachMissing');
+    const missing = roster.filter(r => !checkedIn.has(r.id));
+    if (!roster.length) {
+        missingEl.innerHTML = '<div class="empty-state">Add athletes to the roster (admin screen) to track who still needs to check in</div>';
+    } else if (!missing.length) {
+        missingEl.innerHTML = '<div class="empty-state"><div class="es-icon">💯</div>Everyone has checked in at least once this week</div>';
+    } else {
+        missingEl.innerHTML = missing.map(r =>
+            '<span class="pill amber missing-pill">' + esc(r.name) + '</span>'
+        ).join('');
+    }
+}
+
+function statCard(label, value, sub) {
+    return '<div class="stat-card">' +
+        '<div class="eyebrow">' + label + '</div>' +
+        '<div class="stat-value">' + value + '</div>' +
+        '<div class="stat-sub">' + sub + '</div></div>';
+}
+
+function markActioned(flagId) {
+    if (!actioned.includes(flagId)) actioned.push(flagId);
+    lsSet(LS.actioned, actioned);
+    pushShared();
+    renderCoach();
+    toast('Marked as actioned', 'good');
+}
+
+function emailCoordinator(flagId) {
+    const f = computeFlags().find(x => x.id === flagId);
+    if (!f) return;
+    const subject = encodeURIComponent('[RANGES wellness] ' + rosterName(f.userId) + ' — ' + f.title);
+    const body = encodeURIComponent(
+        'Hi ' + (config.coordName || 'team') + ',\n\n' +
+        'Heads up from the RANGES wellness monitor:\n\n' +
+        'Athlete: ' + rosterName(f.userId) + '\n' +
+        'Alert: ' + f.title + '\n' +
+        'Detail: ' + f.detail + '\n' +
+        'Week: ' + fmtWeek(f.weekKey) + '\n\n' +
+        'Thanks!');
+    window.location.href = 'mailto:' + config.coordEmail + '?cc=' + (config.coachEmail || '') + '&subject=' + subject + '&body=' + body;
+}
+
+// ------------------ ATHLETE DETAIL (coach drill-down) ------------------
+function openDetail(userId) {
+    const mine = userCheckins(userId);
+    const r = roster.find(x => x.id === userId);
+    const userFlags = activeFlags().filter(f => f.userId === userId);
+
+    let html = '<h3>' + esc(r ? r.name : userId) + '</h3>' +
+        '<div class="popup-sub">' + esc(userId) + ' · ' + mine.length + ' check-in' + (mine.length === 1 ? '' : 's') +
+        ' · streak ' + streakWeeks(userId) + ' wks</div>';
+
+    if (userFlags.length) {
+        html += userFlags.map(f =>
+            '<div class="alert-item ' + f.type + '" style="margin-bottom:8px;">' +
+            '<div class="alert-main"><div class="alert-who">' + esc(f.title) + '</div>' +
+            '<div class="alert-why">' + esc(f.detail) + '</div></div></div>').join('');
+    }
+
+    if (!mine.length) {
+        html += '<div class="empty-state">No check-ins yet</div>';
+    } else {
+        html += '<div class="eyebrow" style="margin:14px 0 8px;">weekly training load · rpe total</div>';
+        html += '<div class="bar-chart-wrap">' + loadBars(userId) + '</div>';
+
+        html += '<div class="eyebrow" style="margin:14px 0 8px;">trends · dotted = their baseline</div>';
+        html += '<div class="detail-chart-grid">' +
+            METRICS.map(m => {
+                const pts = mine.filter(c => c.answers[m.key]).slice(-16)
+                    .map(c => ({ x: new Date(c.dateISO).getTime(), y: c.answers[m.key] }));
+                const latest = pts.length ? pts[pts.length - 1].y : null;
+                const base = baselineAll(userId, m.key);
+                return '<div class="trend-card">' +
+                    '<div class="trend-head"><div class="trend-name">' + m.icon + ' ' + m.label + '</div>' +
+                    (latest ? '<span class="score-chip sc-' + latest + '">' + latest + '</span>' : '') + '</div>' +
+                    sparkline(pts, base) + '</div>';
+            }).join('') + '</div>';
+
+        html += '<div class="eyebrow" style="margin:14px 0 8px;">recent check-ins</div>';
+        html += mine.slice(-8).reverse().map(c => {
+            const comm = c.answers.communication;
+            return '<div class="history-item"><div>' + fmtDate(c.dateISO) + (comm && comm >= 2 ? ' 💬' : '') + '</div>' +
+                '<div class="history-scores">' +
+                METRICS.map(m => c.answers[m.key]
+                    ? '<span class="score-chip sc-' + c.answers[m.key] + '" title="' + m.label + '">' + c.answers[m.key] + '</span>' : '').join('') +
+                '</div></div>';
+        }).join('');
+    }
+
+    document.getElementById('detailBody').innerHTML = html;
+    document.getElementById('detailOverlay').classList.add('show');
+}
+
+function closeDetail() { document.getElementById('detailOverlay').classList.remove('show'); }
+
+function loadBars(userId) {
+    const weeks = [];
+    let wk = currentWeekKey();
+    for (let i = 0; i < 8; i++) { weeks.unshift(wk); wk = prevWeekKey(wk); }
+    const sums = weeks.map(w =>
+        checkins.filter(c => c.userId === userId && isoWeekKey(new Date(c.dateISO)) === w)
+            .reduce((a, c) => a + (c.answers.rpe || 0), 0));
+    const max = Math.max.apply(null, sums.concat([1]));
+    const W = 520, H = 110, P = 4, bw = (W - 2 * P) / weeks.length;
+    let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">';
+    sums.forEach((s, i) => {
+        const h = s / max * (H - 30);
+        const x = P + i * bw + bw * 0.15;
+        const y = H - 20 - h;
+        svg += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + (bw * 0.7).toFixed(1) + '" height="' + h.toFixed(1) + '" rx="6" fill="' + (i === sums.length - 1 ? '#2563EB' : '#BFDBFE') + '"/>';
+        if (s > 0) svg += '<text x="' + (x + bw * 0.35).toFixed(1) + '" y="' + Math.max(y - 5, 12).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#0F172A">' + s + '</text>';
+        svg += '<text x="' + (x + bw * 0.35).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="9" font-weight="600" fill="#94A3B8">' + weeks[i].split('-W')[1] + '</text>';
+    });
+    svg += '</svg>';
+    return svg;
+}
+
+// ------------------ ADMIN ------------------
+function renderAdmin() {
+    document.getElementById('cfgRedDelta').value = String(config.redDelta);
+    document.getElementById('cfgSpikeDelta').value = String(config.spikeDelta);
+    document.getElementById('cfgTrendDelta').value = String(config.trendDelta);
+    document.getElementById('cfgMinBaseline').value = String(config.minBaseline);
+    document.getElementById('cfgRedlineToggle').classList.toggle('on', !!config.redline);
+    document.getElementById('cfgRpeToggle').classList.toggle('on', !!config.includeRpe);
+    document.getElementById('cfgCoordName').value = config.coordName || '';
+    document.getElementById('cfgCoordEmail').value = config.coordEmail || '';
+    document.getElementById('cfgCoachEmail').value = config.coachEmail || '';
+    document.getElementById('cfgCoachPin').value = config.coachPin || '';
+    document.getElementById('cfgAdminPin').value = config.adminPin || '';
+    document.getElementById('cfgSyncUrl').value = config.syncUrl || '';
+    renderRosterList();
+    renderSyncStatus();
+}
+
+function toggleCfg(key, el) {
+    config[key] = !config[key];
+    el.classList.toggle('on', !!config[key]);
+}
+
+function renderRosterList() {
+    const el = document.getElementById('rosterList');
+    if (!roster.length) {
+        el.innerHTML = '<div class="empty-state">No athletes on the roster yet</div>';
+        return;
+    }
+    el.innerHTML = roster.map((r, i) =>
+        '<div class="roster-item">' +
+            '<div><div class="r-name">' + esc(r.name) + '</div><div class="r-id">' + esc(r.id) + '</div></div>' +
+            '<button class="icon-btn" title="remove" onclick="removeRosterAthlete(' + i + ')">🗑</button>' +
+        '</div>').join('');
+}
+
+function addRosterAthlete() {
+    const id = document.getElementById('rosterId').value.trim().toUpperCase();
+    const name = document.getElementById('rosterName').value.trim();
+    if (!id || !name) { toast('Need both a user ID and a name', 'bad'); return; }
+    if (roster.some(r => r.id === id)) { toast('That ID is already on the roster', 'bad'); return; }
+    roster.push({ id, name });
+    roster.sort((a, b) => a.name.localeCompare(b.name));
+    lsSet(LS.roster, roster);
+    document.getElementById('rosterId').value = '';
+    document.getElementById('rosterName').value = '';
+    renderRosterList();
+    pushShared();
+    toast('Added ' + name, 'good');
+}
+
+function removeRosterAthlete(i) {
+    const r = roster[i];
+    if (!confirm('Remove ' + r.name + ' from the roster? Their check-in history is kept.')) return;
+    roster.splice(i, 1);
+    lsSet(LS.roster, roster);
+    renderRosterList();
+    pushShared();
+}
+
+function saveAdminConfig() {
+    config.redDelta = Number(document.getElementById('cfgRedDelta').value);
+    config.spikeDelta = Number(document.getElementById('cfgSpikeDelta').value);
+    config.trendDelta = Number(document.getElementById('cfgTrendDelta').value);
+    config.minBaseline = Number(document.getElementById('cfgMinBaseline').value);
+    config.coordName = document.getElementById('cfgCoordName').value.trim();
+    config.coordEmail = document.getElementById('cfgCoordEmail').value.trim();
+    config.coachEmail = document.getElementById('cfgCoachEmail').value.trim();
+    config.coachPin = document.getElementById('cfgCoachPin').value.trim() || DEFAULT_CONFIG.coachPin;
+    config.adminPin = document.getElementById('cfgAdminPin').value.trim() || DEFAULT_CONFIG.adminPin;
+    config.syncUrl = document.getElementById('cfgSyncUrl').value.trim();
+    lsSet(LS.config, config);
+    pushShared();
+    renderSyncStatus();
+    renderHeader();
+    toast('Settings saved ✓', 'good');
+}
+
+function renderSyncStatus() {
+    const el = document.getElementById('syncStatusText');
+    if (!config.syncUrl) { el.innerHTML = 'Sync is <b>off</b> — data lives on each device only.'; return; }
+    el.innerHTML = 'Sync is <b>on</b> · status: ' + (syncState === 'ok' ? '✅ connected' : syncState === 'err' ? '❌ last attempt failed' : '⏳ ' + syncState);
+}
+
+async function testSync() {
+    const url = document.getElementById('cfgSyncUrl').value.trim();
+    if (!url) { toast('Paste your Apps Script URL first', 'bad'); return; }
+    config.syncUrl = url;
+    lsSet(LS.config, config);
+    toast('Testing…');
+    try {
+        const data = await api({ action: 'ping' });
+        if (data && data.ok) { syncState = 'ok'; toast('Connected ✓ Google Sheet is talking', 'good'); }
+        else { syncState = 'err'; toast('Reached the URL but got an unexpected reply', 'bad'); }
+    } catch (e) {
+        syncState = 'err';
+        toast('Could not connect — check the URL + deployment', 'bad');
+    }
+    renderSyncStatus();
+    renderHeader();
+}
+
+async function manualSync() {
+    if (!config.syncUrl) { toast('Sync is off — set it up in admin', 'bad'); return; }
+    toast('Syncing…');
+    await flushQueue();
+    await syncPull();
+    toast(syncState === 'ok' ? 'Synced ✓' : 'Sync failed — will retry', syncState === 'ok' ? 'good' : 'bad');
+}
+
+// ------------------ EXPORT / DEMO / RESET ------------------
+function exportCSV() {
+    if (!checkins.length) { toast('No check-ins to export yet', 'bad'); return; }
+    const head = ['date', 'week', 'userId', 'name'].concat(METRICS.map(m => m.key)).concat(['communication', 'readiness']);
+    const rows = checkins.map(c => {
+        const d = new Date(c.dateISO);
+        return [d.toLocaleString('en-AU'), isoWeekKey(d), c.userId, c.name || '']
+            .concat(METRICS.map(m => c.answers[m.key] || ''))
+            .concat([c.answers.communication || '', readinessOf(c) === null ? '' : readinessOf(c)])
+            .map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',');
+    });
+    const csv = head.join(',') + '\n' + rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ranges-wellness-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+function loadDemoData() {
+    if (checkins.length && !confirm('Add demo athletes and check-ins on top of existing data?')) return;
+    const demo = [
+        { id: '19TS', name: 'Taylah S' }, { id: '19JB', name: 'Jess B' },
+        { id: '17MK', name: 'Mia K' }, { id: '17AL', name: 'Ava L' }, { id: '15CR', name: 'Charlie R' }
+    ];
+    demo.forEach(d => { if (!roster.some(r => r.id === d.id)) roster.push({ id: d.id, name: d.name }); });
+    roster.sort((a, b) => a.name.localeCompare(b.name));
+    lsSet(LS.roster, roster);
+
+    const now = Date.now(), day = 86400000;
+    let seed = 42;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    demo.forEach((d, di) => {
+        for (let w = 6; w >= 0; w--) {
+            [4, 1].forEach((off, oi) => {
+                const t = now - w * 7 * day - off * day - di * 3600000 - oi * 7200000;
+                // 19JB has a stable early baseline then declines over the last 2 weeks
+                const declining = d.id === '19JB' && w <= 1;
+                const answers = {};
+                METRICS.forEach(m => {
+                    let v;
+                    if (m.isLoad) v = 2 + Math.floor(rnd() * 3);
+                    else if (declining) v = 3 + Math.floor(rnd() * 2) + (w === 0 ? 1 : 0);
+                    else v = 1 + Math.floor(rnd() * 2.2);
+                    answers[m.key] = Math.max(1, Math.min(5, v));
+                });
+                answers.communication = (d.id === '19JB' && w === 0 && oi === 1) ? 2 : 1;
+                checkins.push({
+                    id: 'demo_' + d.id + '_' + w + '_' + oi,
+                    userId: d.id, name: d.name,
+                    dateISO: new Date(t).toISOString(),
+                    answers
+                });
+            });
+        }
+    });
+    const byId = {};
+    checkins.forEach(c => byId[c.id] = c);
+    checkins = Object.values(byId).sort((a, b) => a.dateISO < b.dateISO ? -1 : 1);
+    lsSet(LS.checkins, checkins);
+    notifyNewFlags();
+    toast('Demo data loaded — check the coach screen', 'good');
+}
+
+function clearAllData() {
+    if (!confirm('Delete ALL check-ins, roster and alert history from this device' + (config.syncUrl ? ' AND the connected Google Sheet' : '') + '? This cannot be undone.')) return;
+    if (!confirm('Really sure? Last chance.')) return;
+    if (config.syncUrl) enqueue('clearAll', {});
+    checkins = []; roster = []; actioned = []; notified = [];
+    lsSet(LS.checkins, checkins); lsSet(LS.roster, roster);
+    lsSet(LS.actioned, actioned); lsSet(LS.notified, notified);
+    toast('All data cleared');
+    renderAdmin();
+}
+
+// ------------------ UTIL ------------------
+function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+let toastTimer = null;
+function toast(msg, kind) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show' + (kind ? ' ' + kind : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ------------------ INIT ------------------
+show('landing');
+renderHeader();
+flushQueue();
+syncPull();
+setInterval(() => { if (config.syncUrl) { flushQueue(); syncPull(); } }, 90000);
+</script>
+</body>
+</html>
