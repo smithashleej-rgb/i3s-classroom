@@ -1,0 +1,11 @@
+# Netlify config for the RANGES wellness app
+# Static site — no build step. Serves ranges-wellness.html at the root URL,
+# so athletes just save https://<your-site>.netlify.app to their home screen.
+
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/"
+  to = "/ranges-wellness.html"
+  status = 200
