@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I3S House Athletics — Scoring Platform</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --flinders: #F2B705;   /* yellow  */
+    --flinders-dk: #7a5c00;
+    --goldstein: #4183D7;  /* blue    */
+    --goldstein-dk: #123a63;
+    --mabo: #5FAE5F;       /* green   */
+    --mabo-dk: #1f4d1f;
+    --freeman: #E0453E;    /* red     */
+    --freeman-dk: #6e1512;
+    --bg: #FAF9F6;
+    --panel: #2b2b2b;
+    --panel-2: #363636;
+    --ink: #FFFFFF;
+    --muted: rgba(255,255,255,0.55);
+  }
+
+  body {
+    font-family: 'Avenir', 'Century Gothic', 'Arial Rounded MT Bold', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 18px;
+    color: #222;
+  }
+
+  .app {
+    max-width: 1680px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Header / Telly ---------- */
+  .header {
+    background: var(--panel);
+    border-radius: 24px;
+    padding: 22px 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    margin-bottom: 18px;
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .title-block h1 {
+    color: var(--ink);
+    font-size: 1.9em;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+  .title-block p {
+    color: var(--muted);
+    font-size: 0.95em;
+    margin-top: 4px;
+  }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    background: var(--panel-2);
+    color: var(--ink);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 0.9em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn:hover { background: #454545; transform: translateY(-1px); }
+  .btn.danger:hover { background: #7a2020; }
+
+  /* Scoreboard telly */
+  .telly {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .house-score {
+    border-radius: 18px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+    color: #1a1a1a;
+    box-shadow: inset 0 0 0 3px rgba(0,0,0,0.08);
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .house-score.leader {
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,0.9), 0 0 24px rgba(255,255,255,0.25);
+    transform: translateY(-3px) scale(1.015);
+  }
+  .house-score .rank {
+    position: absolute; top: 10px; right: 14px;
+    font-size: 1.4em; font-weight: 900; opacity: 0.55;
+  }
+  .house-score .hname {
+    font-size: 1.15em; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .house-score .pts {
+    font-size: 2.8em; font-weight: 900; line-height: 1; margin-top: 6px;
+  }
+  .house-score .pts small { font-size: 0.32em; font-weight: 700; opacity: 0.7; margin-left: 4px; }
+  .house-score .medal { font-size: 1.5em; }
+  .h-flinders  { background: var(--flinders); }
+  .h-goldstein { background: var(--goldstein); color:#fff; }
+  .h-mabo      { background: var(--mabo); color:#fff; }
+  .h-freeman   { background: var(--freeman); color:#fff; }
+
+  /* ---------- Controls ---------- */
+  .controls {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    background: #fff;
+    border-radius: 18px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+    margin-bottom: 18px;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 0.72em; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #888; }
+  select, .txt {
+    font-family: inherit; font-size: 0.95em; font-weight: 700;
+    padding: 10px 14px; border-radius: 10px; border: 2px solid #e3e1db; background: #fff; color:#222;
+    cursor: pointer;
+  }
+  select:focus, .txt:focus { outline: none; border-color: #999; }
+
+  .event-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .event-tab {
+    padding: 8px 14px; border-radius: 999px; border: 2px solid #e3e1db; background:#fff;
+    font-weight: 800; font-size: 0.82em; cursor: pointer; color:#555; transition: all 0.12s;
+    display:flex; align-items:center; gap:6px;
+  }
+  .event-tab:hover { border-color:#bbb; }
+  .event-tab.active { background:#2b2b2b; color:#fff; border-color:#2b2b2b; }
+  .event-tab .dot { width:8px; height:8px; border-radius:50%; background:#cfcabc; }
+  .event-tab.has-data .dot { background:#4CAF50; }
+  .event-tab.active .dot { background:#8bd98f; }
+
+  /* ---------- Scoring grid ---------- */
+  .context-bar {
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;
+    margin: 4px 2px 14px;
+  }
+  .context-bar h2 { font-size: 1.3em; font-weight: 900; text-transform: uppercase; color:#333; }
+  .context-bar .sub { color:#999; font-weight:700; font-size:0.85em; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .col {
+    background:#fff; border-radius: 18px; overflow: hidden;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+    display:flex; flex-direction:column;
+    border-top: 6px solid transparent;
+  }
+  .col-flinders  { border-top-color: var(--flinders); }
+  .col-goldstein { border-top-color: var(--goldstein); }
+  .col-mabo      { border-top-color: var(--mabo); }
+  .col-freeman   { border-top-color: var(--freeman); }
+
+  .col-head {
+    padding: 14px 16px; display:flex; justify-content:space-between; align-items:center;
+    font-weight:900; text-transform:uppercase; letter-spacing:1px; color:#fff;
+  }
+  .col-flinders  .col-head { background: var(--flinders); color:#4a3800; }
+  .col-goldstein .col-head { background: var(--goldstein); }
+  .col-mabo      .col-head { background: var(--mabo); }
+  .col-freeman   .col-head { background: var(--freeman); }
+  .col-head .cnt { font-size:0.7em; opacity:0.75; font-weight:800; }
+
+  .roster { flex:1; padding: 8px; display:flex; flex-direction:column; gap:6px; min-height: 40px; }
+  .student {
+    display:grid; grid-template-columns: 1fr auto auto auto; gap:6px; align-items:center;
+    padding:6px 8px; border-radius:10px; background:#f6f5f1;
+  }
+  .student.placed { background: #fff7e0; box-shadow: inset 0 0 0 2px rgba(242,183,5,0.4); }
+  .student .sname { font-weight:700; font-size:0.9em; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .student .sname .del { color:#c33; cursor:pointer; font-weight:900; margin-right:4px; opacity:0.35; }
+  .student .sname .del:hover { opacity:1; }
+  .place-sel {
+    font-size:0.8em; font-weight:800; padding:4px 6px; border-radius:8px; border:2px solid #e0ded7; background:#fff; cursor:pointer;
+  }
+  .place-sel.p1 { background:#FFD700; border-color:#e6be00; }
+  .place-sel.p2 { background:#D9D9D9; border-color:#bfbfbf; }
+  .place-sel.p3 { background:#E9B67A; border-color:#d19b57; }
+  .mark { width:62px; font-size:0.78em; padding:4px 6px; border-radius:8px; border:2px solid #e0ded7; background:#fff; }
+  .part {
+    width:22px; height:22px; cursor:pointer; accent-color:#4CAF50;
+  }
+  .part-wrap { display:flex; align-items:center; justify-content:center; }
+
+  .add-row { display:flex; gap:6px; padding:8px; }
+  .add-row input {
+    flex:1; font-family:inherit; font-size:0.85em; padding:8px 10px; border-radius:9px; border:2px solid #e3e1db;
+  }
+  .add-row input:focus { outline:none; border-color:#999; }
+  .add-row button {
+    background:#2b2b2b; color:#fff; border:none; border-radius:9px; padding:0 14px; font-weight:900; cursor:pointer; font-size:1.1em;
+  }
+  .add-row button:hover { background:#000; }
+
+  .col-foot {
+    padding: 12px 16px; background:#faf9f6; border-top:1px solid #eee;
+    font-size:0.82em; color:#555;
+  }
+  .col-foot .line { display:flex; justify-content:space-between; padding:2px 0; }
+  .col-foot .total {
+    margin-top:6px; padding-top:8px; border-top:2px dashed #ddd;
+    font-weight:900; font-size:1.05em; color:#222;
+    display:flex; justify-content:space-between;
+  }
+
+  .empty-hint { color:#bbb; text-align:center; font-size:0.82em; padding:14px 6px; font-weight:600; }
+
+  /* Legend / breakdown */
+  .breakdown {
+    margin-top: 20px; background:#fff; border-radius:18px; padding:18px 22px; box-shadow:0 4px 18px rgba(0,0,0,0.06);
+  }
+  .breakdown h3 { font-size:1.05em; font-weight:900; text-transform:uppercase; color:#444; margin-bottom:12px; }
+  table.bd { width:100%; border-collapse:collapse; font-size:0.85em; }
+  table.bd th, table.bd td { padding:7px 10px; text-align:center; border-bottom:1px solid #f0efea; }
+  table.bd th { font-size:0.72em; text-transform:uppercase; letter-spacing:0.5px; color:#999; }
+  table.bd td.ev { text-align:left; font-weight:800; color:#444; }
+  table.bd tr:hover td { background:#faf9f6; }
+  .chip { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:middle; margin-right:6px; }
+
+  .settings-inline { display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; }
+  .settings-inline .field input { width:60px; text-align:center; }
+  .footer-note { text-align:center; color:#aaa; font-size:0.78em; margin:22px 0 6px; }
+
+  @media (max-width: 1100px) {
+    .telly { grid-template-columns: repeat(2,1fr); }
+    .grid { grid-template-columns: repeat(2,1fr); }
+  }
+  @media (max-width: 640px) {
+    .telly { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="title-block">
+        <h1>🏅 House Athletics — Scoring Platform</h1>
+        <p id="leaderLine">Live house standings across every event &amp; age group.</p>
+      </div>
+      <div class="toolbar">
+        <button class="btn" onclick="exportData()">⬇ Export</button>
+        <button class="btn" onclick="document.getElementById('importFile').click()">⬆ Import</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+        <button class="btn danger" onclick="resetAll()">↺ Reset</button>
+      </div>
+    </div>
+    <div class="telly" id="telly"></div>
+  </div>
+
+  <div class="controls">
+    <div class="field">
+      <label>Age Group</label>
+      <select id="groupSel" onchange="onGroupChange()"></select>
+    </div>
+    <div class="field" style="flex:1; min-width:280px;">
+      <label>Event</label>
+      <div class="event-tabs" id="eventTabs"></div>
+    </div>
+    <div class="settings-inline">
+      <div class="field"><label>1st</label><input class="txt" id="p1" type="number" min="0" value="3" onchange="saveSettings()"></div>
+      <div class="field"><label>2nd</label><input class="txt" id="p2" type="number" min="0" value="2" onchange="saveSettings()"></div>
+      <div class="field"><label>3rd</label><input class="txt" id="p3" type="number" min="0" value="1" onchange="saveSettings()"></div>
+      <div class="field"><label>Participation</label><input class="txt" id="pp" type="number" min="0" value="1" onchange="saveSettings()"></div>
+    </div>
+  </div>
+
+  <div class="context-bar">
+    <h2 id="ctxTitle"></h2>
+    <div class="sub" id="ctxSub"></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="breakdown">
+    <h3 id="bdTitle">Event breakdown</h3>
+    <div style="overflow-x:auto;">
+      <table class="bd" id="bdTable"></table>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    I3S House Athletics · Flinders · Goldstein · Mabo · Freeman — data saved to this browser only.
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DATA MODEL
+   ========================================================= */
+const HOUSES = [
+  { key:'flinders',  name:'Flinders',  cls:'h-flinders',  colcls:'col-flinders'  },
+  { key:'goldstein', name:'Goldstein', cls:'h-goldstein', colcls:'col-goldstein' },
+  { key:'mabo',      name:'Mabo',      cls:'h-mabo',      colcls:'col-mabo'      },
+  { key:'freeman',   name:'Freeman',   cls:'h-freeman',   colcls:'col-freeman'   },
+];
+const HOUSE_COLOR = { flinders:'#F2B705', goldstein:'#4183D7', mabo:'#5FAE5F', freeman:'#E0453E' };
+
+const BASE_EVENTS = ['100m','High Jump','Long Jump','Discus','Shotput','Hurdles'];
+const FULL_EVENTS = [...BASE_EVENTS, '200m','1500m'];
+
+const GROUPS = [
+  { key:'g3b',   label:'Grade 3 Boys',  events: BASE_EVENTS },
+  { key:'g3g',   label:'Grade 3 Girls', events: BASE_EVENTS },
+  { key:'910b',  label:'9/10 Boys',     events: FULL_EVENTS },
+  { key:'910g',  label:'9/10 Girls',    events: FULL_EVENTS },
+  { key:'11b',   label:'11 Boys',       events: FULL_EVENTS },
+  { key:'11g',   label:'11 Girls',      events: FULL_EVENTS },
+  { key:'1213b', label:'12/13 Boys',    events: FULL_EVENTS },
+  { key:'1213g', label:'12/13 Girls',   events: FULL_EVENTS },
+];
+
+/* Seed rosters — Year Four Girls (9/10 Girls) from the official scoring sheet */
+const SEED = {
+  '910g': {
+    flinders:  ['Ai-Da S','Amalia V','Anthea C','Chloe J','Freya C','Harriet W','Katelyn T','Molly S','Pham Phuoc An D','Sarah M','Siya P'],
+    goldstein: ['Amelia','Anna','Audrey','Bella','Francesca','Georgina','Hannah','Heidi','Lily','Olive','Zoe'],
+    mabo:      ['Alexandra','Angel','Audrey','Camille','Charlotte','Ellayna','Errong','Estelle','Georgia','Grace','Ivy','Juliet','Maya','Natalie','Olivia','Savannah','Sihan','Zoe'],
+    freeman:   ['Caitlin','Clementine','Eadie','Ivy','Ivy L','Lila','Lily','Taylor','Yuzi'],
+  }
+};
+
+const STORE_KEY = 'i3s-athletics-v1';
+let state = load();
+let current = { group: '910g', event: '100m' };
+
+/* =========================================================
+   PERSISTENCE
+   ========================================================= */
+function blankState() {
+  const s = { students:{}, results:{}, settings:{ p1:3, p2:2, p3:1, pp:1 } };
+  GROUPS.forEach(g => {
+    s.students[g.key] = { flinders:[], goldstein:[], mabo:[], freeman:[] };
+    s.results[g.key] = {};
+    g.events.forEach(ev => s.results[g.key][ev] = {});
+  });
+  // apply seeds
+  Object.keys(SEED).forEach(gk => {
+    HOUSES.forEach(h => {
+      (SEED[gk][h.key] || []).forEach(nm => {
+        s.students[gk][h.key].push({ id: uid(), name: nm });
+      });
+    });
+  });
+  return s;
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return blankState();
+    const s = JSON.parse(raw);
+    // ensure structure integrity for all groups/events
+    GROUPS.forEach(g => {
+      s.students[g.key] = s.students[g.key] || { flinders:[], goldstein:[], mabo:[], freeman:[] };
+      HOUSES.forEach(h => s.students[g.key][h.key] = s.students[g.key][h.key] || []);
+      s.results[g.key] = s.results[g.key] || {};
+      g.events.forEach(ev => s.results[g.key][ev] = s.results[g.key][ev] || {});
+    });
+    s.settings = s.settings || { p1:3, p2:2, p3:1, pp:1 };
+    return s;
+  } catch(e) { return blankState(); }
+}
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+function uid() { return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+/* =========================================================
+   SCORING
+   ========================================================= */
+function placePoints(place) {
+  const st = state.settings;
+  if (place === 1) return +st.p1;
+  if (place === 2) return +st.p2;
+  if (place === 3) return +st.p3;
+  return 0;
+}
+function res(gk, ev, sid) {
+  const bucket = state.results[gk][ev];
+  if (!bucket[sid]) bucket[sid] = { place:0, part:false, mark:'' };
+  return bucket[sid];
+}
+// points for one house in one event
+function eventHousePoints(gk, ev, hkey) {
+  const students = state.students[gk][hkey];
+  let placing = 0, partCount = 0;
+  students.forEach(s => {
+    const r = state.results[gk][ev][s.id];
+    if (!r) return;
+    if (r.place) placing += placePoints(r.place);
+    if (r.part) partCount++;
+  });
+  const participation = partCount * (+state.settings.pp);
+  return { placing, participation, partCount, total: placing + participation };
+}
+// grand total for a house across ALL groups & events
+function houseGrandTotal(hkey) {
+  let t = 0;
+  GROUPS.forEach(g => g.events.forEach(ev => { t += eventHousePoints(g.key, ev, hkey).total; }));
+  return t;
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function renderTelly() {
+  const totals = HOUSES.map(h => ({ ...h, total: houseGrandTotal(h.key) }));
+  const max = Math.max(...totals.map(t => t.total), 0);
+  const sorted = [...totals].sort((a,b) => b.total - a.total);
+  const rankOf = {};
+  sorted.forEach((t,i) => rankOf[t.key] = i);
+  const medals = ['🥇','🥈','🥉','4️⃣'];
+  const el = document.getElementById('telly');
+  el.innerHTML = totals.map(t => {
+    const rank = rankOf[t.key];
+    const leader = (t.total === max && max > 0);
+    return `<div class="house-score ${t.cls} ${leader?'leader':''}">
+      <div class="rank">${medals[rank]||''}</div>
+      <div class="hname">${t.name}</div>
+      <div class="pts">${t.total}<small>PTS</small></div>
+    </div>`;
+  }).join('');
+
+  const lead = sorted[0];
+  const line = document.getElementById('leaderLine');
+  if (max === 0) line.textContent = 'Live house standings across every event & age group.';
+  else if (sorted.length>1 && sorted[0].total === sorted[1].total)
+    line.innerHTML = `🔥 It's a tie at the top — <b>${sorted.filter(s=>s.total===max).map(s=>s.name).join(' & ')}</b> lead with <b>${max}</b> pts.`;
+  else line.innerHTML = `🔥 <b>${lead.name}</b> leads with <b>${lead.total}</b> pts.`;
+}
+
+function renderGroupSelect() {
+  const sel = document.getElementById('groupSel');
+  sel.innerHTML = GROUPS.map(g => `<option value="${g.key}" ${g.key===current.group?'selected':''}>${g.label}</option>`).join('');
+}
+
+function renderEventTabs() {
+  const g = GROUPS.find(x => x.key === current.group);
+  if (!g.events.includes(current.event)) current.event = g.events[0];
+  const tabs = document.getElementById('eventTabs');
+  tabs.innerHTML = g.events.map(ev => {
+    const has = HOUSES.some(h => eventHousePoints(g.key, ev, h.key).total > 0);
+    return `<div class="event-tab ${ev===current.event?'active':''} ${has?'has-data':''}" onclick="selectEvent('${ev.replace(/'/g,"\\'")}')">
+      <span class="dot"></span>${ev}</div>`;
+  }).join('');
+}
+
+function renderContext() {
+  const g = GROUPS.find(x => x.key === current.group);
+  document.getElementById('ctxTitle').textContent = `${g.label} — ${current.event}`;
+  const totalKids = HOUSES.reduce((n,h)=> n + state.students[g.key][h.key].length, 0);
+  document.getElementById('ctxSub').textContent = `${totalKids} athlete${totalKids!==1?'s':''} across 4 houses`;
+}
+
+function renderGrid() {
+  const g = GROUPS.find(x => x.key === current.group);
+  const gk = g.key, ev = current.event;
+  const grid = document.getElementById('grid');
+  grid.innerHTML = HOUSES.map(h => {
+    const students = state.students[gk][h.key];
+    const pts = eventHousePoints(gk, ev, h.key);
+    const rows = students.length ? students.map(s => {
+      const r = res(gk, ev, s.id);
+      const pcls = r.place ? 'p'+r.place : '';
+      return `<div class="student ${r.place?'placed':''}">
+        <div class="sname"><span class="del" title="Remove athlete" onclick="removeStudent('${gk}','${h.key}','${s.id}')">✕</span>${escapeHtml(s.name)}</div>
+        <select class="place-sel ${pcls}" title="Placing" onchange="setPlace('${gk}','${ev}','${s.id}', this.value)">
+          <option value="0" ${r.place===0?'selected':''}>–</option>
+          <option value="1" ${r.place===1?'selected':''}>1st</option>
+          <option value="2" ${r.place===2?'selected':''}>2nd</option>
+          <option value="3" ${r.place===3?'selected':''}>3rd</option>
+        </select>
+        <input class="mark" placeholder="time/dist" value="${escapeHtml(r.mark||'')}" title="Time / Distance"
+               onchange="setMark('${gk}','${ev}','${s.id}', this.value)">
+        <div class="part-wrap"><input class="part" type="checkbox" title="Participated" ${r.part?'checked':''}
+               onchange="setPart('${gk}','${ev}','${s.id}', this.checked)"></div>
+      </div>`;
+    }).join('') : `<div class="empty-hint">No athletes yet — add them below 👇</div>`;
+
+    return `<div class="col ${h.colcls}">
+      <div class="col-head"><span>${h.name}</span><span class="cnt">${students.length} 👤</span></div>
+      <div class="roster">${rows}</div>
+      <div class="add-row">
+        <input type="text" placeholder="Add athlete…" id="add-${h.key}"
+               onkeydown="if(event.key==='Enter'){addStudent('${gk}','${h.key}')}">
+        <button onclick="addStudent('${gk}','${h.key}')" title="Add athlete">+</button>
+      </div>
+      <div class="col-foot">
+        <div class="line"><span>Placing points</span><b>${pts.placing}</b></div>
+        <div class="line"><span>Participation (${pts.partCount} × ${state.settings.pp})</span><b>${pts.participation}</b></div>
+        <div class="total"><span>Event total</span><span>${pts.total}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderBreakdown() {
+  const g = GROUPS.find(x => x.key === current.group);
+  document.getElementById('bdTitle').textContent = `${g.label} — points by event`;
+  const t = document.getElementById('bdTable');
+  let head = `<tr><th class="ev">Event</th>` +
+    HOUSES.map(h => `<th><span class="chip" style="background:${HOUSE_COLOR[h.key]}"></span>${h.name}</th>`).join('') +
+    `<th>Winner</th></tr>`;
+  let body = g.events.map(ev => {
+    const cells = HOUSES.map(h => eventHousePoints(g.key, ev, h.key).total);
+    const max = Math.max(...cells);
+    const winner = max>0 ? HOUSES.filter((h,i)=>cells[i]===max).map(h=>h.name).join(' / ') : '—';
+    return `<tr><td class="ev">${ev}</td>` +
+      cells.map((c,i)=>`<td style="${c===max&&max>0?'font-weight:900;color:'+HOUSE_COLOR[HOUSES[i].key]:''}">${c||''}</td>`).join('') +
+      `<td>${winner}</td></tr>`;
+  }).join('');
+  // group subtotal row
+  const subtotals = HOUSES.map(h => g.events.reduce((n,ev)=> n + eventHousePoints(g.key,ev,h.key).total, 0));
+  const smax = Math.max(...subtotals);
+  body += `<tr style="border-top:2px solid #ddd;"><td class="ev" style="font-weight:900">GROUP TOTAL</td>` +
+    subtotals.map((c,i)=>`<td style="font-weight:900;${c===smax&&smax>0?'color:'+HOUSE_COLOR[HOUSES[i].key]:''}">${c}</td>`).join('') +
+    `<td></td></tr>`;
+  t.innerHTML = head + body;
+}
+
+function renderAll() {
+  renderGroupSelect();
+  renderEventTabs();
+  renderContext();
+  renderGrid();
+  renderBreakdown();
+  renderTelly();
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+function onGroupChange() {
+  current.group = document.getElementById('groupSel').value;
+  const g = GROUPS.find(x=>x.key===current.group);
+  if (!g.events.includes(current.event)) current.event = g.events[0];
+  renderAll();
+}
+function selectEvent(ev) { current.event = ev; renderAll(); }
+
+function addStudent(gk, hkey) {
+  const inp = document.getElementById('add-'+hkey);
+  const name = inp.value.trim();
+  if (!name) return;
+  state.students[gk][hkey].push({ id: uid(), name });
+  inp.value = '';
+  save(); renderGrid(); renderContext(); renderTelly(); renderEventTabs();
+  const again = document.getElementById('add-'+hkey);
+  if (again) again.focus();
+}
+function removeStudent(gk, hkey, sid) {
+  state.students[gk][hkey] = state.students[gk][hkey].filter(s => s.id !== sid);
+  // clean up results
+  Object.values(state.results[gk]).forEach(bucket => { delete bucket[sid]; });
+  save(); renderGrid(); renderContext(); renderTelly(); renderEventTabs(); renderBreakdown();
+}
+function setPlace(gk, ev, sid, val) {
+  const r = res(gk, ev, sid);
+  r.place = parseInt(val, 10) || 0;
+  if (r.place) r.part = true; // placing implies participation
+  save(); renderGrid(); renderTelly(); renderEventTabs(); renderBreakdown();
+}
+function setPart(gk, ev, sid, checked) {
+  const r = res(gk, ev, sid);
+  r.part = checked;
+  if (!checked) { /* keep placing? clearing participation shouldn't clear a recorded place */ }
+  save(); renderGrid(); renderTelly(); renderEventTabs(); renderBreakdown();
+}
+function setMark(gk, ev, sid, val) {
+  res(gk, ev, sid).mark = val;
+  save();
+}
+function saveSettings() {
+  state.settings = {
+    p1: num('p1',3), p2: num('p2',2), p3: num('p3',1), pp: num('pp',1)
+  };
+  save(); renderGrid(); renderTelly(); renderEventTabs(); renderBreakdown();
+}
+function num(id, d){ const v = parseFloat(document.getElementById(id).value); return isNaN(v)?d:v; }
+
+/* =========================================================
+   IMPORT / EXPORT / RESET
+   ========================================================= */
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'house-athletics-scores.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data.students || !data.results) throw new Error('bad file');
+      state = data;
+      // reload through load() integrity path
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      state = load();
+      renderAll();
+      alert('Scores imported successfully.');
+    } catch(err) { alert('Could not import that file — it does not look like a saved scores file.'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+function resetAll() {
+  if (!confirm('Reset ALL scores and rosters back to the starting point? This cannot be undone.')) return;
+  state = blankState();
+  save();
+  renderAll();
+}
+
+/* =========================================================
+   UTIL
+   ========================================================= */
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* init settings inputs from state */
+document.getElementById('p1').value = state.settings.p1;
+document.getElementById('p2').value = state.settings.p2;
+document.getElementById('p3').value = state.settings.p3;
+document.getElementById('pp').value = state.settings.pp;
+
+renderAll();
+</script>
+</body>
+</html>
