@@ -164,6 +164,81 @@
   .settings-inline .field input { width:60px; text-align:center; }
   .footer-note { text-align:center; color:#aaa; font-size:0.78em; margin:22px 0 6px; }
 
+  /* ---------- View switcher ---------- */
+  .viewswitch { display:flex; gap:8px; margin-bottom:16px; }
+  .vbtn {
+    background:#ecebe6; color:#666; border:none; border-radius:12px; padding:11px 22px;
+    font-family:inherit; font-size:1em; font-weight:800; cursor:pointer; transition:all .15s;
+  }
+  .vbtn:hover { background:#e0ded7; }
+  .vbtn.active { background:#2b2b2b; color:#fff; }
+  .hidden { display:none !important; }
+  .muted-line { color: var(--muted); font-size:0.95em; margin-top:4px; }
+
+  /* ---------- Bus allocator ---------- */
+  .bus-config { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+  .bus-cfg-card {
+    background:#363636; border-radius:14px; padding:12px 14px; display:flex; flex-direction:column; gap:8px;
+    border:1px solid rgba(255,255,255,0.12); min-width:170px;
+  }
+  .bus-cfg-card .row1 { display:flex; gap:8px; align-items:center; }
+  .bus-cfg-card input.bus-name {
+    background:#2b2b2b; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:8px;
+    padding:7px 9px; font-family:inherit; font-weight:800; font-size:0.9em; width:110px;
+  }
+  .bus-cfg-card input.bus-cap {
+    background:#2b2b2b; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:8px;
+    padding:7px 9px; font-family:inherit; font-weight:800; font-size:0.9em; width:58px; text-align:center;
+  }
+  .bus-cfg-card label { font-size:0.66em; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); font-weight:800; }
+  .bus-cfg-card .rm { color:#e88; cursor:pointer; font-weight:900; opacity:0.6; }
+  .bus-cfg-card .rm:hover { opacity:1; }
+  .add-bus-btn {
+    background:#3f7d3f; color:#fff; border:none; border-radius:14px; padding:0 18px; height:66px;
+    font-size:1.6em; font-weight:900; cursor:pointer;
+  }
+  .add-bus-btn:hover { background:#4a934a; }
+
+  .bus-options {
+    background:#fff; border-radius:16px; padding:14px 18px; margin-bottom:16px;
+    box-shadow:0 4px 18px rgba(0,0,0,0.06); display:flex; gap:22px; flex-wrap:wrap; align-items:center;
+  }
+  .bus-options .opt { display:flex; align-items:center; gap:8px; font-weight:700; font-size:0.9em; color:#444; cursor:pointer; }
+  .bus-options .opt input { width:18px; height:18px; accent-color:#3f7d3f; }
+  .bus-stats { margin-left:auto; font-weight:800; font-size:0.88em; color:#666; display:flex; gap:16px; flex-wrap:wrap; }
+  .bus-stats .warnstat { color:#c0392b; }
+
+  .bus-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:16px; }
+  .bus-card { background:#fff; border-radius:18px; box-shadow:0 4px 18px rgba(0,0,0,0.06); overflow:hidden; display:flex; flex-direction:column; border-top:6px solid #4183D7; }
+  .bus-card.over { border-top-color:#E0453E; }
+  .bus-card.unassigned { border-top-color:#bbb; }
+  .bus-card .bhead { padding:14px 16px; display:flex; justify-content:space-between; align-items:center; background:#f4f7fb; }
+  .bus-card.unassigned .bhead { background:#f5f4f0; }
+  .bus-card .bhead .bt { font-weight:900; font-size:1.05em; text-transform:uppercase; color:#333; }
+  .bus-card .bhead .load { font-weight:900; font-size:0.9em; color:#4183D7; }
+  .bus-card.over .bhead .load { color:#E0453E; }
+  .cap-bar { height:8px; background:#eceae4; }
+  .cap-fill { height:100%; background:#4183D7; transition:width .3s; }
+  .bus-card.over .cap-fill { background:#E0453E; }
+  .bclass { padding:8px 12px; border-bottom:1px solid #f4f3ee; }
+  .bclass .cname { font-weight:900; font-size:0.8em; text-transform:uppercase; letter-spacing:0.5px; color:#888; margin-bottom:5px; display:flex; justify-content:space-between; }
+  .bclass .split-badge { background:#ffe0a0; color:#7a5c00; font-size:0.9em; padding:1px 7px; border-radius:999px; }
+  .bstudent { display:flex; align-items:center; gap:8px; padding:4px 4px; font-size:0.88em; color:#333; }
+  .bstudent .bhouse { width:9px; height:9px; border-radius:50%; flex:none; }
+  .bstudent .bmove { margin-left:auto; }
+  .bstudent .bmove select { font-size:0.75em; padding:2px 4px; border-radius:6px; border:1px solid #e0ded7; }
+  .bus-empty { padding:22px; text-align:center; color:#bbb; font-weight:600; font-size:0.85em; }
+
+  @media print {
+    body { padding:0; background:#fff; }
+    .viewswitch, .toolbar, .bus-options, .bus-config, .footer-note, .bmove { display:none !important; }
+    #view-scoring { display:none !important; }
+    .bus-grid { grid-template-columns: 1fr 1fr; gap:10px; }
+    .bus-card { break-inside:avoid; box-shadow:none; border:1px solid #ccc; }
+    .header { background:#fff !important; box-shadow:none; padding:6px 0; }
+    .title-block h1 { color:#000 !important; }
+  }
+
   /* ---------- Import modal ---------- */
   .overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 100;
@@ -218,6 +293,13 @@
 <body>
 <div class="app">
 
+  <div class="viewswitch">
+    <button class="vbtn active" id="vb-scoring" onclick="showView('scoring')">🏅 Scoring</button>
+    <button class="vbtn" id="vb-buses" onclick="showView('buses')">🚌 Bus allocator</button>
+  </div>
+
+<div id="view-scoring">
+
   <div class="header">
     <div class="header-top">
       <div class="title-block">
@@ -266,6 +348,86 @@
 
   <div class="footer-note">
     I3S House Athletics · Flinders · Goldstein · Mabo · Freeman — data saved to this browser only.
+  </div>
+
+</div><!-- /view-scoring -->
+
+<!-- ===================== BUS ALLOCATOR VIEW ===================== -->
+<div id="view-buses" class="hidden">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="title-block">
+        <h1>🚌 Bus Allocator</h1>
+        <p class="muted-line" id="busSummaryLine">Split classes across buses for the trip to athletics day.</p>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" onclick="openBusImport()">👥 Import roster</button>
+        <button class="btn" onclick="allocateBuses()">⚙ Auto-allocate</button>
+        <button class="btn" onclick="printBuses()">🖨 Print</button>
+        <button class="btn" onclick="exportBuses()">⬇ Export CSV</button>
+        <button class="btn danger" onclick="resetBuses()">↺ Clear</button>
+      </div>
+    </div>
+
+    <div class="bus-config" id="busConfig"></div>
+  </div>
+
+  <div class="bus-options">
+    <label class="opt"><input type="checkbox" id="keepTogether" checked onchange="allocateBuses()"> Keep each class together where it fits (split only oversized classes)</label>
+    <label class="opt"><input type="checkbox" id="balanceLoads" onchange="allocateBuses()"> Balance passenger numbers evenly across buses</label>
+    <div class="bus-stats" id="busStats"></div>
+  </div>
+
+  <div class="bus-grid" id="busGrid"></div>
+
+  <div class="footer-note">
+    Bus allocation is saved to this browser only. Use Print for a clean per-bus roll-call sheet.
+  </div>
+</div><!-- /view-buses -->
+
+<!-- ===================== BUS IMPORT MODAL ===================== -->
+<div class="overlay" id="busImportOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>🚌 Import Bus Roster</h2>
+      <span class="x" onclick="closeBusImport()">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="step" id="bstep-source">
+        <h4>1 · Add your student list</h4>
+        <div class="dropzone" id="busDropzone">
+          <div style="font-size:1.6em">📄</div>
+          <div><b>Click to choose a file</b> or drag it here</div>
+          <div style="font-size:0.82em; margin-top:4px;">Excel (.xlsx, .xls) or CSV — needs a Name and a Class/Room column</div>
+          <input type="file" id="busFile" accept=".xlsx,.xls,.csv,.txt" class="hidden">
+        </div>
+        <div class="or-line">— OR PASTE FROM EXCEL / GOOGLE SHEETS —</div>
+        <textarea class="paste" id="busPasteBox" placeholder="Paste rows here (including the header row).  e.g.&#10;Name&#9;Class&#9;Year&#9;House&#10;Ava Smith&#9;5A&#9;5&#9;Mabo"></textarea>
+        <div style="margin-top:10px;"><button class="btn primary" onclick="parseBusPaste()">Read pasted rows</button></div>
+      </div>
+
+      <div id="bstep-config" class="hidden">
+        <div class="step">
+          <h4>2 · Match your columns</h4>
+          <div class="map-grid" id="busMapGrid"></div>
+          <label style="display:flex; align-items:center; gap:6px; margin-top:10px; font-size:0.85em; font-weight:700; color:#555;">
+            <input type="checkbox" id="busHasHeader" checked onchange="rebuildBusPreview()"> First row is a header
+          </label>
+        </div>
+        <div class="step">
+          <h4>3 · Preview</h4>
+          <div class="summary" id="busImportSummary"></div>
+          <div class="preview-wrap"><table class="pv" id="busPreviewTable"></table></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <label id="busReplaceWrap" class="hidden"><input type="checkbox" id="busReplaceMode" checked> Replace the current bus roster (otherwise add to it)</label>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="closeBusImport()">Cancel</button>
+      <button class="btn primary" id="busConfirmBtn" onclick="confirmBusImport()" disabled>Load roster</button>
+    </div>
   </div>
 </div>
 
@@ -422,7 +584,11 @@ function blankState() {
       (SEED[gk][h.key] || []).forEach(nm => s.students[gk][h.key].push({ id: uid(), name: nm }));
     });
   });
+  s.busData = defaultBusData();
   return s;
+}
+function defaultBusData() {
+  return { buses: [ { id:'busA', name:'Bus 1', cap:50 }, { id:'busB', name:'Bus 2', cap:50 } ], roster: [] };
 }
 function load() {
   try {
@@ -436,6 +602,9 @@ function load() {
       g.events.forEach(ev => s.results[g.key][ev] = s.results[g.key][ev] || {});
     });
     s.settings = s.settings || { p1:3, p2:2, p3:1, pp:1 };
+    s.busData = s.busData || defaultBusData();
+    s.busData.buses = (s.busData.buses && s.busData.buses.length) ? s.busData.buses : defaultBusData().buses;
+    s.busData.roster = s.busData.roster || [];
     return s;
   } catch(e) { return blankState(); }
 }
@@ -631,8 +800,9 @@ function importScores(e) {
   reader.readAsText(file); e.target.value = '';
 }
 function resetAll() {
-  if (!confirm('Reset ALL scores and rosters back to the starting point? This cannot be undone.')) return;
-  state = blankState(); save(); renderAll();
+  if (!confirm('Reset ALL scores and rosters back to the starting point? (Bus allocations are kept.) This cannot be undone.')) return;
+  const keepBuses = state.busData;
+  state = blankState(); state.busData = keepBuses; save(); renderAll();
 }
 
 /* =========================================================
@@ -856,6 +1026,311 @@ function confirmImport() {
 }
 
 /* =========================================================
+   VIEW SWITCHER
+   ========================================================= */
+function showView(v) {
+  document.getElementById('view-scoring').classList.toggle('hidden', v!=='scoring');
+  document.getElementById('view-buses').classList.toggle('hidden', v!=='buses');
+  document.getElementById('vb-scoring').classList.toggle('active', v==='scoring');
+  document.getElementById('vb-buses').classList.toggle('active', v==='buses');
+  if (v==='buses') renderBuses();
+}
+
+/* =========================================================
+   BUS ALLOCATOR
+   ========================================================= */
+function busById(id){ return state.busData.buses.find(b=>b.id===id); }
+
+function renderBusConfig() {
+  const el = document.getElementById('busConfig');
+  el.innerHTML = state.busData.buses.map(b => `
+    <div class="bus-cfg-card">
+      <div class="row1">
+        <input class="bus-name" value="${escapeHtml(b.name)}" onchange="editBus('${b.id}','name',this.value)">
+        <span class="rm" title="Remove bus" onclick="removeBus('${b.id}')">✕</span>
+      </div>
+      <label>Seat capacity</label>
+      <input class="bus-cap" type="number" min="1" value="${b.cap}" onchange="editBus('${b.id}','cap',this.value)">
+    </div>`).join('') +
+    `<button class="add-bus-btn" title="Add another bus" onclick="addBus()">+</button>`;
+}
+function editBus(id, field, val) {
+  const b = busById(id); if (!b) return;
+  if (field==='name') b.name = val.trim() || b.name;
+  if (field==='cap') b.cap = Math.max(1, parseInt(val,10) || 1);
+  save(); renderBuses();
+}
+function addBus() {
+  const n = state.busData.buses.length + 1;
+  const lastCap = state.busData.buses.length ? state.busData.buses[state.busData.buses.length-1].cap : 50;
+  state.busData.buses.push({ id: uid(), name: 'Bus ' + n, cap: lastCap });
+  save(); renderBuses();
+}
+function removeBus(id) {
+  if (state.busData.buses.length <= 1) { alert('Keep at least one bus.'); return; }
+  state.busData.roster.forEach(s => { if (s.busId===id) s.busId = null; });
+  state.busData.buses = state.busData.buses.filter(b => b.id !== id);
+  save(); renderBuses();
+}
+
+function classesOf(roster) {
+  const map = new Map();
+  roster.forEach(s => {
+    const key = s.cls && s.cls.trim() ? s.cls.trim() : '(no class)';
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(s);
+  });
+  return map;
+}
+
+function allocateBuses() {
+  const keep = document.getElementById('keepTogether').checked;
+  const balance = document.getElementById('balanceLoads').checked;
+  const buses = state.busData.buses;
+  const roster = state.busData.roster;
+  roster.forEach(s => s.busId = null);
+  const load = {}; buses.forEach(b => load[b.id] = 0);
+  const remaining = id => busById(id).cap - load[id];
+  const assign = (s, id) => { s.busId = id; load[id]++; };
+
+  if (keep) {
+    // largest classes first for tighter packing
+    const classes = [...classesOf(roster).entries()].sort((a,b) => b[1].length - a[1].length);
+    classes.forEach(([cls, studs]) => {
+      const size = studs.length;
+      let fits = buses.filter(b => remaining(b.id) >= size);
+      fits.sort((a,b) => balance ? (remaining(b.id)-remaining(a.id)) : (remaining(a.id)-remaining(b.id)));
+      if (fits.length) {
+        studs.forEach(s => assign(s, fits[0].id));
+      } else {
+        // split across buses, most room first
+        const order = [...buses].sort((a,b) => remaining(b.id)-remaining(a.id));
+        let i = 0;
+        studs.forEach(s => {
+          while (i < order.length && remaining(order[i].id) <= 0) i++;
+          if (i < order.length) assign(s, order[i].id);
+          // else overflow -> stays null
+        });
+      }
+    });
+  } else {
+    const order = [...buses];
+    roster.forEach(s => {
+      let target;
+      if (balance) target = order.reduce((best,b) => remaining(b.id) > remaining(best.id) ? b : best, order[0]);
+      else target = order.find(b => remaining(b.id) > 0);
+      if (target && remaining(target.id) > 0) assign(s, target.id);
+    });
+  }
+  save(); renderBuses();
+}
+
+function renderBusStats() {
+  const roster = state.busData.roster;
+  const totalCap = state.busData.buses.reduce((n,b)=> n + b.cap, 0);
+  const assigned = roster.filter(s => s.busId).length;
+  const overflow = roster.filter(s => !s.busId).length;
+  document.getElementById('busSummaryLine').textContent =
+    `${roster.length} students · ${state.busData.buses.length} buses · ${totalCap} seats total`;
+  document.getElementById('busStats').innerHTML =
+    `<span>👥 ${roster.length} students</span>` +
+    `<span>💺 ${assigned}/${totalCap} seated</span>` +
+    (overflow>0 ? `<span class="warnstat">⚠ ${overflow} not seated (add capacity)</span>` : (roster.length? `<span style="color:#2e7d32">✓ all seated</span>` : ''));
+}
+
+function renderBuses() {
+  renderBusConfig();
+  renderBusStats();
+  const roster = state.busData.roster;
+  const buses = state.busData.buses;
+  // count how many buses each class spans (for split badges)
+  const classBuses = {};
+  roster.forEach(s => {
+    const c = s.cls && s.cls.trim() ? s.cls.trim() : '(no class)';
+    (classBuses[c] = classBuses[c] || new Set()).add(s.busId || 'none');
+  });
+
+  const moveOpts = curId => buses.map(b => `<option value="${b.id}" ${b.id===curId?'selected':''}>${escapeHtml(b.name)}</option>`).join('') + `<option value="">— unassign —</option>`;
+
+  const cardFor = (bus) => {
+    const studs = roster.filter(s => s.busId === bus.id);
+    const load = studs.length;
+    const over = load > bus.cap;
+    const pct = Math.min(100, bus.cap ? (load/bus.cap*100) : 0);
+    const byClass = [...classesOf(studs).entries()].sort((a,b)=> a[0].localeCompare(b[0]));
+    const body = studs.length ? byClass.map(([cls, list]) => {
+      const split = classBuses[cls] && [...classBuses[cls]].filter(x=>x!=='none').length > 1;
+      const rows = list.map(s => `
+        <div class="bstudent">
+          <span class="bhouse" style="background:${HOUSE_COLOR[s.house]||'#ccc'}"></span>
+          ${escapeHtml(s.name)}${s.year?` <span style="color:#aaa;font-size:0.85em">Yr ${escapeHtml(s.year)}</span>`:''}
+          <span class="bmove"><select onchange="moveStudent('${s.id}', this.value)">${moveOpts(s.busId)}</select></span>
+        </div>`).join('');
+      return `<div class="bclass"><div class="cname"><span>${escapeHtml(cls)} · ${list.length}</span>${split?'<span class="split-badge">↔ split</span>':''}</div>${rows}</div>`;
+    }).join('') : `<div class="bus-empty">No students yet — Auto-allocate or move them here.</div>`;
+    return `<div class="bus-card ${over?'over':''}">
+      <div class="bhead"><span class="bt">${escapeHtml(bus.name)}</span><span class="load">${load} / ${bus.cap}${over?' ⚠':''}</span></div>
+      <div class="cap-bar"><div class="cap-fill" style="width:${pct}%"></div></div>
+      ${body}
+    </div>`;
+  };
+
+  let html = buses.map(cardFor).join('');
+  const unseated = roster.filter(s => !s.busId);
+  if (unseated.length) {
+    const rows = unseated.map(s => `
+      <div class="bstudent">
+        <span class="bhouse" style="background:${HOUSE_COLOR[s.house]||'#ccc'}"></span>
+        ${escapeHtml(s.name)}${s.cls?` <span style="color:#aaa;font-size:0.85em">${escapeHtml(s.cls)}</span>`:''}
+        <span class="bmove"><select onchange="moveStudent('${s.id}', this.value)">${moveOpts('')}</select></span>
+      </div>`).join('');
+    html += `<div class="bus-card unassigned"><div class="bhead"><span class="bt">⚠ Not seated</span><span class="load">${unseated.length}</span></div><div class="cap-bar"><div class="cap-fill" style="width:0%;background:#bbb"></div></div><div class="bclass">${rows}</div></div>`;
+  }
+  document.getElementById('busGrid').innerHTML = html || `<div class="bus-empty" style="grid-column:1/-1">Import a roster to get started.</div>`;
+}
+function moveStudent(sid, busId) {
+  const s = state.busData.roster.find(x => x.id === sid);
+  if (!s) return;
+  s.busId = busId || null;
+  save(); renderBuses();
+}
+function resetBuses() {
+  if (!confirm('Clear the bus roster and allocations? Bus definitions are kept.')) return;
+  state.busData.roster = [];
+  save(); renderBuses();
+}
+function exportBuses() {
+  const rows = [['Bus','Class','Name','Year','House']];
+  state.busData.buses.forEach(b => {
+    state.busData.roster.filter(s => s.busId===b.id)
+      .sort((a,b)=> (a.cls||'').localeCompare(b.cls||'') || a.name.localeCompare(b.name))
+      .forEach(s => rows.push([b.name, s.cls||'', s.name, s.year||'', s.house?HOUSES.find(h=>h.key===s.house).name:'']));
+  });
+  state.busData.roster.filter(s=>!s.busId).forEach(s => rows.push(['NOT SEATED', s.cls||'', s.name, s.year||'', s.house?HOUSES.find(h=>h.key===s.house).name:'']));
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bus-allocation.csv'; a.click(); URL.revokeObjectURL(a.href);
+}
+function printBuses() { window.print(); }
+
+/* ---------- Bus roster import ---------- */
+let busRows = [];
+let busCols = { name:-1, first:-1, last:-1, cls:-1, year:-1, house:-1 };
+function openBusImport() {
+  document.getElementById('busImportOverlay').classList.add('open');
+  document.getElementById('bstep-config').classList.add('hidden');
+  document.getElementById('busReplaceWrap').classList.add('hidden');
+  document.getElementById('busConfirmBtn').disabled = true;
+  document.getElementById('busPasteBox').value = '';
+  busRows = [];
+}
+function closeBusImport() { document.getElementById('busImportOverlay').classList.remove('open'); }
+const busDz = document.getElementById('busDropzone');
+const busFileEl = document.getElementById('busFile');
+busDz.addEventListener('click', () => busFileEl.click());
+busDz.addEventListener('dragover', e => { e.preventDefault(); busDz.classList.add('drag'); });
+busDz.addEventListener('dragleave', () => busDz.classList.remove('drag'));
+busDz.addEventListener('drop', e => { e.preventDefault(); busDz.classList.remove('drag'); if (e.dataTransfer.files[0]) readBusFile(e.dataTransfer.files[0]); });
+busFileEl.addEventListener('change', e => { if (e.target.files[0]) readBusFile(e.target.files[0]); });
+function readBusFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const wb = XLSX.read(reader.result, { type:'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      ingestBusRows(XLSX.utils.sheet_to_json(ws, { header:1, raw:false, defval:'' }));
+    } catch(err) { alert('Could not read that file. Try .xlsx or CSV, or paste instead.'); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+function parseBusPaste() {
+  const text = document.getElementById('busPasteBox').value;
+  if (!text.trim()) { alert('Paste some rows first.'); return; }
+  try {
+    const wb = XLSX.read(text, { type:'string', raw:true });
+    ingestBusRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1, raw:false, defval:'' }));
+  } catch(err) {
+    const rows = text.replace(/\r/g,'').split('\n').filter(l=>l.trim()!=='').map(l => l.includes('\t') ? l.split('\t') : l.split(','));
+    ingestBusRows(rows);
+  }
+}
+function ingestBusRows(rows) {
+  rows = (rows||[]).filter(r => r.some(c => String(c).trim() !== ''));
+  if (!rows.length) { alert('No rows found.'); return; }
+  busRows = rows;
+  busCols = { name:-1, first:-1, last:-1, cls:-1, year:-1, house:-1 };
+  (rows[0]||[]).map(h => String(h).toLowerCase().trim()).forEach((h,i) => {
+    if (busCols.cls<0 && /(class|room|homegroup|home group|form|teacher)/.test(h)) busCols.cls = i;
+    else if (busCols.house<0 && /(house|team|colour|color|faction)/.test(h)) busCols.house = i;
+    else if (busCols.year<0 && /(year|grade|level)/.test(h)) busCols.year = i;
+    else if (busCols.first<0 && /(first|given)/.test(h)) busCols.first = i;
+    else if (busCols.last<0 && /(last|surname|family)/.test(h)) busCols.last = i;
+    else if (busCols.name<0 && /(name|student|pupil|child)/.test(h)) busCols.name = i;
+  });
+  if (busCols.name<0 && busCols.first<0) busCols.name = 0;
+  if (busCols.cls<0) { for (let i=0;i<(rows[0]||[]).length;i++){ if (i!==busCols.name && i!==busCols.first && i!==busCols.last){ busCols.cls=i; break; } } }
+  buildBusMapGrid();
+  document.getElementById('bstep-config').classList.remove('hidden');
+  document.getElementById('busReplaceWrap').classList.remove('hidden');
+  rebuildBusPreview();
+}
+function buildBusMapGrid() {
+  const header = busRows[0]||[];
+  const width = Math.max(...busRows.map(r => r.length));
+  let colOpts = `<option value="-1">— none —</option>`;
+  for (let i=0;i<width;i++){ const label = String(header[i]||'').trim() || ('Column '+(i+1)); colOpts += `<option value="${i}">${escapeHtml(label)} (col ${i+1})</option>`; }
+  const roles = [['name','Full name'],['first','First name'],['last','Last name / initial'],['cls','Class / room'],['year','Year / grade'],['house','House']];
+  document.getElementById('busMapGrid').innerHTML = roles.map(([k,lbl]) =>
+    `<div class="field"><label>${lbl}</label>
+      <select onchange="busCols['${k}']=parseInt(this.value); rebuildBusPreview();">
+        ${colOpts.replace(`value="${busCols[k]}"`, `value="${busCols[k]}" selected`)}
+      </select></div>`).join('');
+}
+function resolveBusImport() {
+  const hasHeader = document.getElementById('busHasHeader').checked;
+  const data = busRows.slice(hasHeader ? 1 : 0);
+  return data.map(row => {
+    let name = cell(row, busCols.name);
+    if (!name) name = [cell(row, busCols.first), cell(row, busCols.last)].filter(Boolean).join(' ').trim();
+    const cls = cell(row, busCols.cls);
+    const year = cell(row, busCols.year);
+    const house = normHouse(cell(row, busCols.house));
+    const problems = [];
+    if (!name) problems.push('no name');
+    return { name, cls, year, house, problems };
+  }).filter(r => r.name || r.cls);
+}
+function rebuildBusPreview() {
+  const list = resolveBusImport();
+  const rowsHtml = list.map(r => {
+    const bad = r.problems.length>0;
+    const hchip = r.house ? `<span class="hchip" style="background:${HOUSE_COLOR[r.house]}">${HOUSES.find(h=>h.key===r.house).name}</span>` : '<span style="color:#bbb">—</span>';
+    return `<tr class="${bad?'bad':''}">
+      <td>${escapeHtml(r.name)||'<span class="warn">⚠ missing</span>'}</td>
+      <td>${escapeHtml(r.cls)||'<span style="color:#bbb">(no class)</span>'}</td>
+      <td>${escapeHtml(r.year)||''}</td>
+      <td>${hchip}</td></tr>`;
+  }).join('');
+  document.getElementById('busPreviewTable').innerHTML = `<tr><th>Name</th><th>Class</th><th>Year</th><th>House</th></tr>` + rowsHtml;
+  const ready = list.filter(r => r.problems.length===0);
+  document.getElementById('busImportSummary').innerHTML =
+    `<span class="ok">✓ ${ready.length} students</span>` +
+    (list.length-ready.length>0 ? `<span class="no">⚠ ${list.length-ready.length} missing a name</span>` : '');
+  document.getElementById('busConfirmBtn').disabled = ready.length===0;
+  window.__resolvedBusImport = ready;
+}
+function confirmBusImport() {
+  const list = window.__resolvedBusImport || [];
+  if (!list.length) return;
+  if (document.getElementById('busReplaceMode').checked) state.busData.roster = [];
+  list.forEach(r => state.busData.roster.push({ id: uid(), name: r.name, cls: r.cls, year: r.year, house: r.house, busId: null }));
+  save(); closeBusImport();
+  showView('buses');
+  allocateBuses();
+  alert(`Loaded ${list.length} students. Auto-allocated across ${state.busData.buses.length} buses.`);
+}
+
+/* =========================================================
    UTIL / INIT
    ========================================================= */
 function escapeHtml(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -865,6 +1340,7 @@ document.getElementById('p2').value = state.settings.p2;
 document.getElementById('p3').value = state.settings.p3;
 document.getElementById('pp').value = state.settings.pp;
 document.getElementById('importOverlay').addEventListener('click', e => { if (e.target.id==='importOverlay') closeImport(); });
+document.getElementById('busImportOverlay').addEventListener('click', e => { if (e.target.id==='busImportOverlay') closeBusImport(); });
 
 renderAll();
 </script>
