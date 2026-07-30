@@ -232,14 +232,48 @@
   .bstudent .bmove select { font-size:0.75em; padding:2px 4px; border-radius:6px; border:1px solid #e0ded7; }
   .bus-empty { padding:22px; text-align:center; color:#bbb; font-weight:600; font-size:0.85em; }
 
+  /* ---------- Printable event sheets ---------- */
+  #printArea { display:none; }
+  .sheet {
+    page-break-after: always; padding: 4mm 3mm; color:#000;
+    font-family: 'Century Gothic', 'Avenir', Arial, sans-serif;
+  }
+  .sheet:last-child { page-break-after: auto; }
+  .sheet h1 { text-align:center; font-size: 15pt; font-weight:800; letter-spacing:0.5px; }
+  .sheet .instr { text-align:center; font-style:italic; font-size:8.5pt; color:#333; margin:2px 0 8px; }
+  .sheet-cols { display:flex; gap:5mm; align-items:flex-start; }
+  .sheet-col { flex:1; display:flex; flex-direction:column; gap:5mm; }
+  .hbox { border:1px solid #000; break-inside:avoid; }
+  .hbox .hh { text-align:center; font-weight:800; padding:3px; border-bottom:1px solid #000; font-size:11pt; letter-spacing:0.5px;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .hbox.flinders  .hh { background:#FBE2A0; }
+  .hbox.goldstein .hh { background:#BBD0EE; }
+  .hbox.mabo      .hh { background:#C4E1C4; }
+  .hbox.freeman   .hh { background:#EDB9B9; }
+  table.sh { width:100%; border-collapse:collapse; }
+  table.sh th, table.sh td { border:1px solid #000; font-size:7.5pt; padding:2px 4px; text-align:left; }
+  table.sh th { font-weight:800; text-align:center; background:#fff; }
+  table.sh td.c { text-align:center; }
+  table.sh td.name { font-size:8pt; }
+  .hbox .foot { font-size:8pt; padding:5px 6px; display:flex; gap:14px; flex-wrap:wrap; align-items:baseline; }
+  .hbox .foot .tot { margin-left:auto; }
+  .hbox .foot b { font-weight:800; }
+
   @media print {
     body { padding:0; background:#fff; }
+    /* default cleanup */
     .viewswitch, .toolbar, .bus-options, .bus-config, .footer-note, .bmove { display:none !important; }
-    #view-scoring { display:none !important; }
-    .bus-grid { grid-template-columns: 1fr 1fr; gap:10px; }
-    .bus-card { break-inside:avoid; box-shadow:none; border:1px solid #ccc; }
-    .header { background:#fff !important; box-shadow:none; padding:6px 0; }
-    .title-block h1 { color:#000 !important; }
+
+    /* BUS mode */
+    body.print-buses #view-scoring { display:none !important; }
+    body.print-buses .bus-grid { grid-template-columns: 1fr 1fr; gap:10px; }
+    body.print-buses .bus-card { break-inside:avoid; box-shadow:none; border:1px solid #ccc; }
+    body.print-buses .header { background:#fff !important; box-shadow:none; padding:6px 0; }
+    body.print-buses .title-block h1 { color:#000 !important; }
+
+    /* EVENT-SHEETS mode: show only #printArea */
+    body.print-sheets > *:not(#printArea) { display:none !important; }
+    body.print-sheets #printArea { display:block !important; }
   }
 
   /* ---------- Import modal ---------- */
@@ -311,6 +345,7 @@
       </div>
       <div class="toolbar">
         <button class="btn primary" onclick="openImport()">👥 Import students</button>
+        <button class="btn" onclick="openSheets()">🖨 Print event sheets</button>
         <button class="btn" onclick="exportData()">⬇ Export</button>
         <button class="btn" onclick="document.getElementById('importFile').click()">⬆ Load scores</button>
         <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importScores(event)">
@@ -434,6 +469,35 @@
     </div>
   </div>
 </div>
+
+<!-- ===================== EVENT SHEETS MODAL ===================== -->
+<div class="overlay" id="sheetsOverlay">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head">
+      <h2>🖨 Print Event Sheets</h2>
+      <span class="x" onclick="closeSheets()">✕</span>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.9em; color:#555; margin-bottom:14px;">Generates a printable scoring sheet for each event — four house boxes, pre-filled with each athlete's first &amp; last name, ready for placings, ticks and times to be written in on the day.</p>
+      <div class="step">
+        <h4>Which sheets?</h4>
+        <div class="radio-row" style="flex-direction:column; gap:10px;">
+          <label><input type="radio" name="sheetScope" value="current" checked> Just this age group — <b id="sheetsCurrentLabel"></b> (its events)</label>
+          <label><input type="radio" name="sheetScope" value="all"> Every age group &amp; event (full booklet)</label>
+        </div>
+      </div>
+      <p style="font-size:0.82em; color:#888; margin-top:6px;">💡 In the print dialog, choose <b>“Save as PDF”</b> as the destination to download the sheets, or pick your printer to print them.</p>
+    </div>
+    <div class="modal-foot">
+      <div style="flex:1"></div>
+      <button class="btn" onclick="closeSheets()">Cancel</button>
+      <button class="btn primary" onclick="generateSheets()">Generate sheets</button>
+    </div>
+  </div>
+</div>
+
+<!-- printable sheets get injected here -->
+<div id="printArea"></div>
 
 <!-- ===================== IMPORT MODAL ===================== -->
 <div class="overlay" id="importOverlay">
@@ -1615,7 +1679,74 @@ function exportBuses() {
   const blob = new Blob([csv], {type:'text/csv'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bus-allocation.csv'; a.click(); URL.revokeObjectURL(a.href);
 }
-function printBuses() { window.print(); }
+function printBuses() {
+  document.body.classList.add('print-buses');
+  const cleanup = () => { document.body.classList.remove('print-buses'); window.removeEventListener('afterprint', cleanup); };
+  window.addEventListener('afterprint', cleanup);
+  window.print();
+  setTimeout(cleanup, 1000);
+}
+
+/* =========================================================
+   PRINTABLE EVENT SCORING SHEETS
+   ========================================================= */
+function openSheets() {
+  const g = GROUPS.find(x => x.key === current.group);
+  document.getElementById('sheetsCurrentLabel').textContent = g.label;
+  const cur = document.querySelector('input[name="sheetScope"][value="current"]');
+  if (cur) cur.checked = true;
+  document.getElementById('sheetsOverlay').classList.add('open');
+}
+function closeSheets() { document.getElementById('sheetsOverlay').classList.remove('open'); }
+
+function splitName(name) {
+  const parts = String(name||'').trim().split(/\s+/);
+  if (parts.length <= 1) return { first: parts[0]||'', last: '' };
+  return { first: parts.slice(0,-1).join(' '), last: parts[parts.length-1] };
+}
+function houseBoxHTML(gk, house) {
+  const students = state.students[gk][house.key].slice().sort((a,b)=> a.name.localeCompare(b.name));
+  const spare = Math.max(2, 8 - students.length);   // a few blank rows for late entries
+  let rows = students.map(s => {
+    const nm = splitName(s.name);
+    return `<tr><td class="c"></td><td class="c"></td><td class="name">${escapeHtml(nm.first)}</td><td class="name">${escapeHtml(nm.last)}</td><td></td></tr>`;
+  }).join('');
+  for (let i=0;i<spare;i++) rows += `<tr><td class="c">&nbsp;</td><td class="c"></td><td></td><td></td><td></td></tr>`;
+  return `<div class="hbox ${house.key}">
+    <div class="hh">${house.name.toUpperCase()}</div>
+    <table class="sh">
+      <tr><th>Placing (1,2,3)</th><th>Participated (✓)</th><th>First Name</th><th>Last Name</th><th>Time/Distance</th></tr>
+      ${rows}
+    </table>
+    <div class="foot"><span>Placing Points: <b>______</b></span><span>Participation Points: <b>______</b></span><span class="tot">Total Event Points: <b>__________</b></span></div>
+  </div>`;
+}
+function eventSheetHTML(g, ev) {
+  const byKey = k => HOUSES.find(h=>h.key===k);
+  return `<div class="sheet">
+    <h1>${g.label.toUpperCase()} — EVENT: ${ev.toUpperCase()}</h1>
+    <div class="instr">**Please fill out total event points for each house prior to sending this sheet to the scoring table.</div>
+    <div class="sheet-cols">
+      <div class="sheet-col">${houseBoxHTML(g.key, byKey('flinders'))}${houseBoxHTML(g.key, byKey('mabo'))}</div>
+      <div class="sheet-col">${houseBoxHTML(g.key, byKey('goldstein'))}${houseBoxHTML(g.key, byKey('freeman'))}</div>
+    </div>
+  </div>`;
+}
+function generateSheets() {
+  const scope = document.querySelector('input[name="sheetScope"]:checked').value;
+  const groups = scope === 'current' ? [GROUPS.find(x=>x.key===current.group)] : GROUPS;
+  let html = '';
+  groups.forEach(g => g.events.forEach(ev => { html += eventSheetHTML(g, ev); }));
+  const area = document.getElementById('printArea');
+  area.innerHTML = html;
+  closeSheets();
+  document.body.classList.add('print-sheets');
+  // only toggle the mode class; leave #printArea populated (it's hidden on screen by CSS)
+  const cleanup = () => { document.body.classList.remove('print-sheets'); window.removeEventListener('afterprint', cleanup); };
+  window.addEventListener('afterprint', cleanup);
+  // let the DOM paint before opening the print dialog
+  setTimeout(() => { window.print(); setTimeout(cleanup, 2500); }, 60);
+}
 
 /* ---------- Bus roster import ---------- */
 let busRows = [];
@@ -1745,6 +1876,9 @@ document.getElementById('p3').value = state.settings.p3;
 document.getElementById('pp').value = state.settings.pp;
 document.getElementById('importOverlay').addEventListener('click', e => { if (e.target.id==='importOverlay') closeImport(); });
 document.getElementById('busImportOverlay').addEventListener('click', e => { if (e.target.id==='busImportOverlay') closeBusImport(); });
+document.getElementById('sheetsOverlay').addEventListener('click', e => { if (e.target.id==='sheetsOverlay') closeSheets(); });
+// ensure the print container is a direct child of <body> so print-sheets mode can isolate it
+document.body.appendChild(document.getElementById('printArea'));
 
 renderAll();
 </script>
