@@ -128,9 +128,12 @@
   .roster { flex:1; padding: 8px; display:flex; flex-direction:column; gap:6px; min-height: 40px; }
   .student { display:grid; grid-template-columns: 1fr auto auto auto; gap:6px; align-items:center; padding:6px 8px; border-radius:10px; background:#f6f5f1; }
   .student.placed { background: #fff7e0; box-shadow: inset 0 0 0 2px rgba(242,183,5,0.4); }
-  .student .sname { font-weight:700; font-size:0.9em; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:flex; align-items:center; gap:4px; }
-  .student .sname .del { color:#c33; cursor:pointer; font-weight:900; opacity:0.35; }
+  .student .sname { font-weight:700; font-size:0.9em; color:#333; display:flex; align-items:center; gap:4px; min-width:0; }
+  .student .sname .nm { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .student .sname .del { color:#c33; cursor:pointer; font-weight:900; opacity:0.35; flex:none; }
   .student .sname .del:hover { opacity:1; }
+  .movegrp { flex:none; margin-left:auto; font-size:0.72em; font-weight:800; color:#777; border:1px solid #e0ded7; border-radius:6px; background:#fff; padding:2px 2px; max-width:26px; cursor:pointer; }
+  .movegrp:hover { border-color:#999; color:#333; }
   .age-badge { background:#e7e4dc; color:#666; font-size:0.68em; font-weight:800; padding:1px 6px; border-radius:999px; }
   .place-sel { font-size:0.8em; font-weight:800; padding:4px 6px; border-radius:8px; border:2px solid #e0ded7; background:#fff; cursor:pointer; }
   .place-sel.p1 { background:#FFD700; border-color:#e6be00; }
@@ -363,6 +366,7 @@
       </div>
       <div class="toolbar">
         <button class="btn primary" onclick="openBusImport()">👥 Import roster</button>
+        <button class="btn" onclick="busLoadFromRoster()" title="Pull every student from the athletics roster (using their homegroup as class)">🔄 Load from athletics</button>
         <button class="btn" onclick="allocateBuses()">⚙ Auto-allocate</button>
         <button class="btn" onclick="printBuses()">🖨 Print</button>
         <button class="btn" onclick="exportBuses()">⬇ Export CSV</button>
@@ -540,32 +544,401 @@ const HOUSE_COLOR = { flinders:'#F2B705', goldstein:'#4183D7', mabo:'#5FAE5F', f
 const BASE_EVENTS = ['100m','High Jump','Long Jump','Discus','Shotput','Hurdles'];
 const FULL_EVENTS = [...BASE_EVENTS, '200m','1500m'];
 
+// Age bands (by default: Yr3→8/9, Yr4→9/10, Yr5→11/12, Yr6→12/13). Students can be moved between bands.
 const GROUPS = [
-  { key:'g3b',   label:'Grade 3 Boys',  gender:'b', band:'g3',   events: BASE_EVENTS },
-  { key:'g3g',   label:'Grade 3 Girls', gender:'g', band:'g3',   events: BASE_EVENTS },
-  { key:'910b',  label:'9/10 Boys',     gender:'b', band:'910',  events: FULL_EVENTS },
-  { key:'910g',  label:'9/10 Girls',    gender:'g', band:'910',  events: FULL_EVENTS },
-  { key:'11b',   label:'11 Boys',       gender:'b', band:'11',   events: FULL_EVENTS },
-  { key:'11g',   label:'11 Girls',      gender:'g', band:'11',   events: FULL_EVENTS },
-  { key:'1213b', label:'12/13 Boys',    gender:'b', band:'1213', events: FULL_EVENTS },
-  { key:'1213g', label:'12/13 Girls',   gender:'g', band:'1213', events: FULL_EVENTS },
+  { key:'89b',   label:'8/9 Boys',    gender:'b', band:'89',   defYear:'3', events: BASE_EVENTS },
+  { key:'89g',   label:'8/9 Girls',   gender:'g', band:'89',   defYear:'3', events: BASE_EVENTS },
+  { key:'910b',  label:'9/10 Boys',   gender:'b', band:'910',  defYear:'4', events: FULL_EVENTS },
+  { key:'910g',  label:'9/10 Girls',  gender:'g', band:'910',  defYear:'4', events: FULL_EVENTS },
+  { key:'1112b', label:'11/12 Boys',  gender:'b', band:'1112', defYear:'5', events: FULL_EVENTS },
+  { key:'1112g', label:'11/12 Girls', gender:'g', band:'1112', defYear:'5', events: FULL_EVENTS },
+  { key:'1213b', label:'12/13 Boys',  gender:'b', band:'1213', defYear:'6', events: FULL_EVENTS },
+  { key:'1213g', label:'12/13 Girls', gender:'g', band:'1213', defYear:'6', events: FULL_EVENTS },
 ];
+const BAND_YEAR = { '89':'3', '910':'4', '1112':'5', '1213':'6' };
 function groupKey(gender, band) {
   const g = GROUPS.find(x => x.gender === gender && x.band === band);
   return g ? g.key : null;
 }
 
-/* Seed rosters — Year Four Girls (9/10 Girls) from the official scoring sheet */
-const SEED = {
-  '910g': {
-    flinders:  ['Ai-Da S','Amalia V','Anthea C','Chloe J','Freya C','Harriet W','Katelyn T','Molly S','Pham Phuoc An D','Sarah M','Siya P'],
-    goldstein: ['Amelia','Anna','Audrey','Bella','Francesca','Georgina','Hannah','Heidi','Lily','Olive','Zoe'],
-    mabo:      ['Alexandra','Angel','Audrey','Camille','Charlotte','Ellayna','Errong','Estelle','Georgia','Grace','Ivy','Juliet','Maya','Natalie','Olivia','Savannah','Sihan','Zoe'],
-    freeman:   ['Caitlin','Clementine','Eadie','Ivy','Ivy L','Lila','Lily','Taylor','Yuzi'],
-  }
-};
+/* Full Year 3–6 roster (name, gender b/g, band, house, homegroup) — loaded on first run / reset */
+const ROSTER=[
+["Tommy A","b","89","freeman","I3P"],
+["Ciara A","g","89","goldstein","I3L"],
+["Xavier A","b","89","flinders","I3A"],
+["Vincent B","b","89","freeman","I3A"],
+["Lucy B","g","89","freeman","I3A"],
+["Margaret B","g","89","mabo","I3S"],
+["Sebastian B","b","89","freeman","I3A"],
+["Beatrix B","g","89","goldstein","I3P"],
+["Nora B","g","89","flinders","I3S"],
+["Grace B","g","89","freeman","I3P"],
+["Imogen B","g","89","flinders","I3L"],
+["Ranulf B","b","89","goldstein","I3P"],
+["Nicholas C","b","89","flinders","I3B"],
+["Tiffany C","g","89","mabo","I3A"],
+["Sebastian C","b","89","freeman","I3S"],
+["Aiden D","b","89","goldstein","I3A"],
+["Gus D","b","89","mabo","I3B"],
+["Harvey D","b","89","flinders","I3B"],
+["Tia E","g","89","goldstein","I3L"],
+["Levison E","b","89","flinders","I3P"],
+["Orion E","b","89","goldstein","I3L"],
+["Henry F","b","89","mabo","I3S"],
+["Charles G","b","89","mabo","I3L"],
+["Eve G","g","89","goldstein","I3B"],
+["Luella G","g","89","mabo","I3A"],
+["Simon G","b","89","goldstein","I3B"],
+["Henry G","b","89","mabo","I3P"],
+["Yuheng H","g","89","flinders","I3P"],
+["Tristan H","b","89","freeman","I3B"],
+["Eloise H","g","89","freeman","I3L"],
+["Auston H","b","89","mabo","I3L"],
+["Max J","b","89","goldstein","I3S"],
+["Imogen K","g","89","goldstein","I3P"],
+["Vivienne K","g","89","flinders","I3S"],
+["Chrysta-Yee L","g","89","flinders","I3S"],
+["Sebastian L","b","89","flinders","I3P"],
+["Elly L","g","89","goldstein","I3B"],
+["Kenji L","b","89","freeman","I3B"],
+["Fermat L","b","89","goldstein","I3P"],
+["Lisa L","g","89","mabo","I3B"],
+["Lui L","b","89","flinders","I3L"],
+["Jordan L","b","89","mabo","I3L"],
+["Celine L","g","89","goldstein","I3L"],
+["Ava L","g","89","freeman","I3A"],
+["Lucy L","g","89","freeman","I3S"],
+["Clara L","g","89","freeman","I3B"],
+["Chris M","b","89","flinders","I3A"],
+["Arthur M","b","89","freeman","I3S"],
+["Leo M","b","89","freeman","I3L"],
+["Oliver M","b","89","freeman","I3P"],
+["William M","b","89","mabo","I3A"],
+["Darcy M","b","89","freeman","I3S"],
+["John M","b","89","freeman","I3L"],
+["Eila M","g","89","mabo","I3L"],
+["Timothy N","b","89","freeman","I3A"],
+["Nanako N","g","89","goldstein","I3L"],
+["Harriet O","g","89","flinders","I3A"],
+["Kitty O","g","89","mabo","I3S"],
+["Michelle O","g","89","freeman","I3L"],
+["Diana O","g","89","goldstein","I3A"],
+["Radha O","g","89","mabo","I3P"],
+["Lily P","g","89","freeman","I3B"],
+["Anna P","g","89","mabo","I3L"],
+["Jasmine P","g","89","mabo","I3A"],
+["Bowen P","b","89","flinders","I3L"],
+["Siena P","g","89","mabo","I3B"],
+["Amiya P","g","89","goldstein","I3P"],
+["William R","b","89","mabo","I3B"],
+["Hailey R","g","89","freeman","I3P"],
+["Ethan R","b","89","flinders","I3B"],
+["Luella R","g","89","goldstein","I3S"],
+["Isabella R","g","89","goldstein","I3B"],
+["Eva R","g","89","goldstein","I3A"],
+["Arthur R","b","89","goldstein","I3S"],
+["Cyrus R","b","89","flinders","I3S"],
+["Tom S","b","89","freeman","I3S"],
+["Cassandra S","g","89","freeman","I3L"],
+["Grace S","g","89","flinders","I3B"],
+["Orson S","b","89","goldstein","I3S"],
+["Maya S","g","89","flinders","I3P"],
+["Parthiv S","b","89","goldstein","I3B"],
+["Isabella S","g","89","freeman","I3A"],
+["Ai Liya S","g","89","flinders","I3A"],
+["Olivia T","g","89","flinders","I3B"],
+["Havish T","b","89","goldstein","I3B"],
+["Claira T","g","89","flinders","I3P"],
+["Sum T","b","89","freeman","I3A"],
+["Alexander W","b","89","freeman","I3P"],
+["Finley W","b","89","freeman","I3S"],
+["Lincoln W","b","89","flinders","I3B"],
+["Zoe W","g","89","mabo","I3P"],
+["Oscar W","b","89","mabo","I3P"],
+["Anne W","g","89","goldstein","I3A"],
+["Colin X","b","89","flinders","I3S"],
+["Jeffrey X","b","89","flinders","I3P"],
+["Vanessa Y","g","89","flinders","I3S"],
+["Xize Z","b","89","flinders","I3A"],
+["Qiyao Z","b","89","mabo","I3L"],
+["Olivia Z","g","89","mabo","I3S"],
+["Jayden Z","b","89","mabo","I3L"],
+["Soakimi A","b","910","goldstein","I4C"],
+["Aarya A","g","910","mabo","I4C"],
+["Amelia A","g","910","goldstein","I4R"],
+["Ayaan B","b","910","flinders","I4R"],
+["Piper C","g","910","mabo","I4F"],
+["Victoria C","g","910","flinders","I4F"],
+["Anya C","g","910","mabo","I4C"],
+["Xichen C","b","910","flinders","I4M"],
+["Jordan C","b","910","mabo","I4C"],
+["Patrick C","b","910","freeman","I4F"],
+["Chiara C","g","910","freeman","I4F"],
+["Imogen C","g","910","freeman","I4R"],
+["Jack C","b","910","goldstein","I4R"],
+["Noah D","b","910","freeman","I4C"],
+["Leo D","b","910","goldstein","I4F"],
+["Louie D","b","910","goldstein","I4R"],
+["Matteo D","b","910","mabo","I4M"],
+["Vy D","g","910","flinders","I4C"],
+["William E","b","910","mabo","I4M"],
+["Millie E","g","910","mabo","I4C"],
+["Charlotte F","g","910","freeman","I4C"],
+["Archie G","b","910","goldstein","I4M"],
+["Oliver G","b","910","mabo","I4C"],
+["Rory G","b","910","freeman","I4C"],
+["Jeremy H","b","910","goldstein","I4F"],
+["Christopher H","b","910","mabo","I4C"],
+["Murphy H","g","910","freeman","I4R"],
+["Oliver H","b","910","freeman","I4M"],
+["James H","b","910","freeman","I4F"],
+["Noah H","b","910","goldstein","I4M"],
+["Georgina H","g","910","freeman","I4M"],
+["Daisy H","g","910","flinders","I4M"],
+["Frederick H","b","910","freeman","I4R"],
+["Adam H","b","910","freeman","I4C"],
+["Audrey I","g","910","freeman","I4C"],
+["Annabel J","g","910","freeman","I4F"],
+["Blair J","g","910","flinders","I4R"],
+["Adrian J","b","910","flinders","I4C"],
+["Caleb K","b","910","flinders","I4M"],
+["Scarlett K","g","910","freeman","I4F"],
+["Matilda L","g","910","mabo","I4M"],
+["Natasha L","g","910","goldstein","I4R"],
+["Yat Hei L","b","910","flinders","I4C"],
+["Eleanor L","g","910","flinders","I4C"],
+["Harper L","g","910","flinders","I4C"],
+["Thomas L","b","910","mabo","I4M"],
+["Ferra L","g","910","flinders","I4M"],
+["Miller L","b","910","mabo","I4M"],
+["Austin L","b","910","flinders","I4R"],
+["Annie L","g","910","flinders","I4M"],
+["Benjamin M","b","910","freeman","I4C"],
+["Miles M","b","910","mabo","I4R"],
+["Rahul M","b","910","flinders","I4F"],
+["Eve M","g","910","goldstein","I4R"],
+["Sophie M","g","910","freeman","I4M"],
+["Ivy M","g","910","flinders","I4F"],
+["Alina M","g","910","mabo","I4R"],
+["Audrey N","g","910","freeman","I4F"],
+["Harper N","g","910","goldstein","I4M"],
+["Roxy N","g","910","goldstein","I4C"],
+["Mehrnaz N","g","910","flinders","I4M"],
+["Gerald O","b","910","flinders","I4M"],
+["Lucien O","b","910","goldstein","I4R"],
+["Ridley O","b","910","goldstein","I4R"],
+["Chloe P","g","910","freeman","I4F"],
+["Michelle P","g","910","goldstein","I4F"],
+["Jenson P","b","910","mabo","I4F"],
+["Isla P","g","910","goldstein","I4R"],
+["Georgia P","g","910","mabo","I4R"],
+["Ascher P","b","910","mabo","I4F"],
+["Zachary Q","b","910","flinders","I4C"],
+["Akshara R","g","910","goldstein","I4F"],
+["Thomas R","b","910","freeman","I4R"],
+["Jude R","b","910","mabo","I4M"],
+["Kiyan S","b","910","freeman","I4R"],
+["Laith S","b","910","flinders","I4R"],
+["Katerina S","g","910","mabo","I4C"],
+["Matilda S","g","910","goldstein","I4C"],
+["Hari S","b","910","goldstein","I4R"],
+["Claire S","g","910","freeman","I4R"],
+["Ghazal S","g","910","mabo","I4C"],
+["Victoria S","g","910","freeman","I4M"],
+["Eli S","b","910","flinders","I4C"],
+["Misha S","g","910","mabo","I4R"],
+["Deborah T","g","910","mabo","I4F"],
+["Archer T","g","910","freeman","I4F"],
+["Indraarjun U","b","910","goldstein","I4F"],
+["Olivia V","g","910","goldstein","I4M"],
+["Boxiang W","b","910","goldstein","I4F"],
+["Xinyao W","b","910","mabo","I4M"],
+["Kai W","b","910","flinders","I4R"],
+["Oscar W","b","910","flinders","I4F"],
+["Huxley W","b","910","goldstein","I4F"],
+["Kyra W","g","910","goldstein","I4F"],
+["Bora Y","b","910","freeman","I4F"],
+["Madison Y","g","910","freeman","I4M"],
+["Zien Y","g","910","mabo","I4M"],
+["Xizhe Z","b","910","goldstein","I4M"],
+["Yinuo Z","g","910","flinders","I4M"],
+["Luca B","b","910","flinders","I4F"],
+["Zhiyong D","b","910","mabo","I4R"],
+["Ivy A","g","1112","mabo","L5U"],
+["Levi B","b","1112","freeman","L5H"],
+["Anderson B","b","1112","mabo","L5H"],
+["James B","b","1112","mabo","L5U"],
+["Elliot B","b","1112","mabo","L5M"],
+["Jude B","b","1112","freeman","L5M"],
+["Lucas C","b","1112","freeman","L5U"],
+["Anthea C","g","1112","flinders","L5U"],
+["Andre C","b","1112","mabo","L5E"],
+["Freya C","g","1112","flinders","L5H"],
+["Audrey C","g","1112","mabo","L5H"],
+["Edward C","b","1112","goldstein","L5U"],
+["An Yang C","b","1112","freeman","L5U"],
+["Tate D","b","1112","mabo","L5H"],
+["Juliet D","g","1112","mabo","L5H"],
+["Max D","b","1112","mabo","L5U"],
+["Heidi D","g","1112","goldstein","L5M"],
+["Georgia D","g","1112","mabo","L5E"],
+["Grace D","g","1112","mabo","L5U"],
+["Carter D","b","1112","freeman","L5M"],
+["Maya F","g","1112","mabo","L5E"],
+["Lily E","g","1112","freeman","L5U"],
+["Lily F","g","1112","goldstein","L5U"],
+["Francesca F","g","1112","goldstein","L5M"],
+["Zoe G","g","1112","mabo","L5M"],
+["Olivia G","g","1112","mabo","L5M"],
+["Fangkun G","b","1112","mabo","L5U"],
+["Lila H","g","1112","freeman","L5U"],
+["Joshua H","b","1112","freeman","L5U"],
+["Ellayna H","g","1112","mabo","L5E"],
+["Charlotte H","g","1112","mabo","L5U"],
+["Angel H","g","1112","mabo","L5E"],
+["Caitlin H","g","1112","freeman","L5H"],
+["Alexandra I","g","1112","mabo","L5M"],
+["Chloe J","g","1112","flinders","L5H"],
+["Joshua J","b","1112","goldstein","L5M"],
+["Finley K","b","1112","goldstein","L5E"],
+["Thomas K","b","1112","flinders","L5H"],
+["Max L","b","1112","flinders","L5H"],
+["Chak Lam L","b","1112","mabo","L5H"],
+["Hin Lok Aiden L","b","1112","flinders","L5H"],
+["Yuzi L","g","1112","freeman","L5E"],
+["Natalie L","g","1112","mabo","L5U"],
+["Luca L","b","1112","flinders","L5H"],
+["Savannah M","g","1112","mabo","L5M"],
+["Ivy M","g","1112","freeman","L5M"],
+["Aarya M","b","1112","freeman","L5U"],
+["Estelle M","g","1112","flinders","L5M"],
+["Olive M","g","1112","goldstein","L5M"],
+["Samantha M","g","1112","flinders","L5U"],
+["Gordon M","b","1112","flinders","L5H"],
+["Charles M","b","1112","freeman","L5M"],
+["Sarah M","g","1112","flinders","L5U"],
+["Anders M","b","1112","freeman","L5M"],
+["Jonathan M","b","1112","freeman","L5E"],
+["Ivy M","g","1112","freeman","L5H"],
+["Xavier N","b","1112","freeman","L5U"],
+["Vian N","g","1112","mabo","L5E"],
+["Camille N","g","1112","mabo","L5H"],
+["Audrey O","g","1112","goldstein","L5M"],
+["Estelle P","g","1112","mabo","L5U"],
+["Anna P","g","1112","goldstein","L5E"],
+["Siya P","g","1112","flinders","L5H"],
+["Oliver P","b","1112","goldstein","L5H"],
+["Sebastian Q","b","1112","freeman","L5E"],
+["Jaxon R","b","1112","goldstein","L5M"],
+["Bella R","g","1112","goldstein","L5H"],
+["Maxwell R","b","1112","goldstein","L5E"],
+["Jack S","b","1112","freeman","L5E"],
+["Bhaveen S","b","1112","mabo","L5E"],
+["Kieran S","b","1112","flinders","L5E"],
+["Hugo S","b","1112","goldstein","L5U"],
+["Molly S","g","1112","flinders","L5E"],
+["Ai Da S","g","1112","flinders","L5H"],
+["Yisen T","b","1112","mabo","L5M"],
+["Alestar T","b","1112","freeman","L5M"],
+["Katelyn T","g","1112","flinders","L5U"],
+["Clementine T","g","1112","freeman","L5H"],
+["Yuen Ison T","b","1112","freeman","L5U"],
+["Ari V","b","1112","goldstein","L5U"],
+["Oliver V","b","1112","goldstein","L5M"],
+["Josef V","b","1112","goldstein","L5M"],
+["Albert W","b","1112","flinders","L5M"],
+["An He W","b","1112","goldstein","L5M"],
+["Jack W","b","1112","flinders","L5E"],
+["Zoe W","g","1112","goldstein","L5H"],
+["Han W","b","1112","goldstein","L5E"],
+["Eadie Y","g","1112","freeman","L5M"],
+["Toby Z","b","1112","goldstein","L5U"],
+["Hannah Z","g","1112","goldstein","L5U"],
+["Sihan Z","g","1112","mabo","L5E"],
+["Haoran Z","b","1112","flinders","L5H"],
+["Federico A","b","1213","freeman","L6N"],
+["Joshua A","b","1213","mabo","L6N"],
+["Edward A","b","1213","mabo","L6N"],
+["Alice A","g","1213","mabo","L6H"],
+["Hassen B","b","1213","flinders","L6M"],
+["Rabia B","g","1213","mabo","L6M"],
+["Matilda B","g","1213","freeman","L6M"],
+["Arthur B","b","1213","goldstein","L6M"],
+["Lewis B","b","1213","flinders","L6M"],
+["Eloise C","g","1213","flinders","L6H"],
+["Luis C","b","1213","goldstein","L6N"],
+["Xia C","g","1213","freeman","L6M"],
+["Tze Yiu C","b","1213","flinders","L6M"],
+["Aria D","g","1213","flinders","L6H"],
+["Sophie D","g","1213","flinders","L6M"],
+["Massy D","g","1213","flinders","L6M"],
+["William G","b","1213","goldstein","L6N"],
+["Sam G","b","1213","mabo","L6N"],
+["William G","b","1213","flinders","L6H"],
+["Matilda G","g","1213","freeman","L6M"],
+["Thomas H","b","1213","freeman","L6N"],
+["Lucas H","b","1213","goldstein","L6H"],
+["Marcus H","b","1213","freeman","L6N"],
+["Annabel H","g","1213","freeman","L6H"],
+["Kara H","g","1213","freeman","L6M"],
+["Amelia I","g","1213","freeman","L6N"],
+["Hugh J","b","1213","goldstein","L6H"],
+["Will K","b","1213","flinders","L6H"],
+["Madeleine K","g","1213","goldstein","L6H"],
+["Alexander K","b","1213","flinders","L6N"],
+["Abby K","g","1213","freeman","L6H"],
+["Alannah K","g","1213","goldstein","L6N"],
+["Tanishka R","g","1213","mabo","L6N"],
+["Charlotte L","g","1213","flinders","L6H"],
+["Marcus L","b","1213","goldstein","L6M"],
+["Matthew L","b","1213","flinders","L6N"],
+["Dakota L","g","1213","goldstein","L6H"],
+["Leo L","b","1213","freeman","L6M"],
+["Thomas M","b","1213","mabo","L6N"],
+["Izabella M","g","1213","freeman","L6M"],
+["Jaden M","b","1213","mabo","L6M"],
+["Emily M","g","1213","mabo","L6H"],
+["Matilda M","g","1213","goldstein","L6M"],
+["Jacob M","b","1213","flinders","L6N"],
+["Luc M","b","1213","freeman","L6M"],
+["Luke N","b","1213","freeman","L6H"],
+["Georgia N","g","1213","goldstein","L6H"],
+["Eran N","b","1213","mabo","L6N"],
+["Michelle O","g","1213","goldstein","L6N"],
+["Beatrix O","g","1213","goldstein","L6H"],
+["Owen O","b","1213","freeman","L6H"],
+["James P","b","1213","freeman","L6H"],
+["Aarica P","g","1213","goldstein","L6N"],
+["Georgie P","g","1213","goldstein","L6M"],
+["Hudson P","b","1213","mabo","L6H"],
+["Astrid P","g","1213","goldstein","L6N"],
+["Mahi P","g","1213","goldstein","L6M"],
+["Samhita P","g","1213","flinders","L6N"],
+["Zihuan Q","b","1213","mabo","L6H"],
+["Niamh R","g","1213","freeman","L6H"],
+["Raghav R","b","1213","goldstein","L6M"],
+["William R","b","1213","flinders","L6H"],
+["William R","b","1213","mabo","L6N"],
+["Prithvi Mohan S","b","1213","goldstein","L6N"],
+["Xuetong S","g","1213","freeman","L6M"],
+["Ai Vie S","g","1213","flinders","L6N"],
+["Yifan S","b","1213","mabo","L6H"],
+["Abigail T","g","1213","mabo","L6H"],
+["Jun Shuang Jordan T","b","1213","goldstein","L6M"],
+["Jun Shen Jonas T","b","1213","goldstein","L6M"],
+["Brianna T","g","1213","mabo","L6M"],
+["Flynn T","b","1213","freeman","L6H"],
+["Olivia T","g","1213","goldstein","L6N"],
+["Edmund U","b","1213","freeman","L6M"],
+["Claire W","g","1213","mabo","L6N"],
+["Zara W","g","1213","flinders","L6H"],
+["Ada W","g","1213","mabo","L6M"],
+["Xitong Y","g","1213","mabo","L6N"],
+["Austin Z","b","1213","mabo","L6M"],
+["Jackie Z","g","1213","flinders","L6N"]
+];
 
-const STORE_KEY = 'i3s-athletics-v1';
+const STORE_KEY = 'i3s-athletics-v2';
 let state = load();
 let current = { group: '910g', event: '100m' };
 
@@ -579,10 +952,11 @@ function blankState() {
     s.results[g.key] = {};
     g.events.forEach(ev => s.results[g.key][ev] = {});
   });
-  Object.keys(SEED).forEach(gk => {
-    HOUSES.forEach(h => {
-      (SEED[gk][h.key] || []).forEach(nm => s.students[gk][h.key].push({ id: uid(), name: nm }));
-    });
+  ROSTER.forEach(([name, gender, band, house, hg]) => {
+    const gk = groupKey(gender, band);
+    if (gk && s.students[gk] && s.students[gk][house]) {
+      s.students[gk][house].push({ id: uid(), name, hg });
+    }
   });
   s.busData = defaultBusData();
   return s;
@@ -695,8 +1069,16 @@ function renderGrid() {
       const r = res(gk, ev, s.id);
       const pcls = r.place ? 'p'+r.place : '';
       const age = (s.age!==undefined && s.age!=='' && s.age!==null) ? `<span class="age-badge">${escapeHtml(String(s.age))}</span>` : '';
+      const moveOpts = GROUPS.filter(x => x.key !== gk)
+        .map(x => `<option value="${x.key}">→ ${x.label}</option>`).join('');
       return `<div class="student ${r.place?'placed':''}">
-        <div class="sname"><span class="del" title="Remove athlete" onclick="removeStudent('${gk}','${h.key}','${s.id}')">✕</span>${escapeHtml(s.name)}${age}</div>
+        <div class="sname">
+          <span class="del" title="Remove athlete" onclick="removeStudent('${gk}','${h.key}','${s.id}')">✕</span>
+          <span class="nm">${escapeHtml(s.name)}</span>${age}
+          <select class="movegrp" title="Move to another age group" onchange="moveStudentToGroup('${gk}','${h.key}','${s.id}', this.value)">
+            <option value="" selected>⇄</option>${moveOpts}
+          </select>
+        </div>
         <select class="place-sel ${pcls}" title="Placing" onchange="setPlace('${gk}','${ev}','${s.id}', this.value)">
           <option value="0" ${r.place===0?'selected':''}>–</option>
           <option value="1" ${r.place===1?'selected':''}>1st</option>
@@ -762,6 +1144,16 @@ function removeStudent(gk, hkey, sid) {
   state.students[gk][hkey] = state.students[gk][hkey].filter(s => s.id !== sid);
   Object.values(state.results[gk]).forEach(bucket => { delete bucket[sid]; });
   save(); renderGrid(); renderContext(); renderTelly(); renderEventTabs(); renderBreakdown();
+}
+function moveStudentToGroup(fromGk, hkey, sid, toGk) {
+  if (!toGk || toGk === fromGk) return;
+  const idx = state.students[fromGk][hkey].findIndex(s => s.id === sid);
+  if (idx < 0) return;
+  const [stud] = state.students[fromGk][hkey].splice(idx, 1);
+  // clear this athlete's results in the old group (events may differ between groups)
+  Object.values(state.results[fromGk]).forEach(bucket => { delete bucket[sid]; });
+  state.students[toGk][hkey].push(stud);      // keeps same house
+  save(); renderAll();
 }
 function setPlace(gk, ev, sid, val) {
   const r = res(gk, ev, sid);
@@ -923,17 +1315,18 @@ function normGender(v) {
 }
 function normBand(yearVal, ageVal) {
   const y = String(yearVal||'').toLowerCase();
-  if (/(^|\D)3\b/.test(y) || /three|prep.*3|yr ?3|year ?3|grade ?3/.test(y)) return 'g3';
-  if (/(^|\D)4\b/.test(y) || /four|yr ?4|year ?4|grade ?4/.test(y)) return '910';
-  if (/(^|\D)5\b/.test(y) || /five|yr ?5|year ?5|grade ?5/.test(y)) return '11';
-  if (/(^|\D)6\b/.test(y) || /six|yr ?6|year ?6|grade ?6/.test(y)) return '1213';
+  const dm = y.match(/[3-6]/);                      // handles "Year 4", "4", homegroups like "I3A"/"L5E"
+  if (/three|yr ?3|year ?3|grade ?3/.test(y) || (dm && dm[0]==='3')) return '89';
+  if (/four|yr ?4|year ?4|grade ?4/.test(y)  || (dm && dm[0]==='4')) return '910';
+  if (/five|yr ?5|year ?5|grade ?5/.test(y)  || (dm && dm[0]==='5')) return '1112';
+  if (/six|yr ?6|year ?6|grade ?6/.test(y)   || (dm && dm[0]==='6')) return '1213';
   // fall back to age
   const a = parseInt(ageVal,10);
   if (!isNaN(a)) {
-    if (a <= 8) return 'g3';
-    if (a === 9 || a === 10) return '910';
-    if (a === 11) return '11';
-    if (a >= 12) return '1213';
+    if (a <= 9) return '89';
+    if (a === 10) return '910';
+    if (a === 11 || a === 12) return '1112';
+    if (a >= 13) return '1213';
   }
   return null;
 }
@@ -1198,6 +1591,17 @@ function resetBuses() {
   if (!confirm('Clear the bus roster and allocations? Bus definitions are kept.')) return;
   state.busData.roster = [];
   save(); renderBuses();
+}
+function busLoadFromRoster() {
+  const all = [];
+  GROUPS.forEach(g => HOUSES.forEach(h => {
+    state.students[g.key][h.key].forEach(s => all.push({ id: uid(), name: s.name, cls: s.hg||'', year: g.defYear||'', house: h.key, busId: null }));
+  }));
+  if (!all.length) { alert('No students in the athletics roster yet.'); return; }
+  if (state.busData.roster.length && !confirm(`Replace the current bus roster with all ${all.length} athletics students?`)) return;
+  state.busData.roster = all;
+  save(); allocateBuses();
+  alert(`Loaded ${all.length} students from the athletics roster. Set your bus sizes, then Auto-allocate.`);
 }
 function exportBuses() {
   const rows = [['Bus','Class','Name','Year','House']];
