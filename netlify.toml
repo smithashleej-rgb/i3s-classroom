@@ -1,0 +1,19 @@
+# Netlify configuration for the House Athletics Scoring Platform
+# The whole repo root is published as a static site (no build step needed).
+
+[build]
+  publish = "."
+  command = ""
+
+# Serve the athletics platform at the site root (clean URL, no filename needed).
+[[redirects]]
+  from = "/"
+  to = "/athletics-scoring-platform.html"
+  status = 200
+
+# Keep the site out of search engines (it contains a student roster).
+# Link-only access — not indexed or listed by Google/Bing.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
