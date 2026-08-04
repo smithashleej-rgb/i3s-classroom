@@ -233,6 +233,36 @@
   .bstudent .bmove select { font-size:0.75em; padding:2px 4px; border-radius:6px; border:1px solid #e0ded7; }
   .bus-empty { padding:22px; text-align:center; color:#bbb; font-weight:600; font-size:0.85em; }
 
+  /* ---------- Enter results view ---------- */
+  .results-panel { background:#fff; border-radius:18px; box-shadow:0 4px 18px rgba(0,0,0,0.06); overflow:hidden; }
+  .results-list { display:flex; flex-direction:column; }
+  .rrow {
+    display:grid; grid-template-columns: 44px 1fr 120px 150px; gap:12px; align-items:center;
+    padding:9px 18px; border-bottom:1px solid #f2f1ec;
+  }
+  .rrow:last-child { border-bottom:none; }
+  .rrow.ranked { background:#fffdf3; }
+  .rrow .rk { font-size:1.15em; font-weight:900; text-align:center; color:#bbb; }
+  .rrow .rk.medal { font-size:1.25em; }
+  .rrow .rname { font-weight:700; color:#333; display:flex; align-items:center; gap:10px; min-width:0; }
+  .rrow .rname .hd { width:11px; height:11px; border-radius:50%; flex:none; }
+  .rrow .rname .nt { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rrow .rhouse { font-weight:700; font-size:0.85em; text-align:right; }
+  .rrow .rres { display:flex; align-items:center; gap:8px; justify-content:flex-end; }
+  .rrow .rres input.resbox {
+    width:96px; font-family:inherit; font-size:0.95em; font-weight:700; text-align:center;
+    padding:8px 6px; border-radius:9px; border:2px solid #e3e1db;
+  }
+  .rrow .rres input.resbox:focus { outline:none; border-color:#3f7d3f; }
+  .rrow .rres .took { display:flex; align-items:center; gap:4px; font-size:0.72em; font-weight:800; color:#999; }
+  .rrow .rres .took input { width:18px; height:18px; accent-color:#4CAF50; }
+  .rhead {
+    display:grid; grid-template-columns: 44px 1fr 120px 150px; gap:12px;
+    padding:10px 18px; background:#f4f3ee; font-size:0.72em; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:#999;
+  }
+  .rhead .r4 { text-align:right; }
+  .results-empty { padding:26px; text-align:center; color:#bbb; font-weight:600; }
+
   /* ---------- Printable event sheets ---------- */
   #printArea { display:none; }
   .sheet {
@@ -333,6 +363,7 @@
 
   <div class="viewswitch">
     <button class="vbtn active" id="vb-scoring" onclick="showView('scoring')">🏅 Scoring</button>
+    <button class="vbtn" id="vb-results" onclick="showView('results')">📝 Enter results</button>
     <button class="vbtn" id="vb-buses" onclick="showView('buses')">🚌 Bus allocator</button>
   </div>
 
@@ -366,8 +397,8 @@
       <div class="event-tabs" id="eventTabs"></div>
     </div>
     <div class="settings-inline">
-      <div class="field"><label>1st</label><input class="txt" id="p1" type="number" min="0" value="3" onchange="saveSettings()"></div>
-      <div class="field"><label>2nd</label><input class="txt" id="p2" type="number" min="0" value="2" onchange="saveSettings()"></div>
+      <div class="field"><label>1st</label><input class="txt" id="p1" type="number" min="0" value="5" onchange="saveSettings()"></div>
+      <div class="field"><label>2nd</label><input class="txt" id="p2" type="number" min="0" value="3" onchange="saveSettings()"></div>
       <div class="field"><label>3rd</label><input class="txt" id="p3" type="number" min="0" value="1" onchange="saveSettings()"></div>
       <div class="field"><label>Participation</label><input class="txt" id="pp" type="number" min="0" value="1" onchange="saveSettings()"></div>
     </div>
@@ -425,6 +456,49 @@
     Bus allocation is saved to this browser only. Use Print for a clean per-bus roll-call sheet.
   </div>
 </div><!-- /view-buses -->
+
+<!-- ===================== ENTER RESULTS VIEW ===================== -->
+<div id="view-results" class="hidden">
+  <div class="header">
+    <div class="header-top">
+      <div class="title-block">
+        <h1>📝 Enter Results</h1>
+        <p class="muted-line">Type results in from the hardcopy sheets. Places &amp; points fill in automatically.</p>
+      </div>
+      <div class="telly" id="tellyR" style="grid-template-columns:repeat(4,minmax(0,1fr)); min-width:520px;"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="field">
+      <label>Sheet number</label>
+      <input class="txt" id="sheetNoInput" type="number" min="1" style="width:120px" onchange="onSheetNoChange()">
+    </div>
+    <div class="field"><label>Event</label>
+      <select id="rEventSel" onchange="onResultsSelChange()"></select>
+    </div>
+    <div class="field"><label>Age group</label>
+      <select id="rGroupSel" onchange="onResultsSelChange()"></select>
+    </div>
+    <div class="field" style="flex:1; min-width:180px;">
+      <label>&nbsp;</label>
+      <div id="sheetJump" style="font-weight:700; color:#888; font-size:0.85em;"></div>
+    </div>
+  </div>
+
+  <div class="context-bar">
+    <h2 id="rTitle"></h2>
+    <div class="sub" id="rSub"></div>
+  </div>
+
+  <div class="results-panel">
+    <div class="results-list" id="resultsList"></div>
+  </div>
+
+  <div class="footer-note">
+    Anyone with a result (or ticked) scores a participation point; 1st/2nd/3rd are ranked automatically from the results and earn the placing bonus on top.
+  </div>
+</div><!-- /view-results -->
 
 <!-- ===================== BUS IMPORT MODAL ===================== -->
 <div class="overlay" id="busImportOverlay">
@@ -625,6 +699,28 @@ function groupKey(gender, band) {
   const g = GROUPS.find(x => x.gender === gender && x.band === band);
   return g ? g.key : null;
 }
+
+// Track events: fastest (lowest) wins. Field events: furthest/highest (largest) wins.
+const TRACK_EVENTS = ['100m','200m','1500m','Hurdles'];
+function isTrack(ev){ return TRACK_EVENTS.includes(ev); }
+// Parse a time string ("13.8", "1:24.5", "1:05:03") to seconds, or a field mark ("3.45") to a number.
+function parseResult(str, track) {
+  const s = String(str||'').trim();
+  if (!s) return null;
+  if (track && s.includes(':')) {
+    const parts = s.split(':').map(Number);
+    if (parts.some(isNaN)) return null;
+    return parts.reduce((acc,v)=> acc*60 + v, 0);
+  }
+  const v = parseFloat(s.replace(/[^0-9.]/g,''));
+  return isNaN(v) ? null : v;
+}
+
+// Stable sheet numbering: group order × its events → sheets 1..N
+const SHEETS = [];
+GROUPS.forEach(g => g.events.forEach(ev => SHEETS.push({ n: SHEETS.length+1, gk: g.key, ev })));
+function sheetNo(gk, ev){ const s = SHEETS.find(x => x.gk===gk && x.ev===ev); return s ? s.n : null; }
+function sheetByNo(n){ return SHEETS.find(x => x.n === Number(n)) || null; }
 
 /* Full Year 3–6 roster (name, gender b/g, band, house, homegroup) — loaded on first run / reset */
 const ROSTER=[
@@ -1011,7 +1107,7 @@ let current = { group: '910g', event: '100m' };
    PERSISTENCE
    ========================================================= */
 function blankState() {
-  const s = { students:{}, results:{}, settings:{ p1:3, p2:2, p3:1, pp:1 } };
+  const s = { students:{}, results:{}, settings:{ p1:5, p2:3, p3:1, pp:1 }, settingsVersion:2 };
   GROUPS.forEach(g => {
     s.students[g.key] = { flinders:[], goldstein:[], mabo:[], freeman:[] };
     s.results[g.key] = {};
@@ -1040,7 +1136,9 @@ function load() {
       s.results[g.key] = s.results[g.key] || {};
       g.events.forEach(ev => s.results[g.key][ev] = s.results[g.key][ev] || {});
     });
-    s.settings = s.settings || { p1:3, p2:2, p3:1, pp:1 };
+    s.settings = s.settings || { p1:5, p2:3, p3:1, pp:1 };
+    // one-time migration to the 1 / +5 / +3 / +1 scoring
+    if (!s.settingsVersion || s.settingsVersion < 2) { s.settings = { p1:5, p2:3, p3:1, pp:1 }; s.settingsVersion = 2; }
     s.busData = s.busData || defaultBusData();
     s.busData.buses = (s.busData.buses && s.busData.buses.length) ? s.busData.buses : defaultBusData().buses;
     s.busData.roster = s.busData.roster || [];
@@ -1487,11 +1585,131 @@ function confirmImport() {
    VIEW SWITCHER
    ========================================================= */
 function showView(v) {
-  document.getElementById('view-scoring').classList.toggle('hidden', v!=='scoring');
-  document.getElementById('view-buses').classList.toggle('hidden', v!=='buses');
-  document.getElementById('vb-scoring').classList.toggle('active', v==='scoring');
-  document.getElementById('vb-buses').classList.toggle('active', v==='buses');
+  ['scoring','results','buses'].forEach(name => {
+    document.getElementById('view-'+name).classList.toggle('hidden', v!==name);
+    document.getElementById('vb-'+name).classList.toggle('active', v===name);
+  });
   if (v==='buses') renderBuses();
+  if (v==='results') renderResults();
+}
+
+/* =========================================================
+   ENTER RESULTS (fast entry from the hardcopy sheets)
+   ========================================================= */
+let rSel = { group: '910g', event: '100m' };
+
+function onSheetNoChange() {
+  const n = parseInt(document.getElementById('sheetNoInput').value, 10);
+  const s = sheetByNo(n);
+  if (s) { rSel = { group: s.gk, event: s.ev }; }
+  renderResults();
+}
+function onResultsSelChange() {
+  rSel.group = document.getElementById('rGroupSel').value;
+  rSel.event = document.getElementById('rEventSel').value;
+  const g = GROUPS.find(x=>x.key===rSel.group);
+  if (!g.events.includes(rSel.event)) rSel.event = g.events[0];
+  renderResults();
+}
+
+// recompute 1st/2nd/3rd for a group+event from the entered results
+function recomputeRanks(gk, ev) {
+  const track = isTrack(ev);
+  const bucket = state.results[gk][ev];
+  const scored = [];
+  HOUSES.forEach(h => state.students[gk][h.key].forEach(s => {
+    const r = bucket[s.id];
+    const val = r ? parseResult(r.mark, track) : null;
+    if (val !== null) scored.push({ sid: s.id, val });
+    if (r) r.place = 0;   // reset; reassigned below
+  }));
+  scored.sort((a,b) => track ? (a.val - b.val) : (b.val - a.val));
+  scored.slice(0,3).forEach((x,i) => { bucket[x.sid].place = i+1; });
+}
+function setResult(gk, ev, sid, value) {
+  const r = res(gk, ev, sid);
+  r.mark = value;
+  if (value.trim() !== '') r.part = true;
+  recomputeRanks(gk, ev);
+  save(); updateResultsUI(gk, ev); renderTelly();
+}
+function toggleTook(gk, ev, sid, checked) {
+  const r = res(gk, ev, sid);
+  r.part = checked;
+  if (!checked && (!r.mark || r.mark.trim()==='')) r.place = 0;
+  recomputeRanks(gk, ev);
+  save(); updateResultsUI(gk, ev); renderTelly();
+}
+// update rank badges + tally in place (keeps focus/scroll while entering)
+function updateResultsUI(gk, ev) {
+  const medal = ['','🥇','🥈','🥉'];
+  document.querySelectorAll('#resultsList .rrow').forEach(row => {
+    const sid = row.getAttribute('data-sid');
+    const r = (state.results[gk][ev] || {})[sid] || {};
+    const ranked = r.place > 0;
+    row.classList.toggle('ranked', ranked);
+    const rk = row.querySelector('.rk');
+    rk.textContent = ranked ? medal[r.place] : '–';
+    rk.classList.toggle('medal', ranked);
+    const cb = row.querySelector('.took input');
+    if (cb) cb.checked = !!r.part;
+  });
+  renderTellyR();
+}
+
+function renderTellyR() {
+  const totals = HOUSES.map(h => ({ ...h, total: houseGrandTotal(h.key) }));
+  const max = Math.max(...totals.map(t=>t.total), 0);
+  document.getElementById('tellyR').innerHTML = totals.map(t =>
+    `<div class="house-score ${t.cls} ${t.total===max&&max>0?'leader':''}" style="padding:10px 12px">
+       <div class="hname" style="font-size:0.85em">${t.name}</div>
+       <div class="pts" style="font-size:1.8em">${t.total}<small>PTS</small></div>
+     </div>`).join('');
+}
+
+function renderResults() {
+  const g = GROUPS.find(x => x.key === rSel.group);
+  if (!g.events.includes(rSel.event)) rSel.event = g.events[0];
+  const ev = rSel.event, gk = g.key;
+  const track = isTrack(ev);
+
+  // sync the three selectors
+  document.getElementById('rGroupSel').innerHTML = GROUPS.map(x=>`<option value="${x.key}" ${x.key===gk?'selected':''}>${x.label}</option>`).join('');
+  document.getElementById('rEventSel').innerHTML = g.events.map(e=>`<option value="${e}" ${e===ev?'selected':''}>${e}</option>`).join('');
+  document.getElementById('sheetNoInput').value = sheetNo(gk, ev);
+  document.getElementById('sheetJump').textContent = `Sheet 1–${SHEETS.length} · ${SHEETS.length} sheets total`;
+
+  const dirText = track ? 'fastest wins · enter in seconds (e.g. 13.8 or 1:24.5)'
+                        : 'furthest / highest wins · enter in metres (e.g. 3.45)';
+  document.getElementById('rTitle').textContent = `Sheet ${sheetNo(gk,ev)} · ${ev} — ${g.label}`;
+  document.getElementById('rSub').textContent = dirText;
+
+  // gather all athletes in this group across houses
+  const rows = [];
+  HOUSES.forEach(h => state.students[gk][h.key].forEach(s => rows.push({ s, h })));
+  rows.sort((a,b) => a.h.name.localeCompare(b.h.name) || a.s.name.localeCompare(b.s.name));
+
+  const medal = ['','🥇','🥈','🥉'];
+  const list = rows.length ? `
+    <div class="rhead"><div>Place</div><div>Athlete</div><div>House</div><div class="r4">${track?'Time':'Distance / Height'}</div></div>` +
+    rows.map(({s,h}) => {
+      const r = state.results[gk][ev][s.id] || {};
+      const ranked = r.place>0;
+      return `<div class="rrow ${ranked?'ranked':''}" data-sid="${s.id}">
+        <div class="rk ${ranked?'medal':''}">${ranked?medal[r.place]:'–'}</div>
+        <div class="rname"><span class="hd" style="background:${HOUSE_COLOR[h.key]}"></span><span class="nt">${escapeHtml(s.name)}</span></div>
+        <div class="rhouse" style="color:${HOUSE_COLOR[h.key]}">${h.name}</div>
+        <div class="rres">
+          <label class="took"><input type="checkbox" ${r.part?'checked':''} onchange="toggleTook('${gk}','${ev}','${s.id}', this.checked)">took part</label>
+          <input class="resbox" value="${escapeHtml(r.mark||'')}" placeholder="${track?'sec':'m'}"
+                 onchange="setResult('${gk}','${ev}','${s.id}', this.value)"
+                 onkeydown="if(event.key==='Enter'){this.blur();}">
+        </div>
+      </div>`;
+    }).join('')
+    : `<div class="results-empty">No athletes in this group yet.</div>`;
+  document.getElementById('resultsList').innerHTML = list;
+  renderTellyR();
 }
 
 /* =========================================================
@@ -1725,7 +1943,7 @@ function houseBoxHTML(gk, house) {
 function eventSheetHTML(g, ev) {
   const byKey = k => HOUSES.find(h=>h.key===k);
   return `<div class="sheet">
-    <h1>${g.label.toUpperCase()} — EVENT: ${ev.toUpperCase()}</h1>
+    <h1>SHEET ${sheetNo(g.key, ev)} · ${g.label.toUpperCase()} — EVENT: ${ev.toUpperCase()}</h1>
     <div class="instr">**Please fill out total event points for each house prior to sending this sheet to the scoring table.</div>
     <div class="sheet-cols">
       <div class="sheet-col">${houseBoxHTML(g.key, byKey('flinders'))}${houseBoxHTML(g.key, byKey('mabo'))}</div>
